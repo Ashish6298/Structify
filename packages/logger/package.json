@@ -1,0 +1,16 @@
+{
+  "name": "@structify/logger",
+  "version": "1.0.0",
+  "description": "Shared logging utility for Structify CLI and MCP server",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

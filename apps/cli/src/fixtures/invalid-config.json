@@ -1,0 +1,12 @@
+{
+  "projectName": "test-invalid-project",
+  "version": "1.0",
+  "stack": {
+    "frontend": "none",
+    "backend": "express",
+    "styling": "tailwind",
+    "database": "postgres",
+    "orm": "mongoose",
+    "packageManager": "npm"
+  }
+}

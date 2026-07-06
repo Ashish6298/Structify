@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Builds and Outputs
+dist/
+build/
+.turbo/
+out/
+.next/
+
+# Logs and Caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+.node_repl_history
+.vitest/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Backups and temporary files
+.structify-backups/
+tmp/
+temp/
+
+# Structify Phase Verification Reports
+phase-*-verification-report.txt
+*-verification-report.txt
+
+# Local Environment Variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Testing and Coverage
+coverage/
+html/
+.nyc_output/
+

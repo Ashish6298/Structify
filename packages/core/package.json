@@ -1,0 +1,21 @@
+{
+  "name": "@structify/core",
+  "version": "1.0.0",
+  "description": "Core Structify validation, planning, execution, and filesystem logic",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@structify/logger": "*"
+  }
+}

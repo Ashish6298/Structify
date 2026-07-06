@@ -1,0 +1,18 @@
+{
+  "projectName": "test-valid-project",
+  "version": "1.0",
+  "stack": {
+    "frontend": "next",
+    "backend": "none",
+    "styling": "tailwind",
+    "database": "postgres",
+    "orm": "prisma",
+    "packageManager": "npm"
+  },
+  "tools": {
+    "docker": true,
+    "eslint": true,
+    "prettier": true,
+    "git": true
+  }
+}
