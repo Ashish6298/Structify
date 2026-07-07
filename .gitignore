@@ -38,6 +38,11 @@ temp/
 # Structify Phase Verification Reports
 phase-*-verification-report.txt
 *-verification-report.txt
+structify-v1-release-blocker-fix-report.txt
+structify-v1-rc-final-audit.txt
+structify-v1-final-release-audit.txt
+structify-roadmap-implementation-audit.txt
+structify-remaining-roadmap-analysis.txt
 
 # Local Environment Variables
 .env
