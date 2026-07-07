@@ -302,7 +302,7 @@ Exists: ${binExists ? 'Yes' : 'No'}
   const expressConfig = writeJsonConfig(configDir, 'express', {
     projectName: 'express-api',
     version: '1.0',
-    mode: 'fullstack',
+    mode: 'backend-only',
     stack: {
       frontend: 'none',
       backend: 'express',

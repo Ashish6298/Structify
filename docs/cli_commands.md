@@ -221,3 +221,61 @@ structify repair [--path <path>] [--dry-run] [--apply] [--yes] [--force] [--json
 
 See [repair_guide.md](./repair_guide.md) for full documentation.
 
+---
+
+## 8. Phase 8 Generation Commands
+
+Phase 8 adds deterministic enterprise template and generator commands without changing existing command behavior.
+
+```bash
+structify generate <project-name> [options]
+structify blueprint [list|show] [blueprint-id] [--json]
+structify templates [list|discover] [--path <path>] [--json]
+structify generators [--json]
+structify validate-template [--config <path>] [--json]
+structify explain-template [template-id] [--json]
+structify preview [--config <path>] [--output <path>] [--json]
+structify plan [--config <path>] [--output <path>] [--json]
+structify render [--config <path>] [--template <id>] [--json]
+```
+
+The commands share the global CLI options: `--json`, `--verbose`, `--debug`, `--cwd`, and `--no-color`.
+`preview` and `plan` use the Phase 8 output planning engine and never write files.
+
+---
+
+## 9. Phase 9-12 Enterprise Platform Commands
+
+Phase 9-12 adds opt-in enterprise generation, registry, graph, diagnostics, merge explanation, profiling, migration, snapshot, and cache commands.
+
+```bash
+structify registry [action] [target] [--json] [--dry-run]
+structify install [action] [target] [--json] [--dry-run]
+structify uninstall [action] [target] [--json] [--dry-run]
+structify update [action] [target] [--json] [--dry-run]
+structify search [action] [target] [--json] [--query <query>]
+structify publish [action] [target] [--json] [--dry-run]
+structify validate-workspace [action] [target] [--json]
+structify diagnose [action] [target] [--json] [--profile]
+structify explain-generation [action] [target] [--json]
+structify explain-merge [action] [target] [--json]
+structify explain-blueprint [action] [target] [--json]
+structify explain-hook [action] [target] [--json]
+structify graph [action] [target] [--json]
+structify dependency-graph [action] [target] [--json]
+structify template-graph [action] [target] [--json]
+structify blueprint-graph [action] [target] [--json]
+structify plugin-graph [action] [target] [--json]
+structify workspace-report [action] [target] [--json]
+structify export-report [action] [target] [--json]
+structify profile [action] [target] [--json]
+structify benchmark [action] [target] [--json]
+structify clean-cache [action] [target] [--json] [--dry-run]
+structify warm-cache [action] [target] [--json] [--dry-run]
+structify migration [action] [target] [--json] [--dry-run]
+structify rollback [action] [target] [--json] [--dry-run]
+structify snapshot [action] [target] [--json] [--dry-run]
+structify restore [action] [target] [--json] [--dry-run]
+```
+
+These commands are additive report and planning surfaces by default. Existing commands keep their previous behavior.

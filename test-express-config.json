@@ -1,7 +1,7 @@
 {
   "projectName": "express-api",
   "version": "1.0",
-  "mode": "fullstack",
+  "mode": "backend-only",
   "stack": {
     "frontend": "none",
     "backend": "express",

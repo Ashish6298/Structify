@@ -8,6 +8,17 @@ import { handleRepair } from './repair.js';
 import { handleVerifyProject } from './verify-project.js';
 import { handleUpgrade } from './upgrade.js';
 import { handlePreset } from './preset.js';
+import {
+  handleBlueprint,
+  handleExplainTemplate,
+  handleGenerators,
+  handlePlan,
+  handlePreview,
+  handleRender,
+  handleTemplates,
+  handleValidateTemplate,
+} from './phase8.js';
+import { handleEnterpriseCommand } from './phase912.js';
 import { createCLIContext } from '../context.js';
 import { wrapAction } from '../utils/middleware.js';
 
@@ -96,6 +107,170 @@ export function registerCommands(program: Command): void {
       const wrapped = wrapAction('verify-project', handleVerifyProject);
       await wrapped(options, commandInstance);
     });
+
+  program
+    .command('blueprint')
+    .description('Inspect Phase 8 project blueprints')
+    .argument('[action]', 'Action to perform: list or show', 'list')
+    .argument('[blueprintId]', 'Blueprint id to resolve')
+    .action(async (action, blueprintId, options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('blueprint', (_opts, ctx) =>
+        handleBlueprint(action, blueprintId, ctx),
+      );
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('templates')
+    .description('List or discover Phase 8 templates')
+    .argument('[action]', 'Action to perform: list or discover', 'list')
+    .option('--path <path>', 'Template registry path to discover')
+    .action(async (action, options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('templates', (_opts, ctx) =>
+        handleTemplates(action, ctx, options),
+      );
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('generators')
+    .description('List Phase 8 artifact generators')
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('generators', (_opts, ctx) => handleGenerators(ctx));
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('validate-template')
+    .description('Validate Phase 8 templates before generation')
+    .option('-c, --config <path>', 'Structify config path used as rendering context')
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('validate-template', (_opts, ctx) =>
+        handleValidateTemplate(ctx, options),
+      );
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('explain-template')
+    .description('Explain a Phase 8 template')
+    .argument('[templateId]', 'Template id to explain')
+    .action(async (templateId, options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('explain-template', (_opts, ctx) =>
+        handleExplainTemplate(templateId, ctx),
+      );
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('preview')
+    .description('Preview a deterministic Phase 8 generation plan')
+    .option('-c, --config <path>', 'Structify config path used as rendering context')
+    .option('--output <path>', 'Target output directory')
+    .option('-d, --dry-run', 'Preview without writing files')
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('preview', (_opts, ctx) => handlePreview(ctx, options));
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('plan')
+    .description('Create a deterministic Phase 8 output plan')
+    .option('-c, --config <path>', 'Structify config path used as rendering context')
+    .option('--output <path>', 'Target output directory')
+    .option('-d, --dry-run', 'Preview without writing files')
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('plan', (_opts, ctx) => handlePlan(ctx, options));
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('render')
+    .description('Render Phase 8 templates to stdout')
+    .option('-c, --config <path>', 'Structify config path used as rendering context')
+    .option('--template <id>', 'Render a single template id')
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('render', (_opts, ctx) => handleRender(ctx, options));
+      await wrapped(options, commandInstance);
+    });
+
+  const enterpriseCommands = [
+    'registry',
+    'install',
+    'uninstall',
+    'update',
+    'search',
+    'publish',
+    'validate-workspace',
+    'diagnose',
+    'explain-generation',
+    'explain-merge',
+    'explain-blueprint',
+    'explain-hook',
+    'graph',
+    'dependency-graph',
+    'template-graph',
+    'blueprint-graph',
+    'plugin-graph',
+    'workspace-report',
+    'export-report',
+    'profile',
+    'benchmark',
+    'clean-cache',
+    'warm-cache',
+    'migration',
+    'rollback',
+    'snapshot',
+    'restore',
+  ];
+  for (const enterpriseCommand of enterpriseCommands) {
+    program
+      .command(enterpriseCommand)
+      .description(`Enterprise generation platform command: ${enterpriseCommand}`)
+      .argument('[action]', 'Command action')
+      .argument('[target]', 'Optional command target')
+      .option('-d, --dry-run', 'Preview enterprise operation without writing files')
+      .option('--interactive', 'Allow interactive resolution when supported')
+      .option('--force', 'Allow intentional overwrite or cache refresh when supported')
+      .option('-y, --yes', 'Apply without confirmation when supported')
+      .option('--profile', 'Include profiling diagnostics')
+      .option('--path <path>', 'Target path')
+      .option('--output <path>', 'Report output path')
+      .option('--query <query>', 'Search query')
+      .action(async (action, target, options, commandInstance) => {
+        const globalOpts = program.opts();
+        const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+        (commandInstance as Command & { context?: unknown }).context = context;
+        const wrapped = wrapAction(enterpriseCommand, (_opts, ctx) =>
+          handleEnterpriseCommand(enterpriseCommand, action, target, ctx, options),
+        );
+        await wrapped(options, commandInstance);
+      });
+  }
 
   program
     .command('validate')

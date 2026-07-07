@@ -29,7 +29,8 @@
     "verify:phase-8-1": "node scripts/verify-phase-8-1.js",
     "verify:phase-8-2": "node scripts/verify-phase-8-2.js",
     "verify:phase-8-2-final": "node scripts/verify-phase-8-2-final.js",
-    "verify:phase-9": "node scripts/verify-phase-9.js"
+    "verify:phase-9": "node scripts/verify-phase-9.js",
+    "verify:phase-9-12": "node scripts/verify-phase-9-12.js"
   },
   "devDependencies": {
     "@eslint/js": "^8.57.0",

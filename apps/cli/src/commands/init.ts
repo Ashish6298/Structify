@@ -48,7 +48,6 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
   const presetManager = new PresetManager(context.cwd);
   const STRUCTIFY_DEFAULTS: Partial<ProjectConfig> = {
     version: '1.0',
-    mode: 'frontend-only',
     language: 'typescript',
     stack: {
       frontend: 'none',
@@ -153,7 +152,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
         prettier: true,
       },
     };
-    if (!options.preset && !options.presetFile) {
+    if (!options.config && !options.preset && !options.presetFile) {
       promptConfig.stack = {
         frontend: 'next',
         backend: 'none',

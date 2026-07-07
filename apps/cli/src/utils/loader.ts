@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { ProjectConfig, validateStack, Result } from '@structify/core';
+import { ProjectConfig, Result } from '@structify/core';
 import { StructifyCLIError } from './error.js';
 
 export interface ConfigLoader {
@@ -55,11 +55,6 @@ export class ConfigurationLoaderManager {
 
     try {
       const config = await loader.load(resolvedPath);
-      const validation = validateStack(config);
-      if (!validation.valid) {
-        const errorMsgs = validation.errors.map((e) => `[${e.code}] ${e.message}`).join(', ');
-        return { success: false, error: `Validation failure: ${errorMsgs}` };
-      }
       return { success: true, data: config };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

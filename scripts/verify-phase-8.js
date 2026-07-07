@@ -80,6 +80,7 @@ Root Workspace Path: ${ROOT}
     'hook_system.md',
     'manifest.md',
     'cli_commands.md',
+    'phase_8_enterprise_template_engine.md',
   ];
   let docsPassed = true;
   let docOutput = 'Documentation Files Checked:\n';
@@ -109,6 +110,12 @@ ${docOutput}
     { title: 'Typecheck', cmd: 'npm run typecheck' },
     { title: 'Full Test-Suite Summary', cmd: 'npm test', timeout: 180000 },
     { title: 'Build Result', cmd: 'npm run build', timeout: 180000 },
+    {
+      title: 'Focused Verification: Phase 8 Enterprise Generation tests',
+      cmd: 'npx vitest run src/generation/enterprise.spec.ts',
+      cwd: path.join(ROOT, 'packages/core'),
+      focused: true,
+    },
     {
       title: 'Focused Verification: Doctor npm-first check',
       cmd: 'node apps/cli/dist/index.js doctor --json',
@@ -194,12 +201,58 @@ Exists: ${binExists ? 'Yes' : 'No'}
   if (!binExists) allPassed = false;
 
   const cli = 'node apps/cli/dist/index.js';
+  const cliSmokeDir = path.join(os.tmpdir(), `structify-phase8-cli-smoke-${Date.now()}`);
+  const cliSmokeConfigDir = path.join(cliSmokeDir, 'configs');
+  fs.mkdirSync(cliSmokeConfigDir, { recursive: true });
+  const cliSmokeConfig = writeConfig(cliSmokeConfigDir, 'express', {
+    projectName: 'cli-smoke-api',
+    version: '1.0',
+    mode: 'backend-only',
+    stack: {
+      frontend: 'none',
+      backend: 'express',
+      styling: 'none',
+      database: 'none',
+      orm: 'none',
+      packageManager: 'npm',
+    },
+    tools: {
+      docker: false,
+      eslint: true,
+      prettier: true,
+      githubActions: false,
+      git: false,
+      editorconfig: true,
+      husky: false,
+      lintStaged: false,
+      commitlint: false,
+    },
+  });
+  const cliSmokeProject = path.join(cliSmokeDir, 'cli-smoke-api');
+  if (
+    !runCheck(
+      'CLI Smoke Setup: generated project',
+      `${cli} init --config ${cliSmokeConfig} --yes --output ${cliSmokeProject}`,
+    )
+  ) {
+    allPassed = false;
+  }
   for (const check of [
     { title: 'CLI Smoke: welcome', cmd: `${cli}` },
     { title: 'CLI Smoke: help', cmd: `${cli} --help` },
     { title: 'CLI Smoke: validate example', cmd: `${cli} validate --example` },
-    { title: 'CLI Smoke: add planning', cmd: `${cli} add tailwind --json` },
+    {
+      title: 'CLI Smoke: add planning',
+      cmd: `${cli} add docker --json --dry-run --path ${cliSmokeProject}`,
+    },
     { title: 'CLI Smoke: repair', cmd: `${cli} repair` },
+    { title: 'CLI Smoke: blueprint', cmd: `${cli} --json blueprint list` },
+    { title: 'CLI Smoke: templates', cmd: `${cli} --json templates list` },
+    { title: 'CLI Smoke: generators', cmd: `${cli} --json generators` },
+    { title: 'CLI Smoke: validate-template', cmd: `${cli} --json validate-template` },
+    { title: 'CLI Smoke: explain-template', cmd: `${cli} --json explain-template base-readme` },
+    { title: 'CLI Smoke: plan', cmd: `${cli} --json plan` },
+    { title: 'CLI Smoke: render', cmd: `${cli} render --template base-readme` },
   ]) {
     if (!runCheck(check.title, check.cmd)) allPassed = false;
   }
@@ -395,6 +448,7 @@ Exists: ${binExists ? 'Yes' : 'No'}
 
   try {
     fs.rmSync(tempDir, { recursive: true, force: true });
+    fs.rmSync(cliSmokeDir, { recursive: true, force: true });
   } catch (error) {
     append(`\nCleanup failed: ${error instanceof Error ? error.message : String(error)}\n`);
   }
