@@ -34,6 +34,7 @@ Thumbs.db
 .structify-backups/
 tmp/
 temp/
+*.tgz
 
 # Structify Phase Verification Reports
 phase-*-verification-report.txt

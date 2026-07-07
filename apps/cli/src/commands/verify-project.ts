@@ -36,10 +36,20 @@ export async function handleVerifyProject(
         stdio: 'pipe',
         env: { ...process.env, CI: 'true' },
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       buildPassed = false;
+
+      const error = e as {
+        stderr?: Buffer;
+        stdout?: Buffer;
+        message?: string;
+      };
+
       buildError =
-        e.stderr?.toString() || e.stdout?.toString() || e.message || 'Unknown build error';
+        error.stderr?.toString() ||
+        error.stdout?.toString() ||
+        error.message ||
+        'Unknown build error';
     }
   }
 
