@@ -1,4 +1,5 @@
 import path from 'path';
+import { execSync } from 'child_process';
 import { runProjectHealthCheck, validateGeneratedProject } from '@structify/core';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
@@ -7,6 +8,8 @@ import { StructifyCLIError } from '../utils/error.js';
 export interface VerifyProjectOptions {
   path?: string;
   strict?: boolean;
+  ci?: boolean;
+  build?: boolean;
 }
 
 export async function handleVerifyProject(
@@ -23,25 +26,49 @@ export async function handleVerifyProject(
   // Structural validation (file shapes, scripts, graph nodes)
   const result = validateGeneratedProject(projectPath);
 
-  // Strict mode: any WARNING or FIXABLE becomes a failure
+  // Optional build check
+  let buildPassed = true;
+  let buildError: string | null = null;
+  if (options.build) {
+    try {
+      execSync('npm run build', {
+        cwd: projectPath,
+        stdio: 'pipe',
+        env: { ...process.env, CI: 'true' },
+      });
+    } catch (e: any) {
+      buildPassed = false;
+      buildError =
+        e.stderr?.toString() || e.stdout?.toString() || e.message || 'Unknown build error';
+    }
+  }
+
+  // Strict mode: any WARNING, FIXABLE, or build failure is a failure
   const strictFailure =
     options.strict === true &&
     (healthReport.diagnostics.some((d) => d.status === 'WARNING' || d.status === 'FIXABLE') ||
-      drift.warnings.length > 0);
+      drift.warnings.length > 0 ||
+      !buildPassed);
 
   const success =
     result.valid &&
     healthReport.diagnostics.every((d) => d.status !== 'ERROR') &&
     drift.errors.length === 0 &&
+    buildPassed &&
     !strictFailure;
 
+  // JSON output format
   if (context.json) {
     output.json({
       success,
       command: 'verify-project',
       projectPath,
       strict: options.strict === true,
-      overallStatus: healthReport.overallStatus,
+      ci: options.ci === true,
+      buildChecked: options.build === true,
+      buildPassed,
+      buildError,
+      overallStatus: success ? 'HEALTHY' : 'CRITICAL',
       healthSummary: healthReport.healthSummary,
       summary: {
         checkedFiles: result.checkedFiles.length,
@@ -55,7 +82,8 @@ export async function handleVerifyProject(
           result.errors.length +
           drift.errors.length +
           healthReport.diagnostics.filter((d) => d.status === 'ERROR').length +
-          (strictFailure ? drift.warnings.length : 0),
+          (strictFailure ? drift.warnings.length : 0) +
+          (buildPassed ? 0 : 1),
       },
       state,
       drift,
@@ -70,14 +98,36 @@ export async function handleVerifyProject(
     return;
   }
 
+  // CI Mode (concise machine-readable diagnostics, no fancy banners)
+  if (options.ci) {
+    if (!success) {
+      if (!buildPassed) {
+        console.error(`[VERIFY:ERROR] Build failed: ${buildError}`);
+      }
+      result.errors.forEach((err) => console.error(`[VERIFY:ERROR] [${err.code}] ${err.message}`));
+      drift.errors.forEach((err) => console.error(`[VERIFY:ERROR] [${err.code}] ${err.message}`));
+      if (options.strict) {
+        result.warnings.forEach((warn) =>
+          console.error(`[VERIFY:STRICT_ERROR] [${warn.code}] ${warn.message}`),
+        );
+      }
+      process.exitCode = 1;
+      return;
+    }
+    console.log(`[VERIFY:PASS] Project at ${projectPath} is valid.`);
+    return;
+  }
+
+  // Human / Interactive mode
   output.heading('Structify Project Verification');
   output.info(`Project: ${projectPath}`);
   output.info(`Strict Mode: ${options.strict === true ? 'yes' : 'no'}`);
-  output.info(`Overall Health Status: ${healthReport.overallStatus}`);
+  output.info(`Overall Health Status: ${success ? 'HEALTHY' : 'CRITICAL'}`);
   output.info(`Checked Files: ${result.checkedFiles.length}`);
   output.info(`Checked Scripts: ${result.checkedScripts.length}`);
   output.info(`Checked Graph Nodes: ${result.checkedGraphNodes.length}`);
   output.info(`Dependency Checks: ${result.dependencyChecks.length}`);
+  output.info(`Build Passed: ${options.build ? (buildPassed ? 'yes' : 'no') : 'skipped'}`);
 
   if (result.warnings.length > 0) {
     result.warnings.forEach((issue) => output.warn(`[${issue.code}] ${issue.message}`));
@@ -94,6 +144,9 @@ export async function handleVerifyProject(
   );
 
   if (!success) {
+    if (!buildPassed && buildError) {
+      output.error(`Build Failure: ${buildError}`);
+    }
     result.errors.forEach((issue) => output.error(`[${issue.code}] ${issue.message}`));
     drift.errors.forEach((issue) => output.error(`[${issue.code}] ${issue.message}`));
     healthErrors.forEach((d) => output.error(`[${d.code}] ${d.message}`));

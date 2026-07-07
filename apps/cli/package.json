@@ -14,10 +14,34 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ashish6298/Structify.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "dependencies": {
-    "@structify/core": "*",
-    "@structify/logger": "*",
     "commander": "^12.1.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@structify/core": "*",
+    "@structify/logger": "*"
+  }
 }

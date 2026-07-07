@@ -145,7 +145,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     promptConfig = await promptEngine.run();
   } else if (options.yes) {
     promptConfig = {
-      projectName: options.projectName || 'my-structify-project',
+      projectName: options.projectName || (options.config ? undefined : 'my-structify-project'),
       tools: {
         docker: false,
         eslint: true,

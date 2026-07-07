@@ -58,7 +58,7 @@ export async function handleAdd(
           modulePlan.code === 'MODULE_INCOMPATIBLE' || modulePlan.code === 'PATCH_CONFLICT'
             ? [{ code: modulePlan.code, message: modulePlan.message }]
             : [],
-        data: { projectPath, ...modulePlan, dryRun },
+        data: { projectPath, ...modulePlan, dryRun, planOnly: true },
       });
       if (modulePlan.code === 'MODULE_INCOMPATIBLE' || modulePlan.code === 'PATCH_CONFLICT') {
         process.exitCode = 1;

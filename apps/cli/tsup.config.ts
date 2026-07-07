@@ -7,6 +7,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
+  noExternal: ['@structify/core', '@structify/logger'],
   banner: {
     js: '#!/usr/bin/env node',
   },

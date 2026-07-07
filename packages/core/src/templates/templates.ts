@@ -148,15 +148,15 @@ export function getLegacyStarterTemplates(
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"]
@@ -168,7 +168,7 @@ export function getLegacyStarterTemplates(
         },
         {
           path: 'src/main.tsx',
-          content: `import React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport App from './App.tsx';\nimport './index.css';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <App />\n  </React.StrictMode>,\n);\n`,
+          content: `import { StrictMode } from 'react';\nimport { createRoot } from 'react-dom/client';\nimport App from './App.tsx';\nimport './index.css';\n\ncreateRoot(document.getElementById('root')!).render(\n  <StrictMode>\n    <App />\n  </StrictMode>,\n);\n`,
         },
         {
           path: 'src/App.tsx',
@@ -257,6 +257,7 @@ export function getLegacyStarterTemplates(
       dependencies.rxjs = '^7.8.0';
       devDependencies.typescript = '^5.0.0';
       devDependencies['@types/node'] = '^20.0.0';
+      devDependencies['@nestjs/cli'] = '^10.0.0';
 
       files.push(
         {

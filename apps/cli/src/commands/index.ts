@@ -98,6 +98,8 @@ export function registerCommands(program: Command): void {
     )
     .option('--path <path>', 'Project path to validate')
     .option('--strict', 'Treat drift warnings as validation errors')
+    .option('--ci', 'Run in CI mode (suppress decorative output, stable exit codes)')
+    .option('--build', 'Perform generated project build checks')
     .addHelpText('after', '\nExamples:\n  $ structify verify-project --path my-project')
     .action(async (options, commandInstance) => {
       const globalOpts = program.opts();

@@ -13,7 +13,10 @@ export class JsonConfigLoader implements ConfigLoader {
 
   async load(filePath: string): Promise<ProjectConfig> {
     try {
-      const content = fs.readFileSync(filePath, 'utf8');
+      let content = fs.readFileSync(filePath, 'utf8');
+      if (content.charCodeAt(0) === 0xfeff) {
+        content = content.substring(1);
+      }
       return JSON.parse(content);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

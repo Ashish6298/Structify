@@ -158,6 +158,15 @@ function repositoryConsistencyChecks() {
     'packages/core/src/adapters/index.spec.ts',
     'scripts/verify-phase-8-2.js',
     'scripts/verify-phase-8-2-final.js',
+    'docs/phase_9_12_enterprise_generation_platform.md',
+    'packages/core/src/generation/enterprise-platform.spec.ts',
+    'packages/core/src/generation/enterprise-platform.ts',
+    'packages/core/src/generation/enterprise.ts',
+    'scripts/verify-phase-9-12.js',
+    'scripts/verify-phase-9.js',
+    'structify-roadmap-implementation-audit.txt',
+    'structify-v1-final-release-audit.txt',
+    'structify-v1-release-blocker-fix-report.txt',
   ].map((file) => path.normalize(path.join(root, file)));
   const staleReportFiles = files.filter(
     (file) =>
@@ -366,21 +375,32 @@ parseJsonCommand(
   (parsed) => {
     if (parsed.success !== true || parsed.command !== 'inspect')
       throw new Error('inspect JSON failed.');
-    if (!parsed.data?.manifest || !parsed.data?.projectGraph || !parsed.data?.config) {
+    if (
+      !parsed.data?.state?.manifest ||
+      !parsed.data?.state?.projectGraph ||
+      !parsed.data?.state?.config
+    ) {
       throw new Error('inspect JSON missing metadata.');
     }
   },
   { cwd: generatedPath },
 );
 
-parseJsonCommand('Doctor JSON smoke validation', `node ${cliBin} --json doctor`, (parsed) => {
-  if (parsed.command !== 'doctor' || !Array.isArray(parsed.data?.checks)) {
-    throw new Error('doctor JSON schema mismatch.');
-  }
-  if (!parsed.data.checks.some((check) => check.name.includes('npm Package Manager'))) {
-    throw new Error('doctor did not validate npm.');
-  }
-});
+parseJsonCommand(
+  'Doctor JSON smoke validation',
+  `node ${cliBin} --json doctor`,
+  (parsed) => {
+    if (parsed.command !== 'doctor' || !Array.isArray(parsed.data?.environmentChecks)) {
+      throw new Error('doctor JSON schema mismatch.');
+    }
+    if (
+      !parsed.data.environmentChecks.some((check) => check.name.includes('npm Package Manager'))
+    ) {
+      throw new Error('doctor did not validate npm.');
+    }
+  },
+  { cwd: generatedPath },
+);
 
 parseJsonCommand(
   'Validate JSON smoke validation',
@@ -397,12 +417,13 @@ parseJsonCommand(
 
 parseJsonCommand(
   'Add command JSON smoke validation',
-  `node ${cliBin} --json add docker`,
+  `node ${cliBin} --json add docker --dry-run`,
   (parsed) => {
     if (parsed.success !== true || parsed.command !== 'add' || parsed.data.planOnly !== true) {
       throw new Error('add JSON should be successful plan-only output.');
     }
   },
+  { cwd: generatedPath },
 );
 
 parseJsonCommand(
@@ -413,6 +434,7 @@ parseJsonCommand(
       throw new Error('repair JSON schema mismatch.');
     }
   },
+  { cwd: generatedPath },
 );
 
 const conflictDir = path.join(tempRoot, 'conflict');
