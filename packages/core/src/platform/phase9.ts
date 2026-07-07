@@ -239,7 +239,7 @@ export function readProjectState(projectPath: string): ProjectState {
 }
 
 function isManagedMutableMetadata(filePath: string): boolean {
-  return filePath === 'structify.manifest.json';
+  return filePath === 'structify.manifest.json' || filePath === 'package.json';
 }
 
 function manifestTemplatePaths(files: string[]): string[] {

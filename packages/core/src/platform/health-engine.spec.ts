@@ -285,6 +285,38 @@ describe('ProjectHealthEngine - Core', () => {
     const moduleDiag = report.diagnostics.find((d) => d.category === 'module_health');
     expect(moduleDiag).toBeDefined();
   });
+
+  it('passes strict validation for package.json changes that are semantic matches', () => {
+    const project = writeProject();
+    // Simulate npm install / formatting change in package.json (extra spacing, fields, or harmless metadata additions)
+    const pkgPath = path.join(project, 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as Record<string, unknown>;
+    pkg.author = 'npm-user';
+    pkg.dependencies = (pkg.dependencies || {}) as Record<string, string>;
+    (pkg.dependencies as Record<string, string>)['some-harmless-extra-package'] = '^1.0.0';
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 4)); // Format with 4 spaces instead of template format
+
+    const report = runProjectHealthCheck(project);
+    const modified = report.diagnostics.find(
+      (d) => d.code === 'GENERATED_FILE_MODIFIED' && d.path === 'package.json',
+    );
+    expect(modified).toBeUndefined(); // Should not flag package.json as modified
+  });
+
+  it('fails validation when a required dependency is removed from package.json', () => {
+    const project = writeProject();
+    const pkgPath = path.join(project, 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as {
+      dependencies: Record<string, string>;
+    };
+    delete pkg.dependencies['next'];
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+
+    const report = runProjectHealthCheck(project);
+    const depDiag = report.diagnostics.find((d) => d.code === 'DEPENDENCIES_MISSING');
+    expect(depDiag).toBeDefined();
+    expect(depDiag?.status).toBe('FIXABLE');
+  });
 });
 
 // ─── Diagnostic Classification ────────────────────────────────────────────────
