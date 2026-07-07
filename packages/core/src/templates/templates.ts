@@ -423,7 +423,7 @@ export function getLegacyStarterTemplates(
     files.push(
       {
         path: 'Dockerfile',
-        content: `FROM node:20-alpine\nWORKDIR /app\nCOPY package.json package-lock.json* pnpm-lock.yaml* ./\nRUN ${config.stack.packageManager} install\nCOPY . .\nRUN ${config.stack.packageManager} run build\nEXPOSE 3000\nCMD ["${config.stack.packageManager}", "run", "start"]\n`,
+        content: `FROM node:20-alpine\nWORKDIR /app\nCOPY package.json package-lock.json* ./\nRUN npm install\nCOPY . .\nRUN npm run build\nEXPOSE 3000\nCMD ["npm", "run", "start"]\n`,
       },
       {
         path: 'docker-compose.yml',
@@ -457,7 +457,7 @@ export function getLegacyStarterTemplates(
   if (config.tools.githubActions) {
     files.push({
       path: '.github/workflows/ci.yml',
-      content: `name: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: ${config.stack.packageManager}\n      - run: ${config.stack.packageManager} install\n      - run: ${config.stack.packageManager} run lint\n        if: hashFiles('.eslintrc.json') != ''\n      - run: ${config.stack.packageManager} run build\n`,
+      content: `name: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n          cache: npm\n      - run: npm install\n      - run: npm run lint\n        if: hashFiles('.eslintrc.json') != ''\n      - run: npm run build\n`,
     });
   }
 
@@ -466,7 +466,7 @@ export function getLegacyStarterTemplates(
     scripts.prepare = 'husky';
     files.push({
       path: '.husky/README.md',
-      content: `# Husky\n\nStructify generated Husky configuration metadata only. Run \`${config.stack.packageManager} install\` and configure hooks when ready.\n`,
+      content: `# Husky\n\nStructify generated Husky configuration metadata only. Run \`npm install\` and configure hooks when ready.\n`,
     });
   }
 
@@ -536,7 +536,7 @@ export function getLegacyStarterTemplates(
 function resolveDependencies(
   dependencies: Record<string, string>,
   devDependencies: Record<string, string>,
-  packageManager: 'npm' | 'pnpm',
+  packageManager: 'npm',
 ): { dependencies: Record<string, string>; devDependencies: Record<string, string> } {
   const registry = new DependencyRegistry();
   for (const [packageName, versionRange] of Object.entries(dependencies)) {
@@ -544,7 +544,7 @@ function resolveDependencies(
       packageName,
       versionRange,
       dependencyType: 'prod',
-      supportedPackageManagers: ['npm', 'pnpm'],
+      supportedPackageManagers: ['npm'],
       installScope: 'root',
       reason: 'Phase 6 deterministic template dependency',
     });
@@ -554,7 +554,7 @@ function resolveDependencies(
       packageName,
       versionRange,
       dependencyType: 'dev',
-      supportedPackageManagers: ['npm', 'pnpm'],
+      supportedPackageManagers: ['npm'],
       installScope: 'root',
       reason: 'Phase 6 deterministic template development dependency',
     });

@@ -34,11 +34,18 @@ structify init [project-name] [options]
 4. Prompts for Styling option (Tailwind, Material UI, none) — dynamically disabled if Frontend framework is "none".
 5. Prompts for Database (PostgreSQL, MongoDB, none).
 6. Prompts for ORM (Prisma, Mongoose) — dynamically configured depending on Database.
-7. Prompts for Package Manager (npm, pnpm).
+7. Uses npm as the package manager for generated commands and next steps.
 8. Prints the generated Project Plan.
 9. Asks for confirmation before writing to disk.
 
-Phase 8.1 previews the Virtual File Graph, dependency graph, Project Graph, analytics, and diff during dry-run. It uses deterministic composable generators through the built-in extension platform and does not call external framework CLIs. By default it writes package manifests and prints npm next-step install commands.
+Phase 8.2 previews the Virtual File Graph, dependency graph, Project Graph, analytics, and diff during dry-run. It uses deterministic composable generators through the built-in extension platform and does not call external framework CLIs. By default it writes package manifests and prints npm next-step install commands.
+
+Dry-run terms:
+
+- Planned files are virtual files calculated in memory.
+- Generated files are files actually written to disk.
+- In dry-run, `generatedFiles` is empty and `plannedFiles` plus `virtualFileGraph.files` show what would be written.
+- Directory conflicts are reported as `TARGET_DIRECTORY_NOT_EMPTY`, not internal errors.
 
 ---
 
@@ -48,9 +55,52 @@ Structurally validates a generated project without installing dependencies.
 
 ```bash
 structify verify-project --path ./my-project
+structify verify-project --path ./my-project --strict
 ```
 
-The validator checks `package.json`, required scripts, `structify.config.json`, `structify.manifest.json`, `structify.project-graph.json`, and generated dependency metadata. Slow checks such as `npm install`, `npm run build`, and `npm test` are reserved for optional workflows and are not part of default validation.
+The validator uses the Project State Reader and Drift Detector. It checks `package.json`, scripts, dependencies, `structify.config.json`, `structify.manifest.json`, `structify.project-graph.json`, stack hash consistency, manifest and Project Graph metadata consistency, selected stack files, tooling files, and generated dependency metadata. `--strict` treats drift warnings as errors. Slow checks such as `npm install`, `npm run build`, and `npm test` are reserved for optional workflows and are not part of default validation.
+
+---
+
+## 3. `structify add <module>`
+
+Adds a compatible built-in module to an existing Structify project through a patch plan.
+
+```bash
+structify add docker --dry-run
+structify add docker --yes
+structify add docker --json
+structify add prisma --database postgres --dry-run
+```
+
+The command supports `--path <projectPath>`, `--dry-run`, `--yes`, `--json`, and `--force`. It returns `MODULE_ALREADY_PRESENT`, `MODULE_INCOMPATIBLE`, or `PATCH_CONFLICT` when no patch is applied.
+
+---
+
+## 4. `structify upgrade`
+
+Previews safe metadata/package upgrades.
+
+```bash
+structify upgrade --dry-run
+structify upgrade --json
+```
+
+Complex source upgrades that touch user-modified generated files return `UPGRADE_REQUIRES_REVIEW`.
+
+---
+
+## 5. `structify repair`
+
+Creates and optionally applies safe repair plans.
+
+```bash
+structify repair --dry-run
+structify repair --apply --yes
+structify repair --json
+```
+
+Repair can restore missing metadata/config files and package scripts/dependencies when safe. It does not silently overwrite user source edits.
 
 ---
 
@@ -108,24 +158,66 @@ structify module add <module-name> [options]
 Diagnoses health and configuration alignment for projects built with Structify.
 
 ```bash
-structify doctor [path]
+structify doctor [--path <path>] [--json]
 ```
 
-- Scans the project directory.
-- Checks if standard configurations match current stack selections (e.g., checks if ESLint packages are correctly configured, or if Docker is set up properly).
-- Suggests fixes and prints problem identifiers.
+Runs a comprehensive two-section audit:
+
+**Section 1: Environment Checks** — Node.js version, npm, Git, Docker, memory, disk space, registry access.
+
+**Section 2: Project Health Checks** (when inside a Structify project):
+
+- Stack detection (frontend/backend/database/ORM/styling)
+- Metadata file integrity (`structify.*.json`)
+- Config shape validation
+- Manifest hash consistency
+- Project graph node validation
+- Package manager verification
+- npm script drift detection
+- Dependency presence check
+- Generated file integrity
+- Module installation status
+
+**Status codes**: `PASS`, `INFO`, `WARNING`, `ERROR`, `FIXABLE`, `NOT_FIXABLE`
+
+**Overall project status**: `HEALTHY`, `DEGRADED`, `CRITICAL`, `UNKNOWN`
+
+**Options**:
+
+- `--path <path>`: Project path to diagnose (default: current directory)
+- `--json`: Machine-readable structured output with full health report
+- `--no-color`: Disable ANSI color codes
+
+See [doctor_guide.md](./doctor_guide.md) for full documentation.
 
 ---
 
 ## 7. `structify repair`
 
-Applies fixes to configurations identified by the doctor command.
+Uses the unified Project Health Engine to identify auto-fixable issues and safely restore them.
 
 ```bash
-structify repair [path] [options]
+structify repair [--path <path>] [--dry-run] [--apply] [--yes] [--force] [--json]
 ```
 
-### Options:
+**What it can fix**:
 
-- `--issue <id>`: Fixes a specific issue ID identified by the doctor.
-- `-y, --yes`: Fixes all auto-repairable issues without prompting.
+- Missing metadata files (`structify.*.json`)
+- Missing safe configuration files
+- Drifted npm scripts
+- Missing dependency entries
+- Stale manifest metadata
+
+**Options**:
+
+- `-d, --dry-run`: Preview repair plan (no files changed) — default
+- `--apply`: Apply safe repairs
+- `-y, --yes`: Apply without confirmation (use with `--apply`)
+- `--force`: Allow overwriting user-modified generated files with backup
+- `--path <path>`: Project path to repair
+- `--json`: Machine-readable output with `code`, `fixableCount`, `notFixableCount`, `healthSummary`
+
+**Repair codes**: `REPAIR_PLAN_READY`, `REPAIR_APPLIED`, `REPAIR_NOT_SAFE`, `NO_REPAIR_NEEDED`
+
+See [repair_guide.md](./repair_guide.md) for full documentation.
+

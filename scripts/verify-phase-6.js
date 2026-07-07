@@ -95,9 +95,9 @@ ${stdoutData}
 async function main() {
   fs.writeFileSync(REPORT_PATH, '');
 
-  let pnpmVersion = 'N/A';
+  let npmVersion = 'N/A';
   try {
-    pnpmVersion = execSync('pnpm --version', { encoding: 'utf8' }).trim();
+    npmVersion = execSync('npm --version', { encoding: 'utf8' }).trim();
   } catch (e) {}
 
   const envInfo = `
@@ -107,7 +107,7 @@ Timestamp: ${new Date().toISOString()}
 OS Platform: ${os.platform()} (${os.release()})
 OS Architecture: ${os.arch()}
 Node Version: ${process.version}
-pnpm Version: ${pnpmVersion}
+npm Version: ${npmVersion}
 Root Workspace Path: ${path.resolve(__dirname, '..')}
 `;
   fs.appendFileSync(REPORT_PATH, envInfo);
@@ -176,7 +176,7 @@ ${docCheckOutput}
 
   // 2. Monorepo core checks
   const buildChecks = [
-    { title: 'Workspace Dependencies Installation Check', cmd: 'npx pnpm install' },
+    { title: 'Workspace Dependencies Installation Check', cmd: 'npm install' },
     {
       title: 'Workspace ESLint Linting (Zero-Warnings Target)',
       cmd: 'npx eslint "packages/*/src/**/*.ts" "apps/*/src/**/*.ts"',
@@ -185,9 +185,9 @@ ${docCheckOutput}
       title: 'Prettier Formatting Check',
       cmd: 'npx prettier --check "**/*.{ts,js,json,md,yml,yaml}"',
     },
-    { title: 'TypeScript Compile & Type Checking', cmd: 'npx pnpm -r typecheck' },
-    { title: 'Vitest Unit & Integration Testing', cmd: 'npx pnpm -r test' },
-    { title: 'Workspace Packages Compile & Build', cmd: 'npx pnpm -r build' },
+    { title: 'TypeScript Compile & Type Checking', cmd: 'npm run typecheck' },
+    { title: 'Vitest Unit & Integration Testing', cmd: 'npm test' },
+    { title: 'Workspace Packages Compile & Build', cmd: 'npm run build' },
   ];
 
   for (const check of buildChecks) {
@@ -321,7 +321,7 @@ Exists: ${binExists ? 'Yes' : 'No'}
         styling: 'tailwind',
         database: 'none',
         orm: 'none',
-        packageManager: 'pnpm',
+        packageManager: 'npm',
       },
       tools: baseTools,
     }),
@@ -363,7 +363,7 @@ Exists: ${binExists ? 'Yes' : 'No'}
         styling: 'none',
         database: 'none',
         orm: 'none',
-        packageManager: 'pnpm',
+        packageManager: 'npm',
       },
       tools: baseTools,
     }),
@@ -377,7 +377,7 @@ Exists: ${binExists ? 'Yes' : 'No'}
         styling: 'tailwind',
         database: 'none',
         orm: 'none',
-        packageManager: 'pnpm',
+        packageManager: 'npm',
       },
       tools: baseTools,
     }),
@@ -405,7 +405,7 @@ Exists: ${binExists ? 'Yes' : 'No'}
         styling: 'none',
         database: 'postgres',
         orm: 'prisma',
-        packageManager: 'pnpm',
+        packageManager: 'npm',
       },
       tools: baseTools,
     }),
@@ -433,7 +433,7 @@ Exists: ${binExists ? 'Yes' : 'No'}
         styling: 'none',
         database: 'none',
         orm: 'none',
-        packageManager: 'pnpm',
+        packageManager: 'npm',
       },
       tools: { ...baseTools, docker: true, githubActions: true },
     }),

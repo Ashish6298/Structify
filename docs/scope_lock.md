@@ -11,7 +11,7 @@ This document defines the strict boundaries of Structify Version 1.0. It lists M
 - **Styling**: Tailwind CSS, Material UI (MUI).
 - **Databases**: PostgreSQL, MongoDB.
 - **ORMs / Drivers**: Prisma, Mongoose.
-- **Package Managers**: npm, pnpm.
+- **Package Managers**: npm.
 
 ### 2. Scaffolding & Tooling
 

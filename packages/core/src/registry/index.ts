@@ -121,13 +121,6 @@ export function registerBuiltIns(): void {
     version: '1.0.0',
     installCommand: 'npm install',
   });
-  packageManagerRegistry.register({
-    id: 'pm-pnpm',
-    name: 'pnpm',
-    description: 'pnpm package manager',
-    version: '1.0.0',
-    installCommand: 'pnpm install',
-  });
 
   fileOperationRegistry.register({
     id: 'fop-create-dir',
@@ -157,7 +150,7 @@ export function registerBuiltIns(): void {
     packageName: 'next',
     versionRange: '^14.0.0',
     dependencyType: 'prod',
-    supportedPackageManagers: ['npm', 'pnpm'],
+    supportedPackageManagers: ['npm'],
     installScope: 'workspace',
     targetWorkspace: 'apps/frontend',
     reason: 'Next.js framework dependency',
@@ -167,7 +160,7 @@ export function registerBuiltIns(): void {
     packageName: 'react',
     versionRange: '^18.2.0',
     dependencyType: 'prod',
-    supportedPackageManagers: ['npm', 'pnpm'],
+    supportedPackageManagers: ['npm'],
     installScope: 'workspace',
     targetWorkspace: 'apps/frontend',
     reason: 'React frontend framework dependency',
@@ -177,7 +170,7 @@ export function registerBuiltIns(): void {
     packageName: 'express',
     versionRange: '^4.18.2',
     dependencyType: 'prod',
-    supportedPackageManagers: ['npm', 'pnpm'],
+    supportedPackageManagers: ['npm'],
     installScope: 'workspace',
     targetWorkspace: 'apps/backend',
     reason: 'Express server framework dependency',
@@ -187,7 +180,7 @@ export function registerBuiltIns(): void {
     packageName: 'tailwindcss',
     versionRange: '^3.4.0',
     dependencyType: 'dev',
-    supportedPackageManagers: ['npm', 'pnpm'],
+    supportedPackageManagers: ['npm'],
     installScope: 'workspace',
     targetWorkspace: 'apps/frontend',
     reason: 'Tailwind CSS styling library',

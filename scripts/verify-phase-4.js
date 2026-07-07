@@ -105,7 +105,7 @@ ${docCheckOutput}
 
   // 2. Monorepo core checks
   const buildChecks = [
-    { title: 'Workspace Dependencies Installation Check', cmd: 'npx pnpm install' },
+    { title: 'Workspace Dependencies Installation Check', cmd: 'npm install' },
     { title: 'Turborepo Linting Verification', cmd: 'npx turbo lint' },
     {
       title: 'Prettier Formatting Check',

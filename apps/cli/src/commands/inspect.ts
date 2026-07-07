@@ -1,75 +1,35 @@
-import fs from 'fs';
 import path from 'path';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
 import { getElapsedMs } from '../utils/middleware.js';
-import { readEventLog, replayEventTimeline } from '@structify/core';
+import { createUpgradePlan, runProjectHealthCheck } from '@structify/core';
 
-export async function handleInspect(context: CLIContext): Promise<void> {
+export interface InspectOptions {
+  path?: string;
+}
+
+const ALL_BUILT_IN_MODULES = [
+  'docker',
+  'github-actions',
+  'eslint',
+  'prettier',
+  'tailwind',
+  'prisma',
+  'mongoose',
+];
+
+export async function handleInspect(options: InspectOptions, context: CLIContext): Promise<void> {
   const output = new CLIOutput(context);
-  if (!context.json) {
-    output.heading('Structify Project Inspection');
-  }
+  output.heading('Structify Project Inspection');
+  const projectPath = path.resolve(context.cwd, options.path ?? '.');
 
-  const configPath = path.join(context.cwd, 'structify.config.json');
-  const manifestPath = path.join(context.cwd, 'structify.manifest.json');
-  const projectGraphPath = path.join(context.cwd, 'structify.project-graph.json');
-  const packageJsonPath = path.join(context.cwd, 'package.json');
-  const eventLogPath = path.join(context.cwd, '.structify', 'events.ndjson');
-  const hasConfig = fs.existsSync(configPath);
-  const hasManifest = fs.existsSync(manifestPath);
-  const hasProjectGraph = fs.existsSync(projectGraphPath);
-  const hasPackageJson = fs.existsSync(packageJsonPath);
-  const knownGeneratedFiles = [
-    'app/page.tsx',
-    'src/App.tsx',
-    'src/app.ts',
-    'src/main.ts',
-    'prisma/schema.prisma',
-    '.github/workflows/ci.yml',
-  ];
-  const detectedFiles = knownGeneratedFiles.filter((file) =>
-    fs.existsSync(path.join(context.cwd, file)),
+  const healthReport = runProjectHealthCheck(projectPath);
+  const { state, drift, detectedStack } = healthReport;
+  const upgrade = createUpgradePlan(projectPath);
+  const installedModules = Object.keys(state.moduleVersions);
+  const availableModules = ALL_BUILT_IN_MODULES.filter(
+    (moduleName) => !installedModules.includes(moduleName),
   );
-  let parsedConfig: unknown = null;
-  let parsedManifest: unknown = null;
-  let parsedProjectGraph: unknown = null;
-  let packageScripts: Record<string, string> = {};
-  const events = readEventLog(eventLogPath);
-  const eventTimeline = replayEventTimeline(events);
-
-  if (hasManifest) {
-    try {
-      parsedManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-    } catch (_e) {
-      parsedManifest = { error: 'Unable to parse structify.manifest.json' };
-    }
-  }
-  if (hasConfig) {
-    try {
-      parsedConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    } catch (_e) {
-      parsedConfig = { error: 'Unable to parse structify.config.json' };
-    }
-  }
-  if (hasProjectGraph) {
-    try {
-      parsedProjectGraph = JSON.parse(fs.readFileSync(projectGraphPath, 'utf8'));
-    } catch (_e) {
-      parsedProjectGraph = { error: 'Unable to parse structify.project-graph.json' };
-    }
-  }
-  if (hasPackageJson) {
-    try {
-      const parsedPackage = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as {
-        scripts?: Record<string, string>;
-      };
-      packageScripts = parsedPackage.scripts ?? {};
-    } catch (_e) {
-      packageScripts = {};
-    }
-  }
-
   const elapsed = getElapsedMs(context.startTime);
 
   if (context.json) {
@@ -79,52 +39,81 @@ export async function handleInspect(context: CLIContext): Promise<void> {
       version: '1.0.0',
       timestamp: new Date().toISOString(),
       durationMs: elapsed,
-      warnings: [],
-      errors: [],
+      warnings: drift.warnings.map((w) => w.message),
+      errors: healthReport.diagnostics.filter((d) => d.status === 'ERROR').map((d) => d.message),
       data: {
-        cwd: context.cwd,
-        isStructifyProject: hasManifest || hasConfig || hasProjectGraph || detectedFiles.length > 0,
-        manifest: parsedManifest,
-        projectGraph: parsedProjectGraph,
-        config: parsedConfig,
-        packageScripts,
-        detectedFiles,
-        generatedFiles:
-          parsedManifest && typeof parsedManifest === 'object' && 'templateHash' in parsedManifest
-            ? detectedFiles
-            : detectedFiles,
-        eventTimeline,
-        supportedFutureActions: ['add-module-plan', 'repair-suggestions', 'upgrade-preview'],
+        projectPath,
+        isStructifyProject: healthReport.isStructifyProject,
+        overallStatus: healthReport.overallStatus,
+        healthSummary: healthReport.healthSummary,
+        detectedStack,
+        state,
+        driftReport: drift,
+        moduleReport: { installedModules, availableCompatibleModules: availableModules },
+        upgradeReport: upgrade,
+        repairSuggestions: healthReport.repairability.repairSuggestions,
+        fixableIssues: healthReport.repairability.fixableIssues,
+        notFixableIssues: healthReport.repairability.notFixableIssues,
+        metadataHealth:
+          drift.deletedMetadataFiles.length === 0 &&
+          healthReport.diagnostics.filter(
+            (d) => d.category === 'project_metadata' && d.status === 'ERROR',
+          ).length === 0
+            ? 'ok'
+            : 'drift',
+        packageHealth:
+          drift.changedPackageScripts.length === 0 && drift.missingDependencies.length === 0
+            ? 'ok'
+            : 'drift',
+        dependencyHealth: drift.missingDependencies.length === 0 ? 'ok' : 'drift',
+        graphHealth:
+          drift.missingProjectGraphNodes.length === 0 && drift.orphanedGraphNodes.length === 0
+            ? 'ok'
+            : 'drift',
+        supportedNextActions: [
+          'add',
+          'upgrade --dry-run',
+          'repair --dry-run',
+          'verify-project --strict',
+        ],
       },
     });
     return;
   }
 
-  output.info(`Current working directory: ${context.cwd}`);
-  if (hasManifest || hasConfig || hasProjectGraph || detectedFiles.length > 0) {
-    output.success('Structify project signals detected.');
-    if (hasManifest) {
-      output.info(JSON.stringify(parsedManifest, null, 2));
-    }
-    if (hasConfig) {
-      output.info(JSON.stringify(parsedConfig, null, 2));
-    }
-    if (hasProjectGraph) {
-      output.info('Project Graph detected: structify.project-graph.json');
-    }
-    if (detectedFiles.length > 0) {
-      output.info(`Known generated files: ${detectedFiles.join(', ')}`);
-    }
-    if (Object.keys(packageScripts).length > 0) {
-      output.info(`Package scripts: ${Object.keys(packageScripts).join(', ')}`);
-    }
-    if (eventTimeline.length > 0) {
-      output.info(`Event log entries: ${eventTimeline.length}`);
-    }
-  } else {
+  output.info(`Project: ${projectPath}`);
+  output.info(`Structify Project: ${healthReport.isStructifyProject ? 'yes' : 'no'}`);
+  output.info(`Overall Status: ${healthReport.overallStatus}`);
+  output.info(
+    `Health: ${healthReport.healthSummary.pass} PASS / ${healthReport.healthSummary.warnings} WARN / ${healthReport.healthSummary.errors} ERROR / ${healthReport.healthSummary.fixable} FIXABLE / ${healthReport.healthSummary.notFixable} NOT_FIXABLE`,
+  );
+
+  // Stack info
+  output.info(`Package Manager: ${state.packageManager}`);
+  output.info(
+    `Stack (detected): ${detectedStack.frontend} frontend / ${detectedStack.backend} backend / ${detectedStack.database} database`,
+  );
+  output.info(
+    `Detection Source: ${detectedStack.detectionSource} (confidence: ${detectedStack.confidence})`,
+  );
+
+  output.info(`Files: ${state.files.length}`);
+  output.info(`Drift: ${drift.hasDrift ? 'yes' : 'no'}`);
+  output.info(`Installed Modules: ${installedModules.join(', ') || 'none'}`);
+  output.info(`Available Modules: ${availableModules.join(', ') || 'none'}`);
+  output.info(`Upgrade: ${upgrade.code}`);
+  output.info(`Repair Suggestions: ${healthReport.repairability.repairSuggestions.length}`);
+
+  if (healthReport.repairability.fixableIssues.length > 0) {
     output.warn(
-      'No structify.config.json configuration detected. To initialize a project, run: structify init',
+      `Auto-fixable issues (${healthReport.repairability.fixableIssues.length}): run structify repair --dry-run`,
     );
   }
+  if (healthReport.repairability.notFixableIssues.length > 0) {
+    output.warn(
+      `Manual issues (${healthReport.repairability.notFixableIssues.length}): require source control restore or --force`,
+    );
+  }
+
   output.showFooter('inspect');
 }

@@ -353,6 +353,7 @@ export class GenerationEngine {
         } else if (action.type === 'DeleteFile') {
           if (fs.existsSync(action.targetPath)) {
             fs.unlinkSync(action.targetPath);
+            this.removeEmptyGeneratedParents(path.dirname(action.targetPath), session.targetDir);
           }
         } else if (action.type === 'RestoreFile' && action.originalContent !== undefined) {
           fs.writeFileSync(action.targetPath, action.originalContent, 'utf8');
@@ -404,6 +405,20 @@ export class GenerationEngine {
       throw new Error(`Unsafe generated path escaped project directory: ${relativePath}`);
     }
     return destination;
+  }
+
+  private static removeEmptyGeneratedParents(startDir: string, targetDir: string): void {
+    const resolvedTarget = path.resolve(targetDir);
+    let current = path.resolve(startDir);
+    while (
+      current !== resolvedTarget &&
+      path.relative(resolvedTarget, current).startsWith('..') === false
+    ) {
+      if (!fs.existsSync(current)) return;
+      if (fs.readdirSync(current).length > 0) return;
+      fs.rmdirSync(current);
+      current = path.dirname(current);
+    }
   }
 
   private static async runBlockingHooks(

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   createPlan,
+  createModulePlanTool,
+  createRepairPlanTool,
+  createUpgradePlanTool,
+  detectDrift,
   doctor,
   inspectProject,
   listEvents,
@@ -11,6 +15,7 @@ import {
   listTemplates,
   previewDiff,
   validateConfig,
+  verifyProjectTool,
 } from './tools.js';
 
 const config = {
@@ -40,5 +45,11 @@ describe('MCP tool contracts', () => {
     expect(listModules().success).toBe(true);
     expect(listEvents().data).toContain('GenerationStarted');
     expect(doctor().data?.npm).toBe('required');
+    expect(detectDrift(process.cwd()).tool).toBe('detect_drift');
+    expect(createModulePlanTool(process.cwd(), 'docker').tool).toBe('create_module_plan');
+    expect(previewDiff(config, process.cwd()).tool).toBe('preview_diff');
+    expect(createUpgradePlanTool(process.cwd()).tool).toBe('create_upgrade_plan');
+    expect(createRepairPlanTool(process.cwd()).tool).toBe('create_repair_plan');
+    expect(verifyProjectTool(process.cwd()).tool).toBe('verify_project');
   });
 });

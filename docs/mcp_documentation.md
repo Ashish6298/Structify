@@ -1,6 +1,6 @@
 # Model Context Protocol (MCP) Documentation
 
-This document describes how Structify integrates with the Model Context Protocol (MCP) to allow AI coding assistants (like Gemini, Claude, or ChatGPT) to programmatically trigger project creation, inspection, and maintenance tasks.
+This document describes how Structify integrates with the Model Context Protocol (MCP) to allow AI coding assistants to validate, plan, inspect, and preview Structify projects.
 
 ---
 
@@ -16,63 +16,28 @@ graph TD
     subgraph core[Shared Core Engine]
         Val[Validation Engine]
         Plan[Planning Engine]
-        Doc[Doctor Engine]
+        Doc[Doctor Data]
     end
 ```
 
-By packaging validation rules, template generation, and repair routines in the core module, the MCP server serves as a lightweight JSON-RPC interface wrapper.
+By packaging validation rules, template planning, and metadata inspection in the core module, the MCP server serves as a lightweight interface wrapper.
 
 ---
 
-## Planned MCP Tools
+## MCP Tools
 
-The `apps/mcp-server` will expose the following JSON-RPC tool endpoints:
+The `apps/mcp-server` exposes read-only helper functions for:
 
-### 1. `validate_stack`
+- `list_supported_stacks`
+- `validate_config`
+- `create_plan`
+- `preview_diff`
+- `inspect_project`
+- `list_generators`
+- `list_templates`
+- `list_plugins`
+- `list_modules`
+- `list_events`
+- `doctor`
 
-- **Description**: Evaluates if a given combination of technologies is supported and compatible.
-- **Arguments**:
-  - `frontend`: Frontend framework (e.g., "nextjs").
-  - `backend`: Backend framework (e.g., "nestjs").
-  - `database`: Database engine (e.g., "postgresql").
-  - `styling`: Styling library (e.g., "tailwind").
-  - `orm`: ORM framework (e.g., "prisma").
-- **Response**: A compatibility report listing errors, warnings, or confirming a valid configuration.
-
-### 2. `create_execution_plan`
-
-- **Description**: Generates a JSON list of steps Structify will perform to scaffold the project without writing them to disk.
-- **Arguments**:
-  - Same as `validate_stack`.
-  - `projectName`: Folder name for the project.
-- **Response**: A structural plan detailing directories, files to write, package configurations, and initial setup scripts.
-
-### 3. `generate_project`
-
-- **Description**: Directly triggers project scaffolding at a specified directory path.
-- **Arguments**:
-  - `targetPath`: Absolute path on the filesystem.
-  - `config`: Stack Configuration settings or a preset name.
-- **Response**: Scaffolding status and verification results.
-
-### 4. `inspect_project`
-
-- **Description**: Identifies the stack elements used in an existing directory.
-- **Arguments**:
-  - `projectPath`: Path to check.
-- **Response**: Detected technologies, package managers, and directory structures.
-
-### 5. `run_doctor`
-
-- **Description**: Run configuration diagnostics on an existing repository.
-- **Arguments**:
-  - `projectPath`: Path to check.
-- **Response**: Detailed issues report including lint misalignments, missing dockerfiles, or package errors.
-
-### 6. `apply_repair`
-
-- **Description**: Automatically fixes configuration issues found by the doctor tool.
-- **Arguments**:
-  - `projectPath`: Path to apply fixes.
-  - `issueIds`: Array of specific diagnostics to resolve.
-- **Response**: Repair log and updated status.
+MCP generation, repair, and mutation workflows are intentionally not enabled in this stabilization baseline.

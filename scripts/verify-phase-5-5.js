@@ -89,9 +89,9 @@ ${stdoutData}
 async function main() {
   fs.writeFileSync(REPORT_PATH, '');
 
-  let pnpmVersion = 'N/A';
+  let npmVersion = 'N/A';
   try {
-    pnpmVersion = execSync('pnpm --version', { encoding: 'utf8' }).trim();
+    npmVersion = execSync('npm --version', { encoding: 'utf8' }).trim();
   } catch (e) {}
 
   const envInfo = `
@@ -101,7 +101,7 @@ Timestamp: ${new Date().toISOString()}
 OS Platform: ${os.platform()} (${os.release()})
 OS Architecture: ${os.arch()}
 Node Version: ${process.version}
-pnpm Version: ${pnpmVersion}
+npm Version: ${npmVersion}
 Root Workspace Path: ${path.resolve(__dirname, '..')}
 `;
   fs.appendFileSync(REPORT_PATH, envInfo);
@@ -170,7 +170,7 @@ ${docCheckOutput}
 
   // 2. Monorepo core checks
   const buildChecks = [
-    { title: 'Workspace Dependencies Installation Check', cmd: 'npx pnpm install' },
+    { title: 'Workspace Dependencies Installation Check', cmd: 'npm install' },
     { title: 'Turborepo Linting Verification', cmd: 'npx turbo lint' },
     {
       title: 'Prettier Formatting Check',

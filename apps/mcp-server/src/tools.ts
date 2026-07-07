@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import {
   DEFAULT_CONFIG,
   FRONTEND_OPTIONS,
@@ -18,6 +16,12 @@ import {
   pluginRegistry,
   moduleRegistry,
   ProjectConfig,
+  createModulePlan,
+  createRepairPlan,
+  createUpgradePlan,
+  detectProjectDrift,
+  readProjectState,
+  validateGeneratedProject,
 } from '@structify/core';
 
 export interface McpToolResult<T> {
@@ -84,18 +88,65 @@ export function previewDiff(config: ProjectConfig, targetDir: string): McpToolRe
 }
 
 export function inspectProject(projectPath: string): McpToolResult<Record<string, unknown>> {
-  const manifestPath = path.join(projectPath, 'structify.manifest.json');
-  const configPath = path.join(projectPath, 'structify.config.json');
+  const state = readProjectState(projectPath);
+  const drift = detectProjectDrift(state);
   return {
     success: true,
     tool: 'inspect_project',
     data: {
-      hasManifest: fs.existsSync(manifestPath),
-      manifest: fs.existsSync(manifestPath)
-        ? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
-        : null,
-      hasConfig: fs.existsSync(configPath),
+      hasManifest: Boolean(state.manifest),
+      manifest: state.manifest ?? null,
+      hasConfig: Boolean(state.config),
+      state,
+      drift,
     },
+  };
+}
+
+export function detectDrift(projectPath: string): McpToolResult<unknown> {
+  const state = readProjectState(projectPath);
+  return { success: true, tool: 'detect_drift', data: detectProjectDrift(state) };
+}
+
+export function createModulePlanTool(
+  projectPath: string,
+  moduleName: string,
+): McpToolResult<unknown> {
+  return {
+    success: true,
+    tool: 'create_module_plan',
+    data: createModulePlan(projectPath, moduleName, { dryRun: true }),
+  };
+}
+
+export function previewModuleDiff(projectPath: string, moduleName: string): McpToolResult<unknown> {
+  const plan = createModulePlan(projectPath, moduleName, { dryRun: true });
+  return {
+    success: plan.code === 'MODULE_PLAN_READY',
+    tool: 'preview_module_diff',
+    data: plan.plan,
+  };
+}
+
+export function createUpgradePlanTool(projectPath: string): McpToolResult<unknown> {
+  return { success: true, tool: 'create_upgrade_plan', data: createUpgradePlan(projectPath) };
+}
+
+export function createRepairPlanTool(projectPath: string): McpToolResult<unknown> {
+  return {
+    success: true,
+    tool: 'create_repair_plan',
+    data: createRepairPlan(projectPath, { dryRun: true }),
+  };
+}
+
+export function verifyProjectTool(projectPath: string): McpToolResult<unknown> {
+  const validation = validateGeneratedProject(projectPath);
+  const state = readProjectState(projectPath);
+  return {
+    success: validation.valid,
+    tool: 'verify_project',
+    data: { validation, state, drift: detectProjectDrift(state) },
   };
 }
 

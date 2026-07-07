@@ -25,7 +25,7 @@ describe('Validation and Normalization Tests', () => {
             styling: 'tailwind',
             database: 'postgres',
             orm: 'prisma',
-            packageManager: 'pnpm',
+            packageManager: 'npm',
           },
         });
         expect(result.valid).toBe(false);
@@ -46,7 +46,7 @@ describe('Validation and Normalization Tests', () => {
             styling: 'tailwind',
             database: 'postgres',
             orm: 'prisma',
-            packageManager: 'pnpm',
+            packageManager: 'npm',
           },
         });
         expect(result.valid).toBe(true);

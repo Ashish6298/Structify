@@ -8,3 +8,6 @@ export * from './event-log.js';
 export * from './project-graph.js';
 export * from './project-validator.js';
 export * from './service-container.js';
+export * from './phase9.js';
+export * from './stack-detector.js';
+export * from './health-engine.js';

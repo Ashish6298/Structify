@@ -119,10 +119,7 @@ export class InteractivePromptEngine {
         key: 'packageManager',
         question: 'Select package manager',
         type: 'select',
-        choices: [
-          { value: 'npm', label: 'npm' },
-          { value: 'pnpm', label: 'pnpm' },
-        ],
+        choices: [{ value: 'npm', label: 'npm' }],
         defaultValue: 'npm',
       },
       {
@@ -173,10 +170,12 @@ export class InteractivePromptEngine {
     let currentIndex = 0;
 
     try {
-      while (true) {
+      let prompting = true;
+      while (prompting) {
         const activeQuestions = this.questions.filter((q) => !q.dependsOn || q.dependsOn(config));
         if (currentIndex >= activeQuestions.length) {
-          break;
+          prompting = false;
+          continue;
         }
         const q = activeQuestions[currentIndex];
 

@@ -105,9 +105,9 @@ export function createProjectPlan(
     id: 'step-install-dependencies',
     type: 'RunCommand',
     targetPath: `./${projectName}`,
-    description: `Install workspace dependencies using package manager: ${config.stack.packageManager}`,
+    description: 'Install workspace dependencies using npm',
     commandStep: {
-      commandLine: `${config.stack.packageManager} install`,
+      commandLine: 'npm install',
       cwd: `./${projectName}`,
     },
   };

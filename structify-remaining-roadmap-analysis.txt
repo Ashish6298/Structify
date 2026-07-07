@@ -1,0 +1,229 @@
+# Structify Remaining Roadmap Analysis & Implementation Planning
+
+Generated: 2026-07-07T06:23:00Z
+Repository: D:\Structify
+
+================================================================================
+1. REPOSITORY SUMMARY
+================================================================================
+Structify is a professional developer productivity monorepo constructed using npm workspaces, Turborepo, TypeScript, ESLint, Prettier, and Vitest.
+The project is divided into:
+- `packages/core`: The core transactional project generation, validation, state reading, and patches/evolution engine.
+- `packages/logger`: Core logging.
+- `apps/cli`: Commander-based command-line interface.
+- `apps/mcp-server`: MCP server implementing context-aware planning tools.
+
+The codebase successfully implements composition, VFG transactions, LIFO rollbacks, Project/Dependency Graphs, configuration validators, and MCP tool declarations. However, gaps remain before v1.0 release, particularly in packaging, CI, cross-platform validation, and command reconciliation.
+
+================================================================================
+2. CURRENT ROADMAP PROGRESS
+================================================================================
+- Phase 1: Architecture, Scope Lock, and Foundation Design: COMPLETE (100%)
+- Phase 2: Monorepo Scaffolding & Core Architecture: COMPLETE (100%)
+- Phase 3: File System Layer & Execution Engine: COMPLETE (100%)
+- Phase 4: CLI Core & Prompt System: PARTIALLY COMPLETE (80%)
+- Phase 5: Generator Engines & Initial Stacks: COMPLETE (100%)
+- Phase 6: Presets & Config-driven Generation: PARTIALLY COMPLETE (85%)
+- Phase 7: Doctor & Repair System: PARTIALLY COMPLETE (75%)
+- Phase 8: Model Context Protocol (MCP) Server: PARTIALLY COMPLETE (80%)
+- Phase 9: Testing, Optimization, and Release: PARTIALLY COMPLETE (70%)
+
+================================================================================
+3. PHASE-BY-PHASE REMAINING WORK
+================================================================================
+### Phase 4: CLI Core & Prompt System
+- **Original Objective**: Routing commands for `init`, `generate`, `preset` with interactive prompts.
+- **Current Completion**: 80%
+- **Why Partial**: The `generate` and `preset` commands are not currently exposed in the CLI command index, having been superseded by `init`. E2E interactive prompt coverage is limited.
+- **Remaining Work**: Register compatibility aliases or formal CLI entrypoints for `generate` and `preset`, or clean up documentation to match the actual CLI.
+- **Acceptance Criteria**: Running `structify generate --help` and `structify preset --help` output help docs or redirect cleanly.
+
+### Phase 6: Presets & Config-driven Generation
+- **Original Objective**: Scaffolding via presets or config files.
+- **Current Completion**: 85%
+- **Why Partial**: Presets cannot be loaded or managed dynamically beyond basic mock fixtures.
+- **Remaining Work**: Add preset definition loading from `docs/presets_and_config.md` or a local config folder.
+- **Acceptance Criteria**: CLI can load external preset json files and generate from them.
+
+### Phase 7: Doctor & Repair System
+- **Original Objective**: Inspection, drift validation, and repairs.
+- **Current Completion**: 75%
+- **Why Partial**: `doctor` checks focus on environment context rather than project drift diagnostics.
+- **Remaining Work**: Unify `doctor` diagnostics output with Project State Reader and Patch engines.
+- **Acceptance Criteria**: Running `structify doctor` returns project drift status alongside environment checks.
+
+### Phase 8: Model Context Protocol (MCP) Server
+- **Original Objective**: AI Assistant tool orchestration.
+- **Current Completion**: 80%
+- **Why Partial**: Packaged protocol handshake and external client transport are untested.
+- **Remaining Work**: Implement E2E protocol handshake validation scripts and client tests.
+- **Acceptance Criteria**: Running the MCP binary with a mock client successfully triggers tool discovery and execution.
+
+### Phase 9: Testing, Optimization, and Release
+- **Original Objective**: Hardening, cross-platform CI, release automation.
+- **Current Completion**: 70%
+- **Why Partial**: Lacks publication scripts, CI cross-platform verification, security scanners, and npm publication dry-runs.
+- **Remaining Work**: Write release pipelines, packaging checks, tarball installation smoke tests, and add security auditing tools.
+- **Acceptance Criteria**: All build, lint, format, typecheck, unit, and release verification scripts pass successfully on Windows, Linux, and macOS.
+
+================================================================================
+4. DETAILED TASK BREAKDOWN
+================================================================================
+- **Task ID**: T-CLI-COMPAT
+  - **Title**: CLI Command/Preset/Generate Reconciliation
+  - **Description**: Add aliases or compatibility handlers for legacy `generate` and `preset` commands.
+  - **Packages**: `apps/cli`
+  - **Deliverable**: Registered aliases and validated help outputs.
+
+- **Task ID**: T-PRESET-LOAD
+  - **Title**: Dynamic Preset Loader
+  - **Description**: Implement file-based preset loading from a user config folder.
+  - **Packages**: `packages/core`, `apps/cli`
+  - **Deliverable**: Code to load, save, and list project presets.
+
+- **Task ID**: T-DOCTOR-UNIFY
+  - **Title**: Unified Doctor Diagnostics
+  - **Description**: Integrate the Project State Reader and drift checking into `structify doctor`.
+  - **Packages**: `apps/cli`, `packages/core`
+  - **Deliverable**: `structify doctor` outputs directory health and config mismatch details.
+
+- **Task ID**: T-MCP-SMOKE
+  - **Title**: Packaged MCP Handshake Smoke Test
+  - **Description**: E2E script launching the MCP server and testing communication via stdin/stdout.
+  - **Packages**: `apps/mcp-server`
+  - **Deliverable**: Integration script in `scripts/verify-mcp.js`.
+
+- **Task ID**: T-RELEASE-SCRIPTS
+  - **Title**: Release Validation & Automation Scripts
+  - **Description**: Add workspace release check scripts, publish dry-runs, and package packing tests.
+  - **Packages**: Monorepo Root
+  - **Deliverable**: `npm run verify:release` and `npm run release` script files.
+
+- **Task ID**: T-SEC-AUDIT
+  - **Title**: Security Audit Gate
+  - **Description**: Integrate npm audit, SAST scanners, and secrets detection.
+  - **Packages**: Monorepo Root
+  - **Deliverable**: Audit script failing builds on security warnings.
+
+- **Task ID**: T-CI-MATRIX
+  - **Title**: Cross-Platform CI Automation
+  - **Description**: GitHub Actions workflow for testing on macOS, Linux, and Windows.
+  - **Packages**: Monorepo Root
+  - **Deliverable**: `.github/workflows/ci.yml` matrix update.
+
+================================================================================
+5. MILESTONE BREAKDOWN
+================================================================================
+- **Milestone 1: Command and Preset Reconciliation (Tasks: T-CLI-COMPAT, T-PRESET-LOAD)**
+  - Reconcile roadmap expectations, CLI command names, help text, and dynamic presets.
+- **Milestone 2: Unified Diagnostics & MCP Handshake (Tasks: T-DOCTOR-UNIFY, T-MCP-SMOKE)**
+  - Connect doctor command to project state reader; verify E2E MCP server functionality.
+- **Milestone 3: Release Hardening & Cross-Platform CI (Tasks: T-RELEASE-SCRIPTS, T-SEC-AUDIT, T-CI-MATRIX)**
+  - Add security scanners, packaging dry-runs, publish scripts, and multi-OS GitHub Actions.
+
+================================================================================
+6. DEPENDENCY GRAPH SUMMARY
+================================================================================
+```
+T-CLI-COMPAT ---> T-PRESET-LOAD ---\
+                                    +---> T-DOCTOR-UNIFY ---> T-MCP-SMOKE ---\
+                                                                              +---> T-RELEASE-SCRIPTS ---> T-SEC-AUDIT ---> T-CI-MATRIX
+```
+
+================================================================================
+7. GAP ANALYSIS
+================================================================================
+- **CLI / Commands**: Lack of legacy commands `generate` and `preset`. Resolved by adding compatibility command aliases.
+- **Doctor Command**: Environment checks are decoupled from Project State Reader checks. Resolved by combining checks under doctor command.
+- **MCP Verification**: MCP server lacks automated transport handshake verification. Resolved by writing a stdin/stdout JSON-RPC validator.
+- **Release Verification**: Packaging verification, dry-run publishing, and tarball checks are missing. Resolved by writing release lifecycle scripts.
+
+================================================================================
+8. RISK ASSESSMENT
+================================================================================
+- **Directory lockups (Windows)**: File-operation rollbacks may fail if child processes hold lock handles on files. Mitigated by using safe LIFO stack timing.
+- **MCP Server Stdin/Stdout conflict**: Standard debug logs in MCP stdout will break JSON-RPC protocol messages. Mitigated by redirecting debug logs to stderr.
+
+================================================================================
+9. RELEASE READINESS ASSESSMENT
+================================================================================
+- **Internal Development**: READY (92/100)
+- **Alpha release**: READY (85/100)
+- **Beta release**: READY (78/100)
+- **Public GitHub Release / npm Publication / Version 1.0**: NOT READY
+  - Blockers: Missing packaging scripts, security validation, cross-platform CI matrix, and MCP E2E validation.
+
+================================================================================
+10. TESTING REQUIREMENTS
+================================================================================
+- MCP server communication tests via standard stdin/stdout JSON-RPC protocol.
+- Tarball packing and local installation execution.
+- Cross-platform test verification across Linux, macOS, and Windows.
+
+================================================================================
+11. DOCUMENTATION REQUIREMENTS
+================================================================================
+- Document command redirection/aliases for generate and preset.
+- Add MCP deployment and AI assistant integration steps.
+- Formulate package release lifecycle checklists.
+
+================================================================================
+12. RECOMMENDED IMPLEMENTATION ORDER
+================================================================================
+1. T-CLI-COMPAT (Reconcile command aliases)
+2. T-PRESET-LOAD (Dynamic preset loader)
+3. T-DOCTOR-UNIFY (Connect doctor to Project State Reader)
+4. T-MCP-SMOKE (E2E MCP stdin transport validation)
+5. T-RELEASE-SCRIPTS (Workspace packaging and publish dry-runs)
+6. T-SEC-AUDIT (Audit/SAST security scanner addition)
+7. T-CI-MATRIX (Cross-platform multi-OS test matrix)
+
+================================================================================
+13. CRITICAL PATH
+================================================================================
+Reconcile CLI aliases -> Unify Doctor checks -> Packaged MCP server handshake -> Write release validation scripts -> Multi-OS CI workflows.
+
+================================================================================
+14. FINAL BACKLOG
+================================================================================
+- **Critical**: T-RELEASE-SCRIPTS, T-CI-MATRIX, T-CLI-COMPAT
+- **High**: T-DOCTOR-UNIFY, T-MCP-SMOKE, T-SEC-AUDIT
+- **Medium**: T-PRESET-LOAD
+- **Low**: Docs expansions
+
+================================================================================
+15. OVERALL COMPLETION PERCENTAGE
+================================================================================
+Roadmap completion: 82%
+
+================================================================================
+16. ESTIMATED REMAINING EFFORT
+================================================================================
+Total remaining effort: 35 Engineering Hours (approx. 5 days of focused engineering).
+
+================================================================================
+17. RECOMMENDED NEXT ACTION
+================================================================================
+Implement Milestone 1 (Command and Preset Reconciliation) followed immediately by Milestone 2 (Unified Diagnostics & MCP Handshake).
+
+================================================================================
+ANSWERS TO EXPLICIT QUESTIONS
+================================================================================
+- **Why is each remaining phase still partial?**
+  Deliverables such as release validation scripts, cross-platform matrix testing, MCP server handshake verification, unified doctor project checks, and command aliases were deferred or not implemented E2E.
+- **What exact work remains to complete each phase?**
+  Adding command aliases, loading dynamic presets, integrating project state diagnostics in doctor, writing MCP E2E stdin/stdout tests, adding packaging verification, and configuring multi-OS workflows.
+- **Which tasks are blocking version 1.0?**
+  Packaging tests, cross-platform CI matrix, command reconciliation, security audit, and MCP server validation.
+- **Which tasks are optional improvements?**
+  Dynamic presets loading and broader stack coverage.
+- **What is the shortest path to completing the original roadmap?**
+  Create aliases -> unified doctor -> MCP handshake tests -> release scripts -> multi-OS CI.
+- **What should be implemented immediately after this analysis?**
+  Milestone 1: Command and Preset Reconciliation (Task T-CLI-COMPAT).
+- **Is the project still following the original roadmap?**
+  Yes, but commands were renamed/consolidated, which needs explicit documentation and alias mapping.
+- **What is the estimated overall completion percentage?**
+  82%
+- **Is Structify ready for Alpha, Beta, Public GitHub Release, npm Publication, or Version 1.0?**
+  Ready for Alpha/Beta; NOT ready for public GitHub release, npm publication, or v1.0.

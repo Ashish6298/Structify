@@ -7,7 +7,7 @@ Structify is a professional, open-source developer productivity platform and com
 Every time developers start a new project, they spend hours or days executing repetitive setup tasks:
 
 - Creating folder structures manually.
-- Installing and configuring package managers.
+- Installing npm dependencies and writing npm-first scripts.
 - Writing boilerplate configuration files for linters (ESLint), formatters (Prettier), compilers (TypeScript), and editor settings (EditorConfig).
 - Setting up databases, ORMs, and schemas.
 - Configuring containerization (Docker) and CI/CD pipelines (GitHub Actions).
@@ -28,7 +28,7 @@ Structify automates the entire project initialization process while remaining:
 
 1. **Minimal Effort, Premium Output**: Setup a complete production-grade workspace in seconds with standard directory conventions, linting, formatting, containerization, and configuration.
 2. **Deterministic & Safe**: No hidden side-effects. Safe file execution with automated rolling backups.
-3. **Opinionated but Extensible**: Provides optimized default configurations while allowing deep customization via user-defined presets, configuration files, and custom templates.
+3. **Opinionated but Extensible**: Provides optimized npm-first default configurations while allowing customization through configuration files and internal extension points.
 4. **Loosely Coupled & Modular**: Every core engine is isolated, making it easy to swap generators, add styling options, or introduce new databases.
 5. **AI-Ready Integration**: Built-in Model Context Protocol (MCP) server allows AI assistants to interactively scaffold, inspect, and repair projects.
 
@@ -39,8 +39,6 @@ Structify is managed as a monorepo containing:
 - `apps/cli`: The main interactive Command Line Interface.
 - `apps/mcp-server`: Model Context Protocol server exposing Structify tools to AI agents.
 - `packages/core`: Core business logic, including the planning engine, validation logic, and file-system abstraction.
-- `packages/generators`: Generator engines for different frameworks.
-- `packages/templates`: Base structure files and config configurations.
 - `docs/`: In-depth architecture blueprints, design guides, and schemas.
 
 Refer to the [Architecture Guide](docs/architecture_guide.md) to understand the system design.

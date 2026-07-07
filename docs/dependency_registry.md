@@ -1,6 +1,6 @@
 # Dependency Registry
 
-Manages package manager package dependencies across workspace target folders.
+Manages npm package dependencies across workspace target folders.
 
 ## Functions
 

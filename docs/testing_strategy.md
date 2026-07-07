@@ -48,4 +48,3 @@ Because developers use different systems, the CI/CD pipeline runs tests against:
   - Node.js Current (v20+)
 - **Package Managers**:
   - npm
-  - npm

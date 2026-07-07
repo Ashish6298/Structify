@@ -47,7 +47,7 @@ The following is the JSON Schema definition for `structify.json`:
         },
         "packageManager": {
           "type": "string",
-          "enum": ["npm", "pnpm"]
+          "enum": ["npm"]
         }
       },
       "required": ["frontend", "backend", "database", "packageManager"]
@@ -98,26 +98,70 @@ Below is a complete, valid `structify.json` config file for a Next.js full-stack
 
 ## Presets Management
 
-Presets are stored under the user's home configuration directory (e.g., `~/.config/structify/presets/`) or globally. A preset is a simple reusable stack configuration template:
+Presets are structured config files containing metadata, configuration, and extensibility sections.
 
-### File Format: `~/.config/structify/presets/nextjs-postgres-tailwind.json`
+### Precedence / Discovery Order
+
+Structify searches for presets in the following priority order:
+
+1. **Repository Presets**: `.structify/presets/*.json` in the current workspace.
+2. **Global Presets**: `~/.structify/presets/*.json` (OS-appropriate config path).
+3. **Built-in Presets**: Bundled natively within Structify.
+
+Local repository presets override global presets, and global presets override built-in ones.
+
+### File Format: `v1.0` Schema Layout
 
 ```json
 {
-  "version": "1.0",
-  "stack": {
-    "frontend": "nextjs",
-    "backend": "none",
-    "styling": "tailwind",
-    "database": "postgresql",
-    "orm": "prisma",
-    "packageManager": "npm"
+  "meta": {
+    "name": "next-postgres-tailwind",
+    "description": "Next.js frontend with PostgreSQL database, Prisma ORM, and Tailwind CSS.",
+    "version": "1.0.0",
+    "schemaVersion": "1.0",
+    "author": "user",
+    "tags": ["next", "postgres", "tailwind"]
   },
-  "features": {
-    "docker": true,
-    "githubActions": true,
-    "git": true,
-    "linting": true
+  "config": {
+    "version": "1.0",
+    "mode": "frontend-only",
+    "stack": {
+      "frontend": "next",
+      "backend": "none",
+      "styling": "tailwind",
+      "database": "postgres",
+      "orm": "prisma",
+      "packageManager": "npm"
+    },
+    "tools": {
+      "docker": true,
+      "eslint": true,
+      "prettier": true
+    }
   }
 }
 ```
+
+### Merging Sequence
+
+When initiating project generation, settings are merged deterministically in the following priority order:
+
+1. **Structify Defaults** (baseline settings)
+2. **Preset Values** (referenced via `--preset` or `--preset-file`)
+3. **Config File** (supplied via `--config`)
+4. **CLI Flags / Prompts** (highest priority command-line overrides)
+
+### CLI Command Options
+
+- `structify preset list`: Lists all available presets with their origin and schema version.
+- `structify preset show <name>`: Displays the preset details.
+- `structify preset path`: Queries the preset directory path.
+- `structify preset validate <filePath>`: Audits a preset JSON file.
+- `structify preset create <name>`: Creates a default preset template file.
+- `structify preset export <name> <dest>`: Exports a preset config.
+- `structify preset import <src>`: Installs a preset from an external path.
+- `structify preset remove <name>`: Deletes a user preset safely.
+- `structify preset rename <old> <new>`: Renames a user preset.
+- `structify preset copy <src> <dest>`: Copies a preset definition.
+- `structify preset edit <name>`: Opens the preset in the terminal's default editor.
+- `structify preset info <name>`: Queries compatibility data.

@@ -6,6 +6,8 @@ import { handleAdd } from './add.js';
 import { handleInspect } from './inspect.js';
 import { handleRepair } from './repair.js';
 import { handleVerifyProject } from './verify-project.js';
+import { handleUpgrade } from './upgrade.js';
+import { handlePreset } from './preset.js';
 import { createCLIContext } from '../context.js';
 import { wrapAction } from '../utils/middleware.js';
 
@@ -17,6 +19,7 @@ export function registerCommands(program: Command): void {
     .option('-d, --dry-run', 'Generate the plan steps preview without writing files')
     .option('-c, --config <path>', 'Scaffold using a config file path')
     .option('-p, --preset <name>', 'Scaffold using a predefined configuration preset')
+    .option('--preset-file <path>', 'Scaffold using a standalone preset file path')
     .option('-y, --yes', 'Use default configuration settings')
     .option('--force', 'Overwrite target directory even if non-empty')
     .option('--install', 'Run package manager dependency installation command')
@@ -31,6 +34,7 @@ export function registerCommands(program: Command): void {
     .action(async (projectName, options, commandInstance) => {
       const globalOpts = program.opts();
       const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      context.commandName = commandInstance.name();
       (commandInstance as Command & { context?: unknown }).context = context;
 
       const configObj = {
@@ -43,11 +47,46 @@ export function registerCommands(program: Command): void {
     });
 
   program
+    .command('generate')
+    .description('Initialize a new project stack scaffolding (alias for init)')
+    .argument('[projectName]', 'Name of the project directory')
+    .option('-d, --dry-run', 'Generate the plan steps preview without writing files')
+    .option('-c, --config <path>', 'Scaffold using a config file path')
+    .option('-p, --preset <name>', 'Scaffold using a predefined configuration preset')
+    .option('--preset-file <path>', 'Scaffold using a standalone preset file path')
+    .option('-y, --yes', 'Use default configuration settings')
+    .option('--force', 'Overwrite target directory even if non-empty')
+    .option('--install', 'Run package manager dependency installation command')
+    .option('--skip-install', 'Do not run dependency installation commands')
+    .option('--event-log', 'Write a Structify session event log into the generated project')
+    .option('--verify', 'Run offline structural validation after generation')
+    .option('--output <path>', 'Choose output directory')
+    .addHelpText(
+      'after',
+      '\nExamples:\n  $ structify generate my-project\n  $ structify generate my-project --dry-run\n  $ structify generate --config structify.json',
+    )
+    .action(async (projectName, options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      context.commandName = commandInstance.name();
+      (commandInstance as Command & { context?: unknown }).context = context;
+
+      const configObj = {
+        ...options,
+        projectName: projectName || undefined,
+      };
+
+      const wrapped = wrapAction('generate', handleInit);
+      await wrapped(configObj, commandInstance);
+    });
+
+  program
     .command('verify-project')
     .description(
       'Structurally validate a generated Structify project without installing dependencies',
     )
     .option('--path <path>', 'Project path to validate')
+    .option('--strict', 'Treat drift warnings as validation errors')
     .addHelpText('after', '\nExamples:\n  $ structify verify-project --path my-project')
     .action(async (options, commandInstance) => {
       const globalOpts = program.opts();
@@ -78,14 +117,18 @@ export function registerCommands(program: Command): void {
 
   program
     .command('doctor')
-    .description('Audit environment setup and workspace configuration files')
-    .addHelpText('after', '\nExamples:\n  $ structify doctor\n  $ structify doctor --json')
+    .description('Audit environment setup, project health, and workspace configuration')
+    .option('--path <path>', 'Project path to diagnose (defaults to current directory)')
+    .addHelpText(
+      'after',
+      '\nExamples:\n  $ structify doctor\n  $ structify doctor --json\n  $ structify doctor --path ./my-project',
+    )
     .action(async (options, commandInstance) => {
       const globalOpts = program.opts();
       const context = createCLIContext(process.argv, { ...globalOpts, ...options });
       (commandInstance as Command & { context?: unknown }).context = context;
 
-      const wrapped = wrapAction('doctor', (_options, ctx) => handleDoctor(ctx));
+      const wrapped = wrapAction('doctor', (_options, ctx) => handleDoctor(ctx, options));
       await wrapped(options, commandInstance);
     });
 
@@ -93,39 +136,94 @@ export function registerCommands(program: Command): void {
     .command('add')
     .description('Add a module incrementally into an existing workspace')
     .argument('<moduleName>', 'Name of module (e.g. docker, eslint, prisma)')
+    .option('-d, --dry-run', 'Preview module patch plan without writing files')
+    .option('-y, --yes', 'Apply without confirmation')
+    .option('--force', 'Allow intentional overwrites when conflicts are safe')
+    .option('--path <path>', 'Project path to modify')
+    .option('--database <database>', 'Database override for database modules')
     .addHelpText('after', '\nExamples:\n  $ structify add docker')
     .action(async (moduleName, options, commandInstance) => {
       const globalOpts = program.opts();
       const context = createCLIContext(process.argv, { ...globalOpts, ...options });
       (commandInstance as Command & { context?: unknown }).context = context;
 
-      const wrapped = wrapAction('add', (_opts, ctx) => handleAdd(moduleName, ctx));
+      const wrapped = wrapAction('add', (opts, ctx) => handleAdd(moduleName, opts, ctx));
       await wrapped(options, commandInstance);
     });
 
   program
     .command('inspect')
     .description('Audit stacks used in current working directory')
+    .option('--path <path>', 'Project path to inspect')
     .addHelpText('after', '\nExamples:\n  $ structify inspect')
     .action(async (options, commandInstance) => {
       const globalOpts = program.opts();
       const context = createCLIContext(process.argv, { ...globalOpts, ...options });
       (commandInstance as Command & { context?: unknown }).context = context;
 
-      const wrapped = wrapAction('inspect', (_opts, ctx) => handleInspect(ctx));
+      const wrapped = wrapAction('inspect', (opts, ctx) => handleInspect(opts, ctx));
       await wrapped(options, commandInstance);
     });
 
   program
     .command('repair')
     .description('Fix configuration mismatches flagged by doctor command')
+    .option('-d, --dry-run', 'Preview repair plan without writing files')
+    .option('--apply', 'Apply safe repairs')
+    .option('-y, --yes', 'Apply without confirmation')
+    .option('--force', 'Allow safe repair overwrites with backup metadata')
+    .option('--path <path>', 'Project path to repair')
     .addHelpText('after', '\nExamples:\n  $ structify repair')
     .action(async (options, commandInstance) => {
       const globalOpts = program.opts();
       const context = createCLIContext(process.argv, { ...globalOpts, ...options });
       (commandInstance as Command & { context?: unknown }).context = context;
 
-      const wrapped = wrapAction('repair', (_opts, ctx) => handleRepair(ctx));
+      const wrapped = wrapAction('repair', handleRepair);
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('upgrade')
+    .description('Preview or apply safe Structify project upgrades')
+    .option('-d, --dry-run', 'Preview upgrade plan without writing files')
+    .option('-y, --yes', 'Apply safe metadata/package upgrades without confirmation')
+    .option('--path <path>', 'Project path to upgrade')
+    .addHelpText(
+      'after',
+      '\nExamples:\n  $ structify upgrade --dry-run\n  $ structify upgrade --json',
+    )
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+
+      const wrapped = wrapAction('upgrade', handleUpgrade);
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('preset')
+    .description('Manage Structify configuration presets')
+    .argument(
+      '<action>',
+      'Action to perform: list, show, path, validate, create, export, import, remove, rename, copy, edit, info',
+    )
+    .argument('[presetName]', 'Name of the configuration preset or file path')
+    .argument('[extraArg]', 'Third target argument (destination file path, new name, etc.)')
+    .addHelpText(
+      'after',
+      '\nExamples:\n  $ structify preset list\n  $ structify preset show next-postgres-tailwind\n  $ structify preset path',
+    )
+    .action(async (action, presetName, extraArg, options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      context.commandName = commandInstance.name();
+      (commandInstance as Command & { context?: unknown }).context = context;
+
+      const wrapped = wrapAction('preset', (_opts, ctx) =>
+        handlePreset(action, presetName, extraArg, ctx),
+      );
       await wrapped(options, commandInstance);
     });
 }

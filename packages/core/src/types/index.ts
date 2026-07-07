@@ -3,7 +3,7 @@ export type BackendOption = 'express' | 'nest' | 'none';
 export type StylingOption = 'tailwind' | 'mui' | 'none';
 export type DatabaseOption = 'postgres' | 'mongodb' | 'none';
 export type OrmOption = 'prisma' | 'mongoose' | 'none';
-export type PackageManagerOption = 'npm' | 'pnpm';
+export type PackageManagerOption = 'npm';
 export type ProjectMode = 'frontend-only' | 'backend-only' | 'fullstack';
 export type LanguageOption = 'typescript';
 
@@ -33,6 +33,17 @@ export interface ProjectConfig {
     packageManager?: PackageManagerOption;
   };
   tools?: Partial<ToolingOptions>;
+  preset?: PresetManifestMetadata;
+}
+
+export interface PresetManifestMetadata {
+  name: string;
+  version: string;
+  source: string;
+  schemaVersion: string;
+  creationTimestamp?: string;
+  configHash?: string;
+  presetHash?: string;
 }
 
 export interface NormalizedProjectConfig {
@@ -49,6 +60,7 @@ export interface NormalizedProjectConfig {
     packageManager: PackageManagerOption;
   };
   tools: ToolingOptions;
+  preset?: PresetManifestMetadata;
 }
 
 export interface ValidationError {

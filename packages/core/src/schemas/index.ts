@@ -5,7 +5,7 @@ export const BackendOptionSchema = z.enum(['express', 'nest', 'none']);
 export const StylingOptionSchema = z.enum(['tailwind', 'mui', 'none']);
 export const DatabaseOptionSchema = z.enum(['postgres', 'mongodb', 'none']);
 export const OrmOptionSchema = z.enum(['prisma', 'mongoose', 'none']);
-export const PackageManagerOptionSchema = z.enum(['npm', 'pnpm']);
+export const PackageManagerOptionSchema = z.enum(['npm']);
 export const ProjectModeSchema = z.enum(['frontend-only', 'backend-only', 'fullstack']);
 export const LanguageOptionSchema = z.enum(['typescript']);
 
@@ -19,6 +19,16 @@ export const ToolingOptionsSchema = z.object({
   husky: z.boolean(),
   lintStaged: z.boolean(),
   commitlint: z.boolean(),
+});
+
+export const PresetManifestMetadataSchema = z.object({
+  name: z.string(),
+  version: z.string(),
+  source: z.string(),
+  schemaVersion: z.string(),
+  creationTimestamp: z.string().optional(),
+  configHash: z.string().optional(),
+  presetHash: z.string().optional(),
 });
 
 export const ProjectConfigSchema = z.object({
@@ -35,6 +45,7 @@ export const ProjectConfigSchema = z.object({
     packageManager: PackageManagerOptionSchema.optional(),
   }),
   tools: ToolingOptionsSchema.partial().optional(),
+  preset: PresetManifestMetadataSchema.optional(),
 });
 
 export const NormalizedProjectConfigSchema = z.object({
@@ -51,6 +62,7 @@ export const NormalizedProjectConfigSchema = z.object({
     packageManager: PackageManagerOptionSchema,
   }),
   tools: ToolingOptionsSchema,
+  preset: PresetManifestMetadataSchema.optional(),
 });
 
 export const ValidationErrorSchema = z.object({

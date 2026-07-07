@@ -2,7 +2,7 @@ export interface DependencyEntry {
   packageName: string;
   versionRange: string;
   dependencyType: 'prod' | 'dev' | 'peer';
-  supportedPackageManagers: ('npm' | 'pnpm')[];
+  supportedPackageManagers: 'npm'[];
   installScope: 'workspace' | 'root';
   targetWorkspace?: string;
   reason: string;
@@ -55,7 +55,7 @@ export class DependencyRegistry {
   }
 
   public groupByPackageManagerAndWorkspace(
-    packageManager: 'npm' | 'pnpm',
+    packageManager: 'npm',
   ): Record<string, { prod: string[]; dev: string[] }> {
     const { resolved } = this.deduplicateAndResolveConflicts();
     const result: Record<string, { prod: string[]; dev: string[] }> = {};

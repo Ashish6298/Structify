@@ -1,4 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { describe, it, expect, vi } from 'vitest';
 import { createCLIContext } from './context.js';
 import {
   validateStack,
@@ -8,6 +11,7 @@ import {
 } from '@structify/core';
 import { InteractivePromptEngine, QuestionMetadata } from './utils/prompts.js';
 import { ConfigurationLoaderManager } from './utils/loader.js';
+import { handleInit } from './commands/init.js';
 import validFixture from './fixtures/valid-config.json';
 import invalidFixture from './fixtures/invalid-config.json';
 
@@ -88,7 +92,7 @@ describe('CLI Shell Unit Tests', () => {
           styling: 'tailwind',
           database: 'postgres',
           orm: 'prisma',
-          packageManager: 'pnpm',
+          packageManager: 'npm',
         },
         tools: {
           docker: true,
@@ -120,6 +124,65 @@ describe('CLI Shell Unit Tests', () => {
       const result = await manager.loadAndValidate('unsupported.yaml', process.cwd());
       expect(result.success).toBe(false);
       expect(result.error).toContain('Unsupported file extension');
+    });
+  });
+
+  describe('Phase 8.2 CLI hardening', () => {
+    it('should expose planned virtual files consistently in dry-run JSON', async () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'structify-dry-json-'));
+      const logs: string[] = [];
+      const logSpy = vi.spyOn(console, 'log').mockImplementation((message?: unknown) => {
+        logs.push(String(message));
+      });
+      const context = createCLIContext(['node', 'structify', '--json', 'init'], {
+        json: true,
+        cwd: tmp,
+      });
+      await handleInit({ dryRun: true, yes: true, output: 'dry-app' }, context);
+      logSpy.mockRestore();
+      const parsed = JSON.parse(logs.join('\n')) as {
+        generatedFiles: string[];
+        plannedFiles: string[];
+        virtualFileGraph: { fileCount: number; files: string[] };
+        data: { graph: { fileCount: number; files: string[] } };
+      };
+      expect(parsed.generatedFiles).toEqual([]);
+      expect(parsed.virtualFileGraph.fileCount).toBeGreaterThan(0);
+      expect(parsed.virtualFileGraph).toEqual(parsed.data.graph);
+      expect(parsed.plannedFiles).toEqual(parsed.virtualFileGraph.files);
+      expect(fs.existsSync(path.join(tmp, 'dry-app'))).toBe(false);
+      fs.rmSync(tmp, { recursive: true, force: true });
+    });
+
+    it('should classify existing non-empty output as TARGET_DIRECTORY_NOT_EMPTY in JSON', async () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'structify-conflict-json-'));
+      const target = path.join(tmp, 'target');
+      fs.mkdirSync(target, { recursive: true });
+      fs.writeFileSync(path.join(target, 'existing.txt'), 'existing');
+      const logs: string[] = [];
+      const logSpy = vi.spyOn(console, 'log').mockImplementation((message?: unknown) => {
+        logs.push(String(message));
+      });
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {
+        throw new Error('process.exit');
+      }) as never);
+      const context = createCLIContext(['node', 'structify', '--json', 'init'], {
+        json: true,
+        cwd: tmp,
+      });
+      await expect(handleInit({ yes: true, output: target }, context)).rejects.toThrow(
+        'process.exit',
+      );
+      logSpy.mockRestore();
+      exitSpy.mockRestore();
+      const parsed = JSON.parse(logs.join('\n')) as {
+        success: boolean;
+        errors: { code: string; message: string }[];
+      };
+      expect(parsed.success).toBe(false);
+      expect(parsed.errors[0]?.code).toBe('TARGET_DIRECTORY_NOT_EMPTY');
+      expect(parsed.errors[0]?.message).toContain('exists and is not empty');
+      fs.rmSync(tmp, { recursive: true, force: true });
     });
   });
 });

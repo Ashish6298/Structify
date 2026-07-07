@@ -1,4 +1,4 @@
-import { NormalizedProjectConfig } from '../types/index.js';
+import { NormalizedProjectConfig, PresetManifestMetadata } from '../types/index.js';
 import { hashStable } from '../manifest/index.js';
 
 export type ProjectGraphNodeType =
@@ -38,6 +38,7 @@ export interface ProjectGraph {
   nodes: ProjectGraphNode[];
   edges: ProjectGraphEdge[];
   summary: Record<ProjectGraphNodeType, number>;
+  preset?: PresetManifestMetadata;
 }
 
 export class ProjectGraphBuilder {
@@ -79,6 +80,7 @@ export class ProjectGraphBuilder {
       nodes,
       edges: [...this.edges].sort((a, b) => `${a.from}:${a.to}`.localeCompare(`${b.from}:${b.to}`)),
       summary,
+      preset: config.preset,
     };
   }
 }

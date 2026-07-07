@@ -53,17 +53,17 @@ export class CLIOutput {
 
   success(message: string): void {
     if (this.context.json) return;
-    console.log(this.colorize('\x1b[32m', `✔ ${message}`));
+    console.log(this.colorize('\x1b[32m', `[PASS] ${message}`));
   }
 
   warn(message: string): void {
     if (this.context.json) return;
-    console.warn(this.colorize('\x1b[33m', `⚠ ${message}`));
+    console.warn(this.colorize('\x1b[33m', `[WARN] ${message}`));
   }
 
   error(message: string): void {
     if (this.context.json) return;
-    console.error(this.colorize('\x1b[31m', `✖ Error: ${message}`));
+    console.error(this.colorize('\x1b[31m', `[FAIL] ${message}`));
   }
 
   info(message: string): void {

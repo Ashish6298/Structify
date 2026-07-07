@@ -100,7 +100,7 @@ ${docCheckOutput}
 
   // 3. Execution Commands
   const checks = [
-    { title: 'Workspace Dependencies Installation Check', cmd: 'npx pnpm install' },
+    { title: 'Workspace Dependencies Installation Check', cmd: 'npm install' },
     { title: 'Turborepo Linting Verification', cmd: 'npx turbo lint' },
     {
       title: 'Prettier Formatting Check',

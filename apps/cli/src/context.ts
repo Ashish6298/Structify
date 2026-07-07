@@ -21,9 +21,10 @@ export interface CLIContext {
   isTTY: boolean;
   processId: number;
   timestamp: string;
-  detectedPackageManager: 'npm' | 'pnpm' | 'none';
+  detectedPackageManager: 'npm' | 'none';
   system: SystemMetrics;
   startTime: [number, number];
+  commandName?: string;
 }
 
 export function createCLIContext(
@@ -38,11 +39,9 @@ export function createCLIContext(
 ): CLIContext {
   const targetCwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
 
-  let detectedPackageManager: 'npm' | 'pnpm' | 'none' = 'none';
+  let detectedPackageManager: 'npm' | 'none' = 'none';
   try {
-    if (fs.existsSync(path.join(targetCwd, 'pnpm-lock.yaml'))) {
-      detectedPackageManager = 'pnpm';
-    } else if (fs.existsSync(path.join(targetCwd, 'package-lock.json'))) {
+    if (fs.existsSync(path.join(targetCwd, 'package-lock.json'))) {
       detectedPackageManager = 'npm';
     }
   } catch (_e) {

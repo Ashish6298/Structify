@@ -55,12 +55,6 @@ export const ORM_OPTIONS = [
 
 export const PACKAGE_MANAGERS = [
   { value: 'npm', label: 'npm', description: 'Default Node.js package manager', available: true },
-  {
-    value: 'pnpm',
-    label: 'pnpm',
-    description: 'Fast, disk space efficient package manager',
-    available: true,
-  },
 ] as const;
 
 export const PROJECT_MODES = [

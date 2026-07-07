@@ -1,5 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { hashStable, StructifyManifest } from '../manifest/index.js';
+import { NormalizedProjectConfig } from '../types/index.js';
+import { createComposableGenerationPlan } from '../generation/composable.js';
 import { ProjectGraph } from './project-graph.js';
 
 export interface ProjectValidationIssue {
@@ -8,87 +11,381 @@ export interface ProjectValidationIssue {
   path?: string;
 }
 
+export interface DependencyCheck {
+  packageName: string;
+  expected: string;
+  actual?: string;
+  dependencyType: 'dependencies' | 'devDependencies' | 'peerDependencies' | 'optionalDependencies';
+  valid: boolean;
+}
+
 export interface ProjectValidationResult {
   valid: boolean;
   checkedFiles: string[];
+  checkedScripts: string[];
+  checkedGraphNodes: string[];
+  dependencyChecks: DependencyCheck[];
+  warnings: ProjectValidationIssue[];
+  errors: ProjectValidationIssue[];
   issues: ProjectValidationIssue[];
+  config?: NormalizedProjectConfig;
+  manifest?: StructifyManifest;
   projectGraph?: ProjectGraph;
 }
 
 export function validateGeneratedProject(projectPath: string): ProjectValidationResult {
-  const required = [
-    'package.json',
-    'structify.config.json',
-    'structify.manifest.json',
-    'structify.project-graph.json',
-    'README.md',
-  ];
   const checkedFiles: string[] = [];
-  const issues: ProjectValidationIssue[] = [];
+  const checkedScripts: string[] = [];
+  const checkedGraphNodes: string[] = [];
+  const dependencyChecks: DependencyCheck[] = [];
+  const warnings: ProjectValidationIssue[] = [];
+  const errors: ProjectValidationIssue[] = [];
 
-  for (const relativePath of required) {
-    checkedFiles.push(relativePath);
-    if (!fs.existsSync(path.join(projectPath, relativePath))) {
-      issues.push({
-        code: 'MISSING_REQUIRED_FILE',
-        message: `Missing ${relativePath}`,
-        path: relativePath,
+  const config = readJson<
+    NormalizedProjectConfig & {
+      structify?: {
+        version?: string;
+        generatedBy?: string;
+        manifestPath?: string;
+        projectGraphPath?: string;
+        packageManager?: string;
+      };
+    }
+  >(projectPath, 'structify.config.json', checkedFiles, errors);
+  const manifest = readJson<
+    StructifyManifest & {
+      projectGraphPath?: string;
+      projectGraphSummary?: ProjectGraph['summary'];
+      dependencyDiagnostics?: unknown[];
+      analytics?: Record<string, unknown>;
+    }
+  >(projectPath, 'structify.manifest.json', checkedFiles, errors);
+  const projectGraph = readJson<ProjectGraph>(
+    projectPath,
+    'structify.project-graph.json',
+    checkedFiles,
+    errors,
+  );
+  const packageJson = readJson<{
+    scripts?: Record<string, string>;
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+    peerDependencies?: Record<string, string>;
+    optionalDependencies?: Record<string, string>;
+  }>(projectPath, 'package.json', checkedFiles, errors);
+
+  requireFile(projectPath, 'README.md', checkedFiles, errors);
+
+  if (config) {
+    validateConfigShape(config, errors);
+    if (config.structify?.version !== '1.0.0') {
+      errors.push({
+        code: 'CONFIG_STRUCTIFY_METADATA_MISSING',
+        message: 'structify.config.json is missing Structify metadata version 1.0.0.',
+        path: 'structify.config.json',
+      });
+    }
+    if (
+      config.structify?.generatedBy !== 'structify' ||
+      config.structify?.manifestPath !== 'structify.manifest.json' ||
+      config.structify?.projectGraphPath !== 'structify.project-graph.json'
+    ) {
+      errors.push({
+        code: 'CONFIG_STRUCTIFY_METADATA_INVALID',
+        message: 'structify.config.json does not reference the expected generated metadata files.',
+        path: 'structify.config.json',
+      });
+    }
+    if (config.stack.packageManager !== 'npm') {
+      warnings.push({
+        code: 'NON_NPM_PACKAGE_MANAGER',
+        message: `Project uses ${config.stack.packageManager}; npm is the default Structify workflow.`,
+        path: 'structify.config.json',
       });
     }
   }
 
-  const packagePath = path.join(projectPath, 'package.json');
-  if (fs.existsSync(packagePath)) {
-    try {
-      const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8')) as {
-        scripts?: Record<string, string>;
-        dependencies?: Record<string, string>;
-        devDependencies?: Record<string, string>;
-      };
-      if (!pkg.scripts?.dev) {
-        issues.push({
-          code: 'MISSING_DEV_SCRIPT',
-          message: 'package.json must include a dev script',
-          path: 'package.json',
-        });
-      }
-      if (!pkg.dependencies && !pkg.devDependencies) {
-        issues.push({
-          code: 'MISSING_DEPENDENCIES',
-          message: 'package.json must include dependency sections',
-          path: 'package.json',
-        });
-      }
-    } catch (error) {
-      issues.push({ code: 'INVALID_PACKAGE_JSON', message: String(error), path: 'package.json' });
+  if (config && manifest) {
+    if (manifest.structifyVersion !== '1.0.0') {
+      errors.push({
+        code: 'STRUCTIFY_VERSION_MISMATCH',
+        message: `Unsupported Structify version ${manifest.structifyVersion}`,
+        path: 'structify.manifest.json',
+      });
+    }
+    if (manifest.stackHash !== hashStable(config.stack)) {
+      errors.push({
+        code: 'MANIFEST_STACK_HASH_MISMATCH',
+        message: 'Manifest stack hash does not match structify.config.json.',
+        path: 'structify.manifest.json',
+      });
+    }
+    if (manifest.packageManager !== config.stack.packageManager) {
+      errors.push({
+        code: 'MANIFEST_PACKAGE_MANAGER_MISMATCH',
+        message: 'Manifest package manager does not match config.',
+        path: 'structify.manifest.json',
+      });
+    }
+    if (manifest.projectGraphPath !== 'structify.project-graph.json') {
+      errors.push({
+        code: 'MANIFEST_PROJECT_GRAPH_PATH_MISSING',
+        message: 'Manifest must reference structify.project-graph.json.',
+        path: 'structify.manifest.json',
+      });
+    }
+    if (!manifest.generatorVersions || Object.keys(manifest.generatorVersions).length === 0) {
+      errors.push({
+        code: 'MANIFEST_GENERATOR_METADATA_MISSING',
+        message: 'Manifest must include generator version metadata.',
+        path: 'structify.manifest.json',
+      });
     }
   }
 
-  let projectGraph: ProjectGraph | undefined;
-  const graphPath = path.join(projectPath, 'structify.project-graph.json');
-  if (fs.existsSync(graphPath)) {
-    try {
-      projectGraph = JSON.parse(fs.readFileSync(graphPath, 'utf8')) as ProjectGraph;
-      if (!Array.isArray(projectGraph.nodes) || projectGraph.nodes.length === 0) {
-        issues.push({
-          code: 'EMPTY_PROJECT_GRAPH',
-          message: 'Project Graph must contain nodes',
-          path: 'structify.project-graph.json',
-        });
-      }
-    } catch (error) {
-      issues.push({
-        code: 'INVALID_PROJECT_GRAPH',
-        message: String(error),
+  if (config && projectGraph) {
+    if (projectGraph.version !== '1.0.0') {
+      errors.push({
+        code: 'PROJECT_GRAPH_VERSION_MISMATCH',
+        message: `Unsupported Project Graph version ${projectGraph.version}.`,
         path: 'structify.project-graph.json',
       });
     }
+    if (projectGraph.projectName !== config.projectName) {
+      errors.push({
+        code: 'PROJECT_GRAPH_PROJECT_NAME_MISMATCH',
+        message: 'Project Graph projectName does not match structify.config.json.',
+        path: 'structify.project-graph.json',
+      });
+    }
+    if (!Array.isArray(projectGraph.nodes) || projectGraph.nodes.length === 0) {
+      errors.push({
+        code: 'EMPTY_PROJECT_GRAPH',
+        message: 'Project Graph must contain nodes.',
+        path: 'structify.project-graph.json',
+      });
+    }
+    if (projectGraph.stackHash !== hashStable(config.stack)) {
+      errors.push({
+        code: 'PROJECT_GRAPH_STACK_HASH_MISMATCH',
+        message: 'Project Graph stack hash does not match config.',
+        path: 'structify.project-graph.json',
+      });
+    }
+    checkedGraphNodes.push(...projectGraph.nodes.map((node) => node.id));
+    const nodeIds = new Set(projectGraph.nodes.map((node) => node.id));
+    for (const edge of projectGraph.edges ?? []) {
+      if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) {
+        errors.push({
+          code: 'PROJECT_GRAPH_INVALID_EDGE',
+          message: `Project Graph edge ${edge.from} -> ${edge.to} references a missing node.`,
+          path: 'structify.project-graph.json',
+        });
+      }
+    }
+    const actualSummary = projectGraph.nodes.reduce<Record<string, number>>((summary, node) => {
+      summary[node.type] = (summary[node.type] ?? 0) + 1;
+      return summary;
+    }, {});
+    for (const [type, count] of Object.entries(projectGraph.summary ?? {})) {
+      if ((actualSummary[type] ?? 0) !== count) {
+        errors.push({
+          code: 'PROJECT_GRAPH_SUMMARY_MISMATCH',
+          message: `Project Graph summary for ${type} expected ${actualSummary[type] ?? 0} but found ${count}.`,
+          path: 'structify.project-graph.json',
+        });
+      }
+    }
+    if (manifest?.projectGraphSummary) {
+      const manifestSummary = JSON.stringify(manifest.projectGraphSummary);
+      const graphSummary = JSON.stringify(projectGraph.summary);
+      if (manifestSummary !== graphSummary) {
+        errors.push({
+          code: 'MANIFEST_PROJECT_GRAPH_SUMMARY_MISMATCH',
+          message: 'Manifest Project Graph summary does not match structify.project-graph.json.',
+          path: 'structify.manifest.json',
+        });
+      }
+    }
+    for (const node of projectGraph.nodes) {
+      if (node.path) {
+        requireFile(projectPath, node.path, checkedFiles, errors, 'MISSING_GRAPH_FILE');
+      }
+    }
   }
 
+  if (config && packageJson) {
+    const expected = createComposableGenerationPlan(config);
+    const expectedPackage = JSON.parse(
+      expected.files.find((file) => file.path === 'package.json')?.content ?? '{}',
+    ) as {
+      scripts?: Record<string, string>;
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+      peerDependencies?: Record<string, string>;
+      optionalDependencies?: Record<string, string>;
+    };
+    for (const [scriptName, command] of Object.entries(expectedPackage.scripts ?? {})) {
+      checkedScripts.push(scriptName);
+      if (packageJson.scripts?.[scriptName] !== command) {
+        errors.push({
+          code: 'SCRIPT_MISMATCH',
+          message: `Script ${scriptName} expected "${command}" but found "${packageJson.scripts?.[scriptName] ?? 'missing'}".`,
+          path: 'package.json',
+        });
+      }
+    }
+    checkDependencySection(
+      'dependencies',
+      expectedPackage.dependencies ?? {},
+      packageJson.dependencies ?? {},
+      dependencyChecks,
+      errors,
+    );
+    checkDependencySection(
+      'devDependencies',
+      expectedPackage.devDependencies ?? {},
+      packageJson.devDependencies ?? {},
+      dependencyChecks,
+      errors,
+    );
+    checkRequiredStackFiles(config, projectPath, checkedFiles, errors);
+  }
+
+  const issues = [...warnings, ...errors];
   return {
-    valid: issues.length === 0,
-    checkedFiles,
+    valid: errors.length === 0,
+    checkedFiles: [...new Set(checkedFiles)].sort(),
+    checkedScripts: [...new Set(checkedScripts)].sort(),
+    checkedGraphNodes: [...new Set(checkedGraphNodes)].sort(),
+    dependencyChecks,
+    warnings,
+    errors,
     issues,
+    config,
+    manifest,
     projectGraph,
   };
+}
+
+function readJson<T>(
+  projectPath: string,
+  relativePath: string,
+  checkedFiles: string[],
+  errors: ProjectValidationIssue[],
+): T | undefined {
+  requireFile(projectPath, relativePath, checkedFiles, errors);
+  const absolutePath = path.join(projectPath, relativePath);
+  if (!fs.existsSync(absolutePath)) return undefined;
+  try {
+    return JSON.parse(fs.readFileSync(absolutePath, 'utf8')) as T;
+  } catch (error) {
+    errors.push({ code: 'INVALID_JSON', message: String(error), path: relativePath });
+    return undefined;
+  }
+}
+
+function requireFile(
+  projectPath: string,
+  relativePath: string,
+  checkedFiles: string[],
+  errors: ProjectValidationIssue[],
+  code = 'MISSING_REQUIRED_FILE',
+): void {
+  checkedFiles.push(relativePath);
+  if (!fs.existsSync(path.join(projectPath, relativePath))) {
+    errors.push({ code, message: `Missing ${relativePath}`, path: relativePath });
+  }
+}
+
+function validateConfigShape(
+  config: NormalizedProjectConfig,
+  errors: ProjectValidationIssue[],
+): void {
+  if (!config.projectName || !config.stack || !config.tools) {
+    errors.push({
+      code: 'INVALID_STRUCTIFY_CONFIG',
+      message: 'structify.config.json is missing normalized project fields.',
+      path: 'structify.config.json',
+    });
+  }
+}
+
+function checkDependencySection(
+  dependencyType: DependencyCheck['dependencyType'],
+  expected: Record<string, string>,
+  actual: Record<string, string>,
+  checks: DependencyCheck[],
+  errors: ProjectValidationIssue[],
+): void {
+  for (const [packageName, version] of Object.entries(expected)) {
+    const valid = actual[packageName] === version;
+    checks.push({
+      packageName,
+      expected: version,
+      actual: actual[packageName],
+      dependencyType,
+      valid,
+    });
+    if (!valid) {
+      errors.push({
+        code: 'DEPENDENCY_MISMATCH',
+        message: `${dependencyType}.${packageName} expected ${version} but found ${actual[packageName] ?? 'missing'}.`,
+        path: 'package.json',
+      });
+    }
+  }
+}
+
+function checkRequiredStackFiles(
+  config: NormalizedProjectConfig,
+  projectPath: string,
+  checkedFiles: string[],
+  errors: ProjectValidationIssue[],
+): void {
+  const required: string[] = [];
+  if (config.stack.frontend === 'next') {
+    required.push('app/page.tsx', 'app/layout.tsx', 'app/globals.css', 'next.config.ts');
+  }
+  if (config.stack.frontend === 'vite-react') {
+    required.push('src/main.tsx', 'src/App.tsx', 'src/index.css', 'vite.config.ts', 'index.html');
+  }
+  if (config.stack.backend === 'express') {
+    required.push('src/index.ts', 'src/app.ts', 'src/routes/health.route.ts');
+  }
+  if (config.stack.backend === 'nest') {
+    required.push(
+      'src/main.ts',
+      'src/app.module.ts',
+      'src/app.controller.ts',
+      'src/app.service.ts',
+    );
+  }
+  if (config.stack.styling === 'tailwind') {
+    required.push('tailwind.config.js', 'postcss.config.js');
+  }
+  if (config.stack.styling === 'mui') {
+    required.push('src/theme.ts');
+  }
+  if (config.stack.database === 'postgres' && config.stack.orm === 'prisma') {
+    required.push('prisma/schema.prisma', 'src/db/prisma.ts', '.env.example');
+  }
+  if (config.stack.database === 'mongodb' && config.stack.orm === 'mongoose') {
+    required.push('src/db/mongoose.ts', 'src/models/example.model.ts', '.env.example');
+  }
+  if (config.tools.docker) {
+    required.push('Dockerfile', 'docker-compose.yml');
+  }
+  if (config.tools.githubActions) {
+    required.push('.github/workflows/ci.yml');
+  }
+  if (config.tools.eslint) {
+    required.push('.eslintrc.json');
+  }
+  if (config.tools.prettier) {
+    required.push('.prettierrc');
+  }
+  for (const file of required) {
+    requireFile(projectPath, file, checkedFiles, errors);
+  }
 }

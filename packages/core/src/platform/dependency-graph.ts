@@ -1,5 +1,7 @@
+import { PresetManifestMetadata } from '../types/index.js';
+
 export type DependencyKind = 'runtime' | 'dev' | 'peer' | 'optional';
-export type SupportedInstallPackageManager = 'npm' | 'pnpm';
+export type SupportedInstallPackageManager = 'npm';
 
 export interface DependencySource {
   generatorId: string;
@@ -49,6 +51,7 @@ export interface DependencyGraphResult {
   conflicts: string[];
   installPlan: string[];
   explanations: Record<string, string[]>;
+  preset?: PresetManifestMetadata;
 }
 
 export class DependencyGraph {

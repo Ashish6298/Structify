@@ -11,7 +11,7 @@ This document defines the supported technologies for Structify Version 1.0 and o
 | **Styling Libraries**   | `tailwind`, `mui`, `none`                    | Tailwind CSS, Material UI (MUI) |
 | **Databases**           | `postgres`, `mongodb`, `none`                | PostgreSQL, MongoDB             |
 | **ORMs / Drivers**      | `prisma`, `mongoose`, `none`                 | Prisma, Mongoose                |
-| **Package Managers**    | `npm`, `pnpm`                                | npm, pnpm                       |
+| **Package Managers**    | `npm`                                        | npm                             |
 | **Project Modes**       | `frontend-only`, `backend-only`, `fullstack` | Client, API Server, or both     |
 | **Languages**           | `typescript`                                 | TypeScript                      |
 
@@ -30,6 +30,7 @@ Phase 6 can generate real starter files for:
 - Tooling files for Tailwind, Material UI, ESLint, Prettier, Docker, GitHub Actions, Husky metadata, lint-staged, and Commitlint.
 
 Dependencies are written into `package.json` through deterministic dependency resolution. Installation is opt-in with `--install`.
+Generated commands, Dockerfiles, GitHub Actions workflows, and CLI next steps use npm.
 
 ---
 

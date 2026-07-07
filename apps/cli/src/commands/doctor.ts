@@ -5,6 +5,11 @@ import dns from 'dns';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
 import { getElapsedMs } from '../utils/middleware.js';
+import { runProjectHealthCheck, HealthDiagnostic } from '@structify/core';
+
+export interface DoctorOptions {
+  path?: string;
+}
 
 function checkInternet(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -15,11 +20,10 @@ function checkInternet(): Promise<boolean> {
   });
 }
 
-export async function handleDoctor(context: CLIContext): Promise<void> {
-  const output = new CLIOutput(context);
-  output.heading('Structify Environment Diagnostics (Doctor)');
+type EnvCheck = { name: string; status: 'PASS' | 'WARN' | 'FAIL' | 'INFO'; detail: string };
 
-  const checks: { name: string; status: 'PASS' | 'WARN' | 'FAIL' | 'INFO'; detail: string }[] = [];
+async function gatherEnvironmentChecks(context: CLIContext): Promise<EnvCheck[]> {
+  const checks: EnvCheck[] = [];
 
   // 1. Node.js check
   const nodeMajor = parseInt(process.versions.node.split('.')[0], 10);
@@ -102,26 +106,6 @@ export async function handleDoctor(context: CLIContext): Promise<void> {
     });
   }
 
-  for (const optionalManager of ['pnpm', 'yarn', 'bun']) {
-    try {
-      const version = execSync(`${optionalManager} --version`, {
-        encoding: 'utf8',
-        stdio: 'pipe',
-      }).trim();
-      checks.push({
-        name: `${optionalManager} Package Manager (optional compatibility)`,
-        status: 'INFO',
-        detail: `Available: v${version}`,
-      });
-    } catch (_e) {
-      checks.push({
-        name: `${optionalManager} Package Manager (optional compatibility)`,
-        status: 'INFO',
-        detail: 'Optional compatibility package manager not installed',
-      });
-    }
-  }
-
   // 6. Internet & Registry check
   const hasInternet = await checkInternet();
   checks.push({
@@ -184,37 +168,112 @@ export async function handleDoctor(context: CLIContext): Promise<void> {
       : 'Not found (not in a JS project folder)',
   });
 
-  const overallSuccess = !checks.some((c) => c.status === 'FAIL');
+  return checks;
+}
+
+function statusToHealthStatus(status: EnvCheck['status']): HealthDiagnostic['status'] {
+  if (status === 'PASS') return 'PASS';
+  if (status === 'WARN') return 'WARNING';
+  if (status === 'FAIL') return 'ERROR';
+  return 'INFO';
+}
+
+export async function handleDoctor(
+  context: CLIContext,
+  options: DoctorOptions = {},
+): Promise<void> {
+  const output = new CLIOutput(context);
+  output.heading('Structify Environment Diagnostics (Doctor)');
+
+  const envChecks = await gatherEnvironmentChecks(context);
+
+  // Run project health check on the specified path (or cwd)
+  const projectPath = path.resolve(context.cwd, options.path ?? '.');
+  const healthReport = runProjectHealthCheck(projectPath);
+
+  const overallSuccess =
+    !envChecks.some((c) => c.status === 'FAIL') && healthReport.overallStatus !== 'CRITICAL';
   const elapsed = getElapsedMs(context.startTime);
 
   if (context.json) {
+    const envDiagnostics = envChecks.map((c) => ({
+      category: 'environment',
+      status: statusToHealthStatus(c.status),
+      code: c.name.replace(/\s+/g, '_').toUpperCase(),
+      message: c.detail,
+    }));
+    const allDiagnostics = [...envDiagnostics, ...healthReport.diagnostics];
+
     output.json({
       success: overallSuccess,
       command: 'doctor',
       version: '1.0.0',
       timestamp: new Date().toISOString(),
       durationMs: elapsed,
-      warnings: checks.filter((c) => c.status === 'WARN').map((c) => c.name),
-      errors: checks.filter((c) => c.status === 'FAIL').map((c) => c.name),
-      data: { checks },
+      warnings: [
+        ...envChecks.filter((c) => c.status === 'WARN').map((c) => c.name),
+        ...healthReport.diagnostics.filter((d) => d.status === 'WARNING').map((d) => d.code),
+      ],
+      errors: [
+        ...envChecks.filter((c) => c.status === 'FAIL').map((c) => c.name),
+        ...healthReport.diagnostics.filter((d) => d.status === 'ERROR').map((d) => d.code),
+      ],
+      data: {
+        projectPath,
+        environmentChecks: envChecks,
+        projectHealthReport: healthReport,
+        allDiagnostics,
+        healthSummary: healthReport.healthSummary,
+        overallStatus: healthReport.overallStatus,
+        detectedStack: healthReport.detectedStack,
+        repairability: healthReport.repairability,
+      },
     });
     return;
   }
 
-  output.subheading('Diagnostic Results:\n');
-  for (const check of checks) {
+  // ── Environment Section ────────────────────────────────────────────────────
+  output.subheading('Environment Checks:\n');
+  for (const check of envChecks) {
     let statusLabel = '';
-    if (check.status === 'PASS') {
-      statusLabel = '\x1b[32m[PASS]\x1b[0m';
-    } else if (check.status === 'WARN') {
-      statusLabel = '\x1b[33m[WARN]\x1b[0m';
-    } else if (check.status === 'INFO') {
-      statusLabel = '\x1b[34m[INFO]\x1b[0m';
-    } else {
-      statusLabel = '\x1b[31m[FAIL]\x1b[0m';
-    }
+    if (check.status === 'PASS') statusLabel = '\x1b[32m[PASS]\x1b[0m';
+    else if (check.status === 'WARN') statusLabel = '\x1b[33m[WARN]\x1b[0m';
+    else if (check.status === 'INFO') statusLabel = '\x1b[34m[INFO]\x1b[0m';
+    else statusLabel = '\x1b[31m[FAIL]\x1b[0m';
     const formattedLabel = context.noColor ? `[${check.status}]` : statusLabel;
     output.info(` - ${formattedLabel} ${check.name}: ${check.detail}`);
+  }
+
+  // ── Project Health Section ─────────────────────────────────────────────────
+  if (healthReport.isStructifyProject) {
+    output.subheading('\nProject Health Checks:\n');
+    const stack = healthReport.detectedStack;
+    output.info(
+      ` - [INFO] Stack: ${stack.frontend} frontend / ${stack.backend} backend / ${stack.database} database / ${stack.orm} ORM`,
+    );
+    output.info(` - [INFO] Confidence: ${stack.confidence} (source: ${stack.detectionSource})`);
+    for (const diag of healthReport.diagnostics) {
+      const s = diag.status;
+      let label = '';
+      if (s === 'PASS') label = context.noColor ? '[PASS]' : '\x1b[32m[PASS]\x1b[0m';
+      else if (s === 'WARNING') label = context.noColor ? '[WARN]' : '\x1b[33m[WARN]\x1b[0m';
+      else if (s === 'ERROR') label = context.noColor ? '[FAIL]' : '\x1b[31m[FAIL]\x1b[0m';
+      else if (s === 'FIXABLE') label = context.noColor ? '[FIXABLE]' : '\x1b[33m[FIXABLE]\x1b[0m';
+      else if (s === 'NOT_FIXABLE')
+        label = context.noColor ? '[MANUAL]' : '\x1b[31m[MANUAL]\x1b[0m';
+      else label = context.noColor ? '[INFO]' : '\x1b[34m[INFO]\x1b[0m';
+      output.info(
+        ` - ${label} [${diag.category}] ${diag.message}${diag.suggestion ? ` → ${diag.suggestion}` : ''}`,
+      );
+    }
+    output.info(
+      `\n Overall Project Status: ${healthReport.overallStatus}  (${healthReport.healthSummary.pass} PASS, ${healthReport.healthSummary.warnings} WARN, ${healthReport.healthSummary.errors} ERROR, ${healthReport.healthSummary.fixable} FIXABLE, ${healthReport.healthSummary.notFixable} NOT_FIXABLE)`,
+    );
+    if (healthReport.repairability.canAutoRepair) {
+      output.warn(`  Run structify repair --dry-run to preview auto-repair operations.`);
+    }
+  } else {
+    output.info('\n [INFO] Not a Structify project — no project health checks applicable.');
   }
 
   output.showFooter('doctor');

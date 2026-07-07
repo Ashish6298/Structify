@@ -1,12 +1,8 @@
 import { createHash } from 'crypto';
 import { GeneratedTemplateFile, getLegacyStarterTemplates } from '../templates/templates.js';
 import { NormalizedProjectConfig } from '../types/index.js';
-import {
-  DependencyGraph,
-  DependencyGraphResult,
-  ProjectGraph,
-  ProjectGraphBuilder,
-} from '../platform/index.js';
+import { DependencyGraph, DependencyGraphResult } from '../platform/dependency-graph.js';
+import { ProjectGraph, ProjectGraphBuilder } from '../platform/project-graph.js';
 
 export interface ComposableGeneratorContribution {
   id: string;
@@ -47,6 +43,7 @@ export function createComposableGenerationPlan(
   const generatorCatalog = selectGenerators(config);
   const dependencyGraph = createDependencyGraph(config, legacyFiles, generatorCatalog);
   const resolvedDependencies = dependencyGraph.resolve(config.stack.packageManager);
+  resolvedDependencies.preset = config.preset;
   const projectGraph = createProjectGraph(config, legacyFiles, generatorCatalog);
   const files = rewriteMetadataFiles(
     config,
@@ -331,6 +328,7 @@ function rewriteMetadataFiles(
           JSON.stringify(
             {
               ...manifest,
+              preset: config.preset,
               generatorVersions: Object.fromEntries(
                 generators.map((generator) => [generator.id, generator.version]),
               ),

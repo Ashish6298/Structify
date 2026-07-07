@@ -8,9 +8,9 @@ describe('Template Variable Engine', () => {
     const template = 'Hello {{ projectName }}! Using {{ packageManager }}.';
     const result = engine.interpolate(template, {
       projectName: 'my-app',
-      packageManager: 'pnpm',
+      packageManager: 'npm',
     });
-    expect(result).toBe('Hello my-app! Using pnpm.');
+    expect(result).toBe('Hello my-app! Using npm.');
   });
 
   it('should throw error for missing variables', () => {

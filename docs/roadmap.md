@@ -2,7 +2,7 @@
 
 This document outlines the sequential phases of the Structify implementation plan.
 
-## Phase 1: Architecture, Scope Lock, and Foundation Design (Current)
+## Phase 1: Architecture, Scope Lock, and Foundation Design (Complete)
 
 - **Objective**: Define the high-level design, product requirements, system interactions, and compatibility matrices.
 - **Deliverables**: Product vision documents, architecture blueprints, coding guidelines, testing strategies, and supported stack matrices.
@@ -34,7 +34,7 @@ This document outlines the sequential phases of the Structify implementation pla
 - **Objective**: Develop the interactive CLI command flow.
 - **Deliverables**:
   - Command routing (`init`, `generate`, `preset`).
-  - Interactive prompts (asking user for framework, database, styling, package manager).
+  - Interactive prompts for project mode, framework, database, styling, ORM, and npm defaults.
   - Integration of dynamic validation checks during the questionnaire.
 - **Dependencies**: Phase 3.
 - **Success Criteria**: Running the CLI command shows prompts and stops invalid stack choices from being chosen.
@@ -43,7 +43,7 @@ This document outlines the sequential phases of the Structify implementation pla
 
 - **Objective**: Implement scaffolding templates and generation rules for the MVP stacks.
 - **Deliverables**:
-  - Scaffolding templates for Next.js, React (Vite), Express, and NestJS.
+  - npm-first scaffolding templates for Next.js, React (Vite), Express, and NestJS.
   - Config templates for Tailwind CSS, Material UI, ESLint, Prettier, and Docker.
   - Setup rules for Prisma and Mongoose.
 - **Dependencies**: Phase 4.
@@ -54,7 +54,7 @@ This document outlines the sequential phases of the Structify implementation pla
 - **Objective**: Enable non-interactive project generation using files.
 - **Deliverables**:
   - Structify configuration parser (`structify.json`).
-  - Command for generating stacks from predefined or local presets (`structify generate --preset=...`).
+  - Config-driven generation through `structify init --config <path>`.
 - **Dependencies**: Phase 5.
 - **Success Criteria**: Executing the generator with a `structify.json` file configures the project identical to the interactive prompt flow.
 
@@ -64,10 +64,8 @@ This document outlines the sequential phases of the Structify implementation pla
 - **Deliverables**:
   - Stack Detection Engine to inspect existing directories.
   - `structify doctor` diagnostics tool.
-  - `structify repair` CLI command and repair modules.
-  - Expanded `structify add` module generation for safe incremental features.
-  - Optional guarded framework CLI integrations after sandboxed verification.
-  - Explicit opt-in database migration workflows.
+  - Plan-only `structify add` surface.
+  - Inspect-only `structify repair` surface.
 - **Dependencies**: Phase 6.
 - **Success Criteria**: Doctor correctly flags missing configs or wrong dependencies and repair fixes them.
 
@@ -76,14 +74,14 @@ This document outlines the sequential phases of the Structify implementation pla
 - **Objective**: Enable AI coding assistants to use Structify tools directly.
 - **Deliverables**:
   - `apps/mcp-server` implementing the Model Context Protocol.
-  - Exposed tools: `validate_stack`, `generate_project`, `inspect_project`, `run_doctor`, `apply_repair`.
+  - Exposed read-only tools for stack listing, validation, planning, diff preview, inspection, generators, templates, plugins, modules, events, and doctor data.
   - Integration documentation.
 - **Dependencies**: Phase 7.
 - **Success Criteria**: MCP-compliant client can discover, trigger, and verify output of Structify tools.
 
 ## Phase 9: Testing, Optimization, and Release
 
-- **Objective**: Complete end-to-end testing, optimize speeds, write final guides, and release Version 1.0.
+- **Objective**: Complete upgrade, repair, and module-addition workflows after the Phase 8.2 stabilization baseline.
 - **Deliverables**:
   - Platform testing suite (Windows, macOS, Linux).
   - Production packaging and publication preparation.

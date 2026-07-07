@@ -16,3 +16,5 @@ export * from './extensions/index.js';
 export * from './manifest/index.js';
 export * from './platform/index.js';
 export * from './generation/composable.js';
+export * from './presets/preset-schema.js';
+export * from './presets/preset-manager.js';

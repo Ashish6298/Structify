@@ -75,6 +75,12 @@ export interface SerializedGenerationResult {
   generatedFiles: string[];
   skippedFiles: string[];
   executedCommands: CommandLog[];
+  plannedRollbackActions: {
+    id: string;
+    type: RollbackAction['type'];
+    targetPath: string;
+    description: string;
+  }[];
   rollbackActions: string[];
   rollbackResults: RollbackResult[];
   projectPath: string;
@@ -253,6 +259,12 @@ export class GenerationSession {
       generatedFiles: this.generatedFiles,
       skippedFiles: this.skippedFiles,
       executedCommands: this.executedCommands,
+      plannedRollbackActions: this.rollbackStack.map((action) => ({
+        id: action.id,
+        type: action.type,
+        targetPath: action.targetPath,
+        description: action.description,
+      })),
       rollbackActions: this.rollbackStack.map((r) => r.description),
       rollbackResults: this.rollbackResults,
       projectPath: this.targetDir,
