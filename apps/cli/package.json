@@ -1,5 +1,5 @@
 {
-  "name": "structify-cli",
+  "name": "structify-tool",
   "version": "1.0.0",
   "description": "Interactive CLI for generating production-ready project architectures",
   "main": "dist/index.js",
