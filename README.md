@@ -24,16 +24,16 @@ Structify focuses on creating **consistent**, **maintainable**, and **enterprise
 
 Every time developers start a new project, they spend hours performing repetitive setup work:
 
-* Creating folder structures manually.
-* Installing npm dependencies.
-* Configuring TypeScript.
-* Setting up ESLint and Prettier.
-* Creating Docker files.
-* Configuring databases and ORMs.
-* Setting up GitHub Actions.
-* Creating testing infrastructure.
-* Writing boilerplate configuration files.
-* Organizing project architecture.
+- Creating folder structures manually.
+- Installing npm dependencies.
+- Configuring TypeScript.
+- Setting up ESLint and Prettier.
+- Creating Docker files.
+- Configuring databases and ORMs.
+- Setting up GitHub Actions.
+- Creating testing infrastructure.
+- Writing boilerplate configuration files.
+- Organizing project architecture.
 
 Most existing scaffolding tools only support a single framework or generate minimal templates that still require significant manual configuration before development can begin.
 
@@ -43,12 +43,12 @@ Most existing scaffolding tools only support a single framework or generate mini
 
 Structify automates project initialization while remaining:
 
-* **Transparent** — Shows a deterministic execution plan before making changes.
-* **Predictable** — Supports dry-run execution with reproducible output.
-* **Safe** — Uses transactional file operations with automatic rollback.
-* **Framework Agnostic** — Supports multiple project architectures through a unified generation engine.
-* **Extensible** — Built using modular generators, templates, blueprints, and plugins.
-* **AI Ready** — Includes a built-in Model Context Protocol (MCP) server for AI-powered tooling.
+- **Transparent** — Shows a deterministic execution plan before making changes.
+- **Predictable** — Supports dry-run execution with reproducible output.
+- **Safe** — Uses transactional file operations with automatic rollback.
+- **Framework Agnostic** — Supports multiple project architectures through a unified generation engine.
+- **Extensible** — Built using modular generators, templates, blueprints, and plugins.
+- **AI Ready** — Includes a built-in Model Context Protocol (MCP) server for AI-powered tooling.
 
 ---
 
@@ -56,50 +56,50 @@ Structify automates project initialization while remaining:
 
 ## Project Generation
 
-* Production-ready project scaffolding
-* Configuration-driven generation
-* Preset-based generation
-* Deterministic execution planning
-* Dry-run support
-* Rollback-safe generation
-* Intelligent project validation
+- Production-ready project scaffolding
+- Configuration-driven generation
+- Preset-based generation
+- Deterministic execution planning
+- Dry-run support
+- Rollback-safe generation
+- Intelligent project validation
 
 ## Project Health
 
-* Project verification
-* Doctor diagnostics
-* Repair recommendations
-* Project inspection
-* Drift detection
-* Upgrade planning
+- Project verification
+- Doctor diagnostics
+- Repair recommendations
+- Project inspection
+- Drift detection
+- Upgrade planning
 
 ## Enterprise Platform
 
-* Enterprise template engine
-* Blueprint system
-* Variable resolution engine
-* Workspace generation
-* Component generation
-* Registry architecture
-* Planning engine
-* Merge engine
-* Diagnostics framework
+- Enterprise template engine
+- Blueprint system
+- Variable resolution engine
+- Workspace generation
+- Component generation
+- Registry architecture
+- Planning engine
+- Merge engine
+- Diagnostics framework
 
 ## Developer Experience
 
-* npm-first architecture
-* TypeScript-first
-* JSON output support
-* CI-friendly commands
-* Cross-platform support
-* Machine-readable diagnostics
+- npm-first architecture
+- TypeScript-first
+- JSON output support
+- CI-friendly commands
+- Cross-platform support
+- Machine-readable diagnostics
 
 ## AI Integration
 
-* Built-in MCP server
-* AI-compatible project inspection
-* AI-compatible generation planning
-* AI-compatible diagnostics
+- Built-in MCP server
+- AI-compatible project inspection
+- AI-compatible generation planning
+- AI-compatible diagnostics
 
 ---
 
@@ -205,15 +205,15 @@ Native support for Model Context Protocol (MCP) enables AI assistants to underst
 
 Comprehensive documentation is available in the `docs/` directory, including:
 
-* Architecture Guide
-* CLI Guide
-* CLI Commands
-* Manifest Specification
-* Project Graph
-* Virtual File Graph
-* Package Manager Adapters
-* Verification Reports
-* Roadmap
+- Architecture Guide
+- CLI Guide
+- CLI Commands
+- Manifest Specification
+- Project Graph
+- Virtual File Graph
+- Package Manager Adapters
+- Verification Reports
+- Roadmap
 
 ---
 
@@ -223,23 +223,23 @@ Structify **v1.0** focuses on providing a stable, production-ready foundation fo
 
 ### Included in v1.0
 
-* ✅ Project generation
-* ✅ Configuration-driven generation
-* ✅ Presets
-* ✅ Project verification
-* ✅ Doctor
-* ✅ Inspect
-* ✅ Repair
-* ✅ Upgrade planning
-* ✅ Enterprise template platform
-* ✅ Blueprint architecture
-* ✅ Rollback engine
-* ✅ Planning engine
-* ✅ Registry architecture
-* ✅ MCP server
-* ✅ JSON output
-* ✅ npm-first workflow
-* ✅ Cross-platform support
+- ✅ Project generation
+- ✅ Configuration-driven generation
+- ✅ Presets
+- ✅ Project verification
+- ✅ Doctor
+- ✅ Inspect
+- ✅ Repair
+- ✅ Upgrade planning
+- ✅ Enterprise template platform
+- ✅ Blueprint architecture
+- ✅ Rollback engine
+- ✅ Planning engine
+- ✅ Registry architecture
+- ✅ MCP server
+- ✅ JSON output
+- ✅ npm-first workflow
+- ✅ Cross-platform support
 
 ---
 
@@ -249,15 +249,15 @@ The next major release will focus on improving the developer onboarding experien
 
 ### Planned Features
 
-* 🎯 Interactive Project Architect Wizard
-* 🎯 Framework selection (React, Next.js, Express, NestJS, etc.)
-* 🎯 Styling selection (Tailwind CSS, Material UI, Chakra UI, Bootstrap, etc.)
-* 🎯 Database selection (PostgreSQL, MongoDB, MySQL, SQLite, MSSQL)
-* 🎯 ORM selection (Prisma, Drizzle, TypeORM, Mongoose)
-* 🎯 Authentication presets
-* 🎯 Docker & CI setup wizard
-* 🎯 Rich terminal UI
-* 🎯 Improved onboarding experience
+- 🎯 Interactive Project Architect Wizard
+- 🎯 Framework selection (React, Next.js, Express, NestJS, etc.)
+- 🎯 Styling selection (Tailwind CSS, Material UI, Chakra UI, Bootstrap, etc.)
+- 🎯 Database selection (PostgreSQL, MongoDB, MySQL, SQLite, MSSQL)
+- 🎯 ORM selection (Prisma, Drizzle, TypeORM, Mongoose)
+- 🎯 Authentication presets
+- 🎯 Docker & CI setup wizard
+- 🎯 Rich terminal UI
+- 🎯 Improved onboarding experience
 
 ---
 
