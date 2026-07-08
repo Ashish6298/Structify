@@ -228,6 +228,21 @@ describe('Validation and Normalization Tests', () => {
       expect(result.errors.some((e) => e.code === 'ORM_WITHOUT_DATABASE')).toBe(true);
     });
 
+    it('should accept no database with no ORM', () => {
+      const result = validateStack({
+        projectName: 'no-database',
+        version: '1.0',
+        stack: {
+          frontend: 'next',
+          backend: 'none',
+          database: 'none',
+          orm: 'none',
+        },
+      });
+
+      expect(result.valid).toBe(true);
+    });
+
     it('should reject invalid fullstack configuration missing backend', () => {
       const result = validateStack({
         projectName: 'invalid-fullstack',

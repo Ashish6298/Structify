@@ -1,17 +1,122 @@
 import readline from 'readline';
-import { ProjectConfig, validateStack, ProjectMode } from '@structify/core';
+import {
+  ProjectConfig,
+  validateProjectName,
+  validateStack,
+  ProjectMode,
+  DatabaseOption,
+  OrmOption,
+} from '@structify/core';
 import { StructifyCLIError } from './error.js';
 
 export interface QuestionMetadata {
   key: string;
   question: string;
   type: 'text' | 'select' | 'boolean';
-  choices?: { value: string; label: string }[];
+  choices?:
+    | { value: string; label: string }[]
+    | ((config: ProjectConfig) => { value: string; label: string }[]);
   defaultValue?: string | boolean;
   description?: string;
   dependsOn?: (config: ProjectConfig) => boolean;
   validate?: (input: string) => string | true;
   defaultValueCallback?: (config: ProjectConfig) => string | boolean;
+}
+
+export interface PromptRunOptions {
+  projectName?: string;
+}
+
+export interface ProjectNameNormalizationResult {
+  valid: boolean;
+  normalized: string;
+  errors: string[];
+  changed: boolean;
+}
+
+const WINDOWS_RESERVED_NAMES = new Set([
+  'con',
+  'prn',
+  'aux',
+  'nul',
+  'com1',
+  'com2',
+  'com3',
+  'com4',
+  'com5',
+  'com6',
+  'com7',
+  'com8',
+  'com9',
+  'lpt1',
+  'lpt2',
+  'lpt3',
+  'lpt4',
+  'lpt5',
+  'lpt6',
+  'lpt7',
+  'lpt8',
+  'lpt9',
+]);
+
+export function normalizeProjectNameInput(input: string): ProjectNameNormalizationResult {
+  const trimmed = input.trim();
+  const normalized = trimmed
+    .toLowerCase()
+    .replace(/[/\\:]/g, '-')
+    .replace(/[^a-z0-9-_.\s-]/g, '-')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^[._-]+/, '')
+    .replace(/[._-]+$/, '');
+  const errors = validateProjectNameForWizard(normalized);
+
+  return {
+    valid: errors.length === 0,
+    normalized,
+    errors,
+    changed: trimmed !== normalized,
+  };
+}
+
+export function validateProjectNameForWizard(name: string): string[] {
+  const errors = [...validateProjectName(name)];
+  const lower = name.toLowerCase();
+
+  if (name.includes('/') || name.includes('\\')) {
+    errors.push('Project name cannot include path separators.');
+  }
+
+  if (name === '.' || name === '..' || name.includes('..')) {
+    errors.push('Project name cannot include path traversal segments.');
+  }
+
+  if (pathLikeName(name)) {
+    errors.push('Project name must be a package name, not a path.');
+  }
+
+  if (WINDOWS_RESERVED_NAMES.has(lower)) {
+    errors.push(`"${name}" is reserved on Windows.`);
+  }
+
+  return [...new Set(errors)];
+}
+
+export function getCompatibleOrmChoices(database: DatabaseOption | undefined): {
+  value: string;
+  label: string;
+}[] {
+  if (database === 'postgres') {
+    return [{ value: 'prisma', label: 'Prisma' }];
+  }
+  if (database === 'mongodb') {
+    return [{ value: 'mongoose', label: 'Mongoose' }];
+  }
+  return [{ value: 'none', label: 'None' }];
+}
+
+function pathLikeName(name: string): boolean {
+  return /^[a-zA-Z]:/.test(name) || name.includes(':');
 }
 
 export class InteractivePromptEngine {
@@ -29,8 +134,9 @@ export class InteractivePromptEngine {
         type: 'text',
         defaultValue: 'my-structify-app',
         validate: (input) => {
-          if (!/^[a-z0-9-_.]+$/.test(input)) {
-            return 'Project name can only contain lowercase letters, numbers, hyphens, underscores, and dots.';
+          const errors = validateProjectNameForWizard(input);
+          if (errors.length > 0) {
+            return errors[0] || 'Project name is invalid.';
           }
           return true;
         },
@@ -101,11 +207,7 @@ export class InteractivePromptEngine {
         key: 'orm',
         question: 'Select database mapper/ORM',
         type: 'select',
-        choices: [
-          { value: 'prisma', label: 'Prisma' },
-          { value: 'mongoose', label: 'Mongoose' },
-          { value: 'none', label: 'None' },
-        ],
+        choices: (cfg) => getCompatibleOrmChoices(cfg.stack.database as DatabaseOption | undefined),
         defaultValue: 'none',
         dependsOn: (cfg: ProjectConfig) => cfg.stack.database !== 'none',
         // Auto-guiding defaults depending on selected DB
@@ -143,7 +245,7 @@ export class InteractivePromptEngine {
     ];
   }
 
-  async run(): Promise<ProjectConfig> {
+  async run(options: PromptRunOptions = {}): Promise<ProjectConfig> {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -167,26 +269,39 @@ export class InteractivePromptEngine {
       tools: {},
     };
 
+    if (options.projectName) {
+      config.projectName = options.projectName;
+    }
+
+    const skippedKeys = new Set<string>();
+    if (options.projectName) {
+      skippedKeys.add('projectName');
+    }
+
     let currentIndex = 0;
+    let displayedStep = 1;
 
     try {
       let prompting = true;
       while (prompting) {
-        const activeQuestions = this.questions.filter((q) => !q.dependsOn || q.dependsOn(config));
+        const activeQuestions = this.questions.filter(
+          (q) => !skippedKeys.has(q.key) && (!q.dependsOn || q.dependsOn(config)),
+        );
         if (currentIndex >= activeQuestions.length) {
           prompting = false;
           continue;
         }
         const q = activeQuestions[currentIndex];
 
-        let promptText = `\n[Step ${currentIndex + 1}/${activeQuestions.length}] ${q.question}`;
+        let promptText = `\n[Step ${displayedStep}] ${q.question}`;
         const resolvedDefault = q.defaultValueCallback
           ? q.defaultValueCallback(config)
           : q.defaultValue;
+        const choices = typeof q.choices === 'function' ? q.choices(config) : q.choices;
 
-        if (q.type === 'select' && q.choices) {
+        if (q.type === 'select' && choices) {
           promptText += '\nOptions:\n';
-          q.choices.forEach((choice, idx) => {
+          choices.forEach((choice, idx) => {
             promptText += `  ${idx + 1}. ${choice.label} (${choice.value})\n`;
           });
           promptText += `Enter number [Default: ${resolvedDefault}]: `;
@@ -208,17 +323,17 @@ export class InteractivePromptEngine {
           finalValue = resolvedDefault;
         } else if (q.type === 'boolean') {
           finalValue = rawAnswer.toLowerCase().startsWith('y') || rawAnswer === 'true';
-        } else if (q.type === 'select' && q.choices) {
+        } else if (q.type === 'select' && choices) {
           const num = parseInt(rawAnswer, 10);
-          if (!isNaN(num) && num > 0 && num <= q.choices.length) {
-            finalValue = q.choices[num - 1].value;
+          if (!isNaN(num) && num > 0 && num <= choices.length) {
+            finalValue = choices[num - 1].value;
           } else {
-            const found = q.choices.find((c) => c.value === rawAnswer.toLowerCase());
+            const found = choices.find((c) => c.value === rawAnswer.toLowerCase());
             if (found) {
               finalValue = found.value;
             } else {
               console.log(
-                `\x1b[31mInvalid choice. Please choose a number from 1 to ${q.choices.length}.\x1b[0m`,
+                `\x1b[31mInvalid choice. Please choose a number from 1 to ${choices.length}.\x1b[0m`,
               );
               continue;
             }
@@ -227,7 +342,13 @@ export class InteractivePromptEngine {
           finalValue = rawAnswer;
         }
 
-        if (q.validate) {
+        if (q.key === 'projectName' && typeof finalValue === 'string') {
+          const projectName = await this.resolveProjectName(finalValue, rl);
+          if (!projectName) {
+            continue;
+          }
+          finalValue = projectName;
+        } else if (q.validate) {
           const valRes = q.validate(String(finalValue));
           if (valRes !== true) {
             console.log(`\x1b[31mError: ${valRes}\x1b[0m`);
@@ -240,10 +361,23 @@ export class InteractivePromptEngine {
           config.projectName = finalValue as string;
         } else if (q.key === 'mode') {
           config.mode = finalValue as unknown as ProjectMode;
+          if (config.mode === 'frontend-only') {
+            config.stack.backend = 'none';
+          }
+          if (config.mode === 'backend-only') {
+            config.stack.frontend = 'none';
+            config.stack.styling = 'none';
+          }
         } else if (['docker', 'eslint', 'prettier'].includes(q.key)) {
           config.tools[q.key] = finalValue as boolean;
         } else {
           config.stack[q.key] = finalValue as string;
+          if (q.key === 'database' && finalValue === 'none') {
+            config.stack.orm = 'none';
+          } else if (q.key === 'database') {
+            config.stack.orm = getCompatibleOrmChoices(finalValue as DatabaseOption)[0]
+              ?.value as OrmOption;
+          }
         }
 
         // Run validation against core after each step
@@ -274,11 +408,41 @@ export class InteractivePromptEngine {
         }
 
         currentIndex++;
+        displayedStep++;
       }
     } finally {
       rl.close();
     }
 
     return config;
+  }
+
+  private async resolveProjectName(
+    rawName: string,
+    rl: readline.Interface,
+  ): Promise<string | undefined> {
+    const normalized = normalizeProjectNameInput(rawName);
+    if (!normalized.valid) {
+      console.log(`\x1b[31mError: ${normalized.errors[0]}\x1b[0m`);
+      return undefined;
+    }
+
+    if (!normalized.changed) {
+      return normalized.normalized;
+    }
+
+    const answer = await new Promise<string>((resolve) => {
+      rl.question(
+        `Project name "${rawName}" will be normalized to "${normalized.normalized}". Use this name? (y/n) [Default: y]: `,
+        (confirmation) => resolve(confirmation.trim().toLowerCase()),
+      );
+    });
+
+    if (answer === '' || answer.startsWith('y')) {
+      return normalized.normalized;
+    }
+
+    console.log('Please enter a different project name.');
+    return undefined;
   }
 }

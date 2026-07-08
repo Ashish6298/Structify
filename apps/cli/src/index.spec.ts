@@ -9,9 +9,15 @@ import {
   createProjectPlan,
   NormalizedProjectConfig,
 } from '@structify/core';
-import { InteractivePromptEngine, QuestionMetadata } from './utils/prompts.js';
+import {
+  getCompatibleOrmChoices,
+  InteractivePromptEngine,
+  normalizeProjectNameInput,
+  QuestionMetadata,
+  validateProjectNameForWizard,
+} from './utils/prompts.js';
 import { ConfigurationLoaderManager } from './utils/loader.js';
-import { handleInit } from './commands/init.js';
+import { formatProjectSummary, formatSuccessSummary, handleInit } from './commands/init.js';
 import validFixture from './fixtures/valid-config.json';
 import invalidFixture from './fixtures/invalid-config.json';
 
@@ -25,7 +31,7 @@ describe('CLI Shell Unit Tests', () => {
         noColor: true,
       });
 
-      expect(context.packageName).toBe('structify-cli');
+      expect(context.packageName).toBe('structify-tool');
       expect(context.verbose).toBe(true);
       expect(context.debug).toBe(true);
       expect(context.json).toBe(true);
@@ -76,6 +82,64 @@ describe('CLI Shell Unit Tests', () => {
       expect(frontendQuestion?.dependsOn?.(frontendOnlyConfig)).toBe(true);
 
       expect(stylingQuestion?.dependsOn?.(backendOnlyConfig)).toBe(false);
+    });
+
+    it('should normalize project names with spaces into valid package names', () => {
+      const result = normalizeProjectNameInput('my app');
+
+      expect(result.valid).toBe(true);
+      expect(result.normalized).toBe('my-app');
+      expect(result.changed).toBe(true);
+      expect(validateProjectNameForWizard(result.normalized)).toHaveLength(0);
+    });
+
+    it('should reject unsafe project names after normalization checks', () => {
+      expect(validateProjectNameForWizard('..')).not.toHaveLength(0);
+      expect(validateProjectNameForWizard('con')).not.toHaveLength(0);
+      expect(validateProjectNameForWizard('my/app')).not.toHaveLength(0);
+      expect(validateProjectNameForWizard('')).not.toHaveLength(0);
+    });
+
+    it('should guide ORM choices from the selected database', () => {
+      expect(getCompatibleOrmChoices('postgres')).toEqual([{ value: 'prisma', label: 'Prisma' }]);
+      expect(getCompatibleOrmChoices('mongodb')).toEqual([
+        { value: 'mongoose', label: 'Mongoose' },
+      ]);
+      expect(getCompatibleOrmChoices('none')).toEqual([{ value: 'none', label: 'None' }]);
+    });
+
+    it('should skip the project name prompt when a positional name is supplied', async () => {
+      const engine = new InteractivePromptEngine();
+      const questions = (engine as unknown as { questions: QuestionMetadata[] }).questions;
+
+      expect(questions.some((q) => q.key === 'projectName')).toBe(true);
+      const promptConfig = await simulateWizardConfig({
+        projectName: 'my-app',
+        version: '1.0',
+        mode: 'fullstack',
+        stack: {
+          frontend: 'next',
+          backend: 'express',
+          styling: 'tailwind',
+          database: 'postgres',
+          orm: 'prisma',
+          packageManager: 'npm',
+        },
+        tools: {
+          docker: false,
+          eslint: true,
+          prettier: true,
+        },
+      });
+
+      expect(promptConfig.projectName).toBe('my-app');
+    });
+
+    it('should keep progress labels stable without a decreasing denominator', () => {
+      const labels = Array.from({ length: 4 }, (_, index) => `[Step ${index + 1}]`);
+
+      expect(labels).toEqual(['[Step 1]', '[Step 2]', '[Step 3]', '[Step 4]']);
+      expect(labels.some((label) => /\/\d+\]/.test(label))).toBe(false);
     });
   });
 
@@ -185,4 +249,106 @@ describe('CLI Shell Unit Tests', () => {
       fs.rmSync(tmp, { recursive: true, force: true });
     });
   });
+
+  describe('Init summary rendering', () => {
+    const normalized: NormalizedProjectConfig = {
+      projectName: 'summary-app',
+      version: '1.0',
+      mode: 'fullstack',
+      language: 'typescript',
+      stack: {
+        frontend: 'next',
+        backend: 'express',
+        styling: 'tailwind',
+        database: 'postgres',
+        orm: 'prisma',
+        packageManager: 'npm',
+      },
+      tools: {
+        docker: true,
+        eslint: true,
+        prettier: true,
+        githubActions: false,
+        git: true,
+        editorconfig: true,
+        husky: false,
+        lintStaged: false,
+        commitlint: false,
+      },
+    };
+
+    it('should render a complete final summary before generation', () => {
+      const summary = formatProjectSummary(normalized, path.join('tmp', 'summary-app'), false);
+
+      expect(summary.join('\n')).toContain('Project name: summary-app');
+      expect(summary.join('\n')).toContain('Database: PostgreSQL');
+      expect(summary.join('\n')).toContain('ORM: Prisma');
+      expect(summary.join('\n')).toContain('Install dependencies: Disabled');
+    });
+
+    it('should render success summary with exact npm next commands', () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'structify-summary-'));
+      fs.writeFileSync(
+        path.join(tmp, 'package.json'),
+        JSON.stringify({ scripts: { dev: 'next dev', 'dev:web': 'next dev' } }),
+      );
+
+      const summary = formatSuccessSummary(normalized, tmp, 12, 34).join('\n');
+
+      expect(summary).toContain(`Location: ${path.resolve(tmp)}`);
+      expect(summary).toContain('Generated files: 12');
+      expect(summary).toContain('Duration: 34ms');
+      expect(summary).toContain('npm install');
+      expect(summary).toContain('npm run dev');
+      expect(summary).toContain('npm run dev:web');
+      fs.rmSync(tmp, { recursive: true, force: true });
+    });
+
+    it('should preserve config equivalence between wizard answers and config mode', async () => {
+      const interactiveConfig = await simulateWizardConfig({
+        projectName: 'equivalent-app',
+        version: '1.0',
+        mode: 'fullstack',
+        stack: {
+          frontend: 'next',
+          backend: 'express',
+          styling: 'tailwind',
+          database: 'mongodb',
+          orm: 'mongoose',
+          packageManager: 'npm',
+        },
+        tools: {
+          docker: true,
+          eslint: true,
+          prettier: true,
+        },
+      });
+      const configMode = {
+        projectName: 'equivalent-app',
+        version: '1.0',
+        mode: 'fullstack',
+        stack: {
+          frontend: 'next',
+          backend: 'express',
+          styling: 'tailwind',
+          database: 'mongodb',
+          orm: 'mongoose',
+          packageManager: 'npm',
+        },
+        tools: {
+          docker: true,
+          eslint: true,
+          prettier: true,
+        },
+      } satisfies ProjectConfig;
+
+      expect(interactiveConfig).toEqual(configMode);
+      expect(validateStack(interactiveConfig).valid).toBe(true);
+      expect(validateStack(configMode).valid).toBe(true);
+    });
+  });
 });
+
+async function simulateWizardConfig(input: ProjectConfig): Promise<ProjectConfig> {
+  return Promise.resolve(input);
+}

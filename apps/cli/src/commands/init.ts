@@ -142,7 +142,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
   let promptConfig: Partial<ProjectConfig> = {};
   if (!options.config && !options.preset && !options.presetFile && !options.yes) {
     const promptEngine = new InteractivePromptEngine();
-    promptConfig = await promptEngine.run();
+    promptConfig = await promptEngine.run({ projectName: options.projectName });
   } else if (options.yes) {
     promptConfig = {
       projectName: options.projectName || (options.config ? undefined : 'my-structify-project'),
@@ -212,6 +212,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
   const projectName = selectedConfig.projectName || options.projectName || 'structify-app';
   const targetDir = path.resolve(context.cwd, options.output || projectName);
   const install = options.install === true && options.skipInstall !== true;
+  const projectSummary = formatProjectSummary(normalized, targetDir, install);
 
   // Build Execution Plan
   const plan = createProjectPlan(projectName, normalized);
@@ -312,15 +313,21 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     return;
   }
 
+  if (!context.json) {
+    output.divider();
+    output.subheading('Project Summary');
+    projectSummary.forEach((line) => output.info(line));
+  }
+
   // Confirmation Wizard
-  if (!options.yes && !options.config && !options.preset) {
+  if (!options.yes && !options.config && !options.preset && !options.presetFile) {
     const confirmAns = await new Promise<string>((res) => {
       const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
       });
       rl.question(
-        '\nDo you want to proceed with project scaffolding? (y/n) [Default: y]: ',
+        '\nGenerate this project and write files to disk? (y/n) [Default: y]: ',
         (answer) => {
           rl.close();
           res(answer.trim().toLowerCase());
@@ -401,9 +408,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     }
   }
 
-  output.success('\nProject generated successfully!');
-  output.info(`Generated Files: ${result.generatedFiles.length}`);
-  output.info(`Duration: ${result.durationMs}ms`);
+  output.success('\nProject generated successfully.');
   if (validation) {
     if (!validation.valid) {
       output.warn(`Structural validation found ${validation.issues.length} issue(s).`);
@@ -411,17 +416,132 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
       output.success('Structural validation passed.');
     }
   }
-  output.info(`Location: ${path.resolve(targetDir)}`);
-  output.info('\nNext Steps:');
-  output.info(`  1. cd ${targetDir}`);
-  if (!install) {
-    output.info('  2. npm install');
-    output.info(`  3. npm run dev`);
-  } else {
-    output.info(`  2. npm run dev`);
-  }
+  output.divider();
+  output.subheading('Generation Summary');
+  formatSuccessSummary(
+    normalized,
+    targetDir,
+    result.generatedFiles.length,
+    result.durationMs,
+  ).forEach((line) => output.info(line));
 
   output.showFooter('init');
+}
+
+export function formatProjectSummary(
+  config: NormalizedProjectConfig,
+  targetDir: string,
+  install: boolean,
+): string[] {
+  return [
+    `Project name: ${config.projectName}`,
+    `Output path: ${path.resolve(targetDir)}`,
+    `Project mode: ${formatValue(config.mode)}`,
+    `Frontend framework: ${formatValue(config.stack.frontend)}`,
+    `Backend framework: ${formatValue(config.stack.backend)}`,
+    `Styling library: ${formatValue(config.stack.styling)}`,
+    `Database: ${formatValue(config.stack.database)}`,
+    `ORM: ${formatValue(config.stack.orm)}`,
+    `Package manager: ${config.stack.packageManager}`,
+    `Docker: ${formatBoolean(config.tools.docker)}`,
+    `ESLint: ${formatBoolean(config.tools.eslint)}`,
+    `Prettier: ${formatBoolean(config.tools.prettier)}`,
+    `GitHub Actions: ${formatBoolean(config.tools.githubActions)}`,
+    `Install dependencies: ${formatBoolean(install)}`,
+  ];
+}
+
+export function formatSuccessSummary(
+  config: NormalizedProjectConfig,
+  targetDir: string,
+  generatedFileCount: number,
+  durationMs: number,
+): string[] {
+  const packageJsonPath = path.join(targetDir, 'package.json');
+  const scripts = readPackageScripts(packageJsonPath);
+  const lines = [
+    `Location: ${path.resolve(targetDir)}`,
+    `Stack: ${formatStack(config)}`,
+    `Generated files: ${generatedFileCount}`,
+    `Duration: ${durationMs}ms`,
+    `Enabled tools: ${formatEnabledTools(config)}`,
+    '',
+    'Next commands:',
+    `  1. cd ${targetDir}`,
+    '  2. npm install',
+  ];
+
+  if (scripts.dev) {
+    lines.push('  3. npm run dev');
+  }
+
+  if (scripts['dev:web'] || scripts['dev:api']) {
+    lines.push('', 'Additional development scripts:');
+    if (scripts['dev:web']) {
+      lines.push('  - npm run dev:web');
+    }
+    if (scripts['dev:api']) {
+      lines.push('  - npm run dev:api');
+    }
+  }
+
+  return lines;
+}
+
+function readPackageScripts(packageJsonPath: string): Record<string, string> {
+  try {
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as {
+      scripts?: Record<string, string>;
+    };
+    return packageJson.scripts || {};
+  } catch {
+    return {};
+  }
+}
+
+function formatStack(config: NormalizedProjectConfig): string {
+  const parts = [
+    formatValue(config.stack.frontend),
+    formatValue(config.stack.backend),
+    formatValue(config.stack.styling),
+    formatValue(config.stack.database),
+    formatValue(config.stack.orm),
+  ].filter((value) => value !== 'None');
+  return parts.length > 0 ? parts.join(' + ') : 'No application stack selected';
+}
+
+function formatEnabledTools(config: NormalizedProjectConfig): string {
+  const enabled = [
+    config.tools.docker ? 'Docker' : undefined,
+    config.tools.eslint ? 'ESLint' : undefined,
+    config.tools.prettier ? 'Prettier' : undefined,
+    config.tools.githubActions ? 'GitHub Actions' : undefined,
+  ].filter(Boolean);
+  return enabled.length > 0 ? enabled.join(', ') : 'None';
+}
+
+function formatBoolean(value: boolean): string {
+  return value ? 'Enabled' : 'Disabled';
+}
+
+function formatValue(value: string): string {
+  const labels: Record<string, string> = {
+    next: 'Next.js',
+    'vite-react': 'React (Vite)',
+    express: 'Express',
+    nest: 'NestJS',
+    tailwind: 'Tailwind CSS',
+    mui: 'Material UI',
+    postgres: 'PostgreSQL',
+    mongodb: 'MongoDB',
+    prisma: 'Prisma',
+    mongoose: 'Mongoose',
+    none: 'None',
+    'frontend-only': 'Frontend Only',
+    'backend-only': 'Backend Only',
+    fullstack: 'Fullstack',
+  };
+  return labels[value] || value;
 }
 
 function classifyGenerationFailure(errors: string[]): {

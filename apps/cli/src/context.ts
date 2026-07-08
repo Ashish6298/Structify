@@ -49,7 +49,7 @@ export function createCLIContext(
   }
 
   return {
-    packageName: 'structify-cli',
+    packageName: 'structify-tool',
     packageVersion: '1.0.0',
     cwd: targetCwd,
     homeDir: os.homedir(),

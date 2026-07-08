@@ -8,8 +8,8 @@ export const COMPATIBILITY_MATRIX = {
 
   // ORM compatibility with Databases
   ormWithDatabase: {
-    postgres: ['prisma', 'none'],
-    mongodb: ['mongoose', 'prisma', 'none'],
+    postgres: ['prisma'],
+    mongodb: ['mongoose'],
     none: ['none'],
   },
 
