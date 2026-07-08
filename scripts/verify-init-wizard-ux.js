@@ -118,9 +118,15 @@ async function main() {
       postgres.stdout,
     );
     assert(
-      postgres.stdout.includes('Project Summary') && postgres.stdout.includes('Generation Summary'),
+      postgres.stdout.includes('Project Review') &&
+        postgres.stdout.includes('Project Created Successfully'),
       'final and success summaries should be shown',
       postgres.stdout,
+    );
+    assert(
+      /\n$/.test(postgres.stdout) && !/\n{2,}$/.test(postgres.stdout),
+      'wizard output should end with exactly one trailing newline after the footer',
+      JSON.stringify(postgres.stdout.slice(-300)),
     );
     assert(fs.existsSync(path.join(tmp, 'my-app', 'package.json')), 'project should be generated');
 

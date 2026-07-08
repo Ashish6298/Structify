@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import * as childProcess from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import dns from 'dns';
@@ -69,7 +69,7 @@ async function gatherEnvironmentChecks(context: CLIContext): Promise<EnvCheck[]>
   // 3. Git check
   let gitAvailable = false;
   try {
-    const gitVer = execSync('git --version', { encoding: 'utf8', stdio: 'pipe' }).trim();
+    const gitVer = runHiddenCommand('git --version').trim();
     checks.push({ name: 'Git CLI Client', status: 'PASS', detail: gitVer });
     gitAvailable = true;
   } catch (_e) {
@@ -79,7 +79,7 @@ async function gatherEnvironmentChecks(context: CLIContext): Promise<EnvCheck[]>
   // 4. Git Config Check
   if (gitAvailable) {
     try {
-      const gitUser = execSync('git config user.name', { encoding: 'utf8', stdio: 'pipe' }).trim();
+      const gitUser = runHiddenCommand('git config user.name').trim();
       checks.push({
         name: 'Git Configuration (user.name)',
         status: 'PASS',
@@ -96,7 +96,7 @@ async function gatherEnvironmentChecks(context: CLIContext): Promise<EnvCheck[]>
 
   // 5. npm-first package manager checks
   try {
-    const npmVer = execSync('npm --version', { encoding: 'utf8', stdio: 'pipe' }).trim();
+    const npmVer = runHiddenCommand('npm --version').trim();
     checks.push({ name: 'npm Package Manager (required)', status: 'PASS', detail: `v${npmVer}` });
   } catch (_e) {
     checks.push({
@@ -148,7 +148,7 @@ async function gatherEnvironmentChecks(context: CLIContext): Promise<EnvCheck[]>
 
   // 9. Docker check
   try {
-    const dockerVer = execSync('docker --version', { encoding: 'utf8', stdio: 'pipe' }).trim();
+    const dockerVer = runHiddenCommand('docker --version').trim();
     checks.push({ name: 'Docker Engine', status: 'PASS', detail: dockerVer });
   } catch (_e) {
     checks.push({
@@ -169,6 +169,14 @@ async function gatherEnvironmentChecks(context: CLIContext): Promise<EnvCheck[]>
   });
 
   return checks;
+}
+
+function runHiddenCommand(command: string): string {
+  return childProcess.execSync(command, {
+    encoding: 'utf8',
+    stdio: 'pipe',
+    windowsHide: true,
+  });
 }
 
 function statusToHealthStatus(status: EnvCheck['status']): HealthDiagnostic['status'] {

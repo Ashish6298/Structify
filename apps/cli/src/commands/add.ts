@@ -138,5 +138,10 @@ async function confirmApply(question: string): Promise<boolean> {
     rl.question(`${question} (y/n) [Default: n]: `, (value) => resolve(value.trim().toLowerCase()));
   });
   rl.close();
+  try {
+    process.stdin.pause();
+  } catch (e) {
+    // ignore
+  }
   return answer === 'y' || answer === 'yes';
 }

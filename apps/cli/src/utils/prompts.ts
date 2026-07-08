@@ -38,6 +38,9 @@ export interface KeyboardPromptOptions {
   input?: NodeJS.ReadStream;
   output?: NodeJS.WriteStream;
   forceInteractive?: boolean;
+  confirmationLabel?: string;
+  step?: number;
+  totalSteps?: number;
 }
 
 interface PromptChoice {
@@ -186,11 +189,11 @@ export function moveSelection(
     return 0;
   }
 
-  if (keyName === 'up') {
+  if (keyName === 'up' || keyName === 'left') {
     return (currentIndex - 1 + choiceCount) % choiceCount;
   }
 
-  if (keyName === 'down') {
+  if (keyName === 'down' || keyName === 'right') {
     return (currentIndex + 1) % choiceCount;
   }
 
@@ -198,59 +201,132 @@ export function moveSelection(
 }
 
 class StablePromptRenderer {
-  private blockLines = 0;
-  private headerRendered = false;
+  private renderedLines = 0;
 
   constructor(
     private output: NodeJS.WriteStream,
     private message: string,
     private choices: PromptChoice[],
+    private confirmationLabel: string,
+    private step?: number,
+    private totalSteps?: number,
   ) {}
 
-  render(selectedIndex: number, typedInput: string): void {
-    if (!this.headerRendered) {
-      this.output.write(`${this.message}\n`);
-      this.output.write('Use Up/Down and Enter, or type a number/value and press Enter.\n');
-      this.headerRendered = true;
-    } else if (this.blockLines > 0) {
-      readline.moveCursor(this.output, 0, -this.blockLines);
+  render(selectedIndex: number): void {
+    if (this.renderedLines > 0) {
+      readline.moveCursor(this.output, 0, -this.renderedLines);
       readline.clearScreenDown(this.output);
     }
 
-    const block = this.createOptionBlock(selectedIndex, typedInput);
-    this.output.write(`${block.join('\n')}\n`);
-    this.blockLines = block.length;
+    const lines = [
+      ...this.createHeaderBlock(),
+      '',
+      'Use Up/Down to navigate  Enter to select',
+      '',
+      ...this.createOptionBlock(selectedIndex),
+    ];
+    this.output.write(`${lines.join('\n')}\n`);
+    this.renderedLines = lines.length;
   }
 
-  finish(): void {
+  confirm(choice: PromptChoice): void {
+    if (this.renderedLines > 0) {
+      readline.moveCursor(this.output, 0, -this.renderedLines);
+      readline.clearScreenDown(this.output);
+    }
+    this.output.write(`${formatAlignedRow(this.confirmationLabel, choice.label)}\n`);
+    this.renderedLines = 1;
+  }
+
+  cancel(): void {
     this.output.write('\n');
   }
 
-  private createOptionBlock(selectedIndex: number, typedInput: string): string[] {
-    const indexWidth = String(this.choices.length).length;
-    return [
-      ...this.choices.map((choice, index) => {
-        const marker = index === selectedIndex ? '>' : ' ';
-        const number = String(index + 1).padStart(indexWidth, ' ');
-        const selected = index === selectedIndex ? ' [selected]' : '';
-        return `${marker} ${number}. ${choice.label} (${choice.value})${selected}`;
-      }),
-      `Input: ${typedInput}`,
-    ];
+  private createOptionBlock(selectedIndex: number): string[] {
+    return this.choices.map((choice, index) => {
+      const marker = index === selectedIndex ? '>' : ' ';
+      return `${marker} ${choice.label}`;
+    });
+  }
+
+  private createHeaderBlock(): string[] {
+    const title = formatPromptTitle(this.message);
+    if (this.step && this.totalSteps) {
+      return [`Step ${this.step} of ${this.totalSteps}`, title];
+    }
+    return [title];
+  }
+}
+
+const promptCleanups = new Set<() => void>();
+
+export function registerPromptCleanup(cleanup: () => void): () => void {
+  promptCleanups.add(cleanup);
+  return () => {
+    promptCleanups.delete(cleanup);
+  };
+}
+
+export function runCentralizedCleanup(): void {
+  for (const cleanup of promptCleanups) {
+    try {
+      cleanup();
+    } catch (e) {
+      // ignore
+    }
+  }
+  promptCleanups.clear();
+
+  try {
+    if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
+      process.stdin.setRawMode(false);
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  try {
+    process.stdin.pause();
+  } catch (e) {
+    // ignore
+  }
+
+  try {
+    if (process.stdout.isTTY) {
+      process.stdout.write('\x1b[?25h');
+    }
+  } catch (e) {
+    // ignore
   }
 }
 
 async function askTypedLine(promptText: string): Promise<string> {
+  runCentralizedCleanup();
+
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
   return new Promise((resolve, reject) => {
+    let settled = false;
+
     const cleanup = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      unregister();
       rl.removeAllListeners('SIGINT');
       rl.close();
+      try {
+        process.stdin.pause();
+      } catch (e) {
+        // ignore
+      }
     };
+
+    const unregister = registerPromptCleanup(cleanup);
 
     rl.on('SIGINT', () => {
       cleanup();
@@ -270,6 +346,8 @@ export async function promptKeyboardChoice(
   defaultValue: string | boolean | undefined,
   options: KeyboardPromptOptions = {},
 ): Promise<string> {
+  runCentralizedCleanup();
+
   const input = options.input || process.stdin;
   const output = options.output || process.stdout;
   const defaultIndex = Math.max(
@@ -277,15 +355,31 @@ export async function promptKeyboardChoice(
     choices.findIndex((choice) => choice.value === String(defaultValue)),
   );
   let selectedIndex = defaultIndex;
-  let typedInput = '';
   const wasRaw = input.isRaw === true;
-  const renderer = new StablePromptRenderer(output, message, choices);
+  const renderer = new StablePromptRenderer(
+    output,
+    message,
+    choices,
+    options.confirmationLabel || formatPromptConfirmationLabel(message),
+    options.step,
+    options.totalSteps,
+  );
   let settled = false;
 
   readline.emitKeypressEvents(input);
-  input.setRawMode?.(true);
-  input.resume();
-  output.write('\x1b[?25l');
+  try {
+    input.setRawMode?.(true);
+  } catch (e) {
+    // ignore
+  }
+  try {
+    input.resume();
+  } catch (e) {
+    // ignore
+  }
+  if (output.isTTY) {
+    output.write('\x1b[?25l');
+  }
 
   return new Promise((resolve, reject) => {
     const cleanup = () => {
@@ -293,68 +387,61 @@ export async function promptKeyboardChoice(
         return;
       }
       settled = true;
+      unregister();
       input.off('keypress', onKeypress);
-      input.setRawMode?.(wasRaw);
-      output.write('\x1b[?25h');
+      try {
+        input.setRawMode?.(wasRaw);
+      } catch (e) {
+        // ignore
+      }
+      try {
+        input.pause();
+      } catch (e) {
+        // ignore
+      }
+      if (output.isTTY) {
+        output.write('\x1b[?25h');
+      }
     };
 
+    const unregister = registerPromptCleanup(cleanup);
+
     const render = () => {
-      renderer.render(selectedIndex, typedInput);
+      renderer.render(selectedIndex);
     };
 
     const finish = (value: string) => {
       cleanup();
-      renderer.finish();
+      const choice = choices.find((item) => item.value === value);
+      renderer.confirm(choice || { value, label: value });
       resolve(value);
     };
 
     const onKeypress = (str: string, key: readline.Key) => {
       if (key.ctrl && key.name === 'c') {
         cleanup();
-        renderer.finish();
+        renderer.cancel();
         reject(new StructifyCLIError('USAGE_ERROR', 'User cancelled scaffolding execution.'));
         return;
       }
 
-      if (key.name === 'up' || key.name === 'down') {
+      if (
+        key.name === 'up' ||
+        key.name === 'down' ||
+        (isBooleanChoiceSet(choices) && (key.name === 'left' || key.name === 'right'))
+      ) {
         selectedIndex = moveSelection(selectedIndex, key.name, choices.length);
-        typedInput = '';
         render();
         return;
       }
 
       if (key.name === 'return' || key.name === 'enter') {
-        if (typedInput.trim() === '') {
-          finish(choices[selectedIndex]?.value || String(defaultValue));
-          return;
-        }
-
-        const resolved = resolveSelectInput(typedInput, choices, defaultValue);
-        if (resolved) {
-          finish(resolved);
-          return;
-        }
-
-        if (isBooleanChoiceSet(choices) && /^(y|n|true|false)$/i.test(typedInput.trim())) {
-          finish(String(resolveBooleanInput(typedInput, defaultValue)));
-          return;
-        }
-
-        output.write('\x07');
-        typedInput = '';
-        render();
-        return;
-      }
-
-      if (key.name === 'backspace') {
-        typedInput = typedInput.slice(0, -1);
-        render();
+        finish(choices[selectedIndex]?.value || String(defaultValue));
         return;
       }
 
       if (str && str >= ' ' && str !== '\x7f') {
-        typedInput += str;
-        render();
+        output.write('\x07');
       }
     };
 
@@ -366,6 +453,64 @@ export async function promptKeyboardChoice(
 function isBooleanChoiceSet(choices: PromptChoice[]): boolean {
   const values = choices.map((choice) => choice.value).sort();
   return values.length === 2 && values[0] === 'false' && values[1] === 'true';
+}
+
+export function formatPromptConfirmationLabel(message: string): string {
+  const withoutStep = message.replace(/^\s*\[Step\s+\d+\]\s*/i, '').trim();
+  const cleaned = withoutStep
+    .replace(/\?$/, '')
+    .replace(/^Select\s+/i, '')
+    .replace(/^Add\s+/i, '')
+    .replace(/^Enable\s+/i, '')
+    .replace(/\s+configurations$/i, '')
+    .replace(/\s+formatting$/i, '')
+    .trim();
+
+  if (cleaned.length === 0) {
+    return 'Selection';
+  }
+
+  return normalizePromptLabel(
+    cleaned
+      .split(/\s+/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' '),
+  );
+}
+
+function formatPromptTitle(message: string): string {
+  const withoutStep = message.replace(/^\s*\[Step\s+\d+\]\s*/i, '').trim();
+  const title = withoutStep
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  const titles: Record<string, string> = {
+    'Select Styling Library': 'Select Styling',
+    'Select Database Engine': 'Select Database',
+    'Select Database Mapper/ORM': 'Select ORM',
+  };
+  return titles[title] || title;
+}
+
+function normalizePromptLabel(label: string): string {
+  const labels: Record<string, string> = {
+    'Project Mode': 'Project Mode',
+    'Frontend Framework': 'Frontend Framework',
+    'Backend Framework': 'Backend Framework',
+    'Styling Library': 'Styling',
+    'Database Engine': 'Database',
+    'Database Mapper/ORM': 'ORM',
+    'Package Manager': 'Package Manager',
+    Docker: 'Docker',
+    Eslint: 'ESLint',
+    Prettier: 'Prettier',
+    'Generate This Project And Write Files To Disk': 'Generate Project',
+  };
+  return labels[label] || label;
+}
+
+function formatAlignedRow(label: string, value: string): string {
+  return `  ${label.padEnd(18)} ${value}`;
 }
 
 export async function promptBooleanConfirmation(
@@ -549,6 +694,10 @@ export class InteractivePromptEngine {
 
     let currentIndex = 0;
     let displayedStep = 1;
+    const keyboardMode = supportsKeyboardNavigation();
+    if (keyboardMode) {
+      process.stdout.write('\nStructify Project Setup\n\n');
+    }
 
     let prompting = true;
     while (prompting) {
@@ -581,12 +730,9 @@ export class InteractivePromptEngine {
       }
 
       let rawAnswer: string;
-      if (
-        supportsKeyboardNavigation() &&
-        ((q.type === 'select' && choices) || q.type === 'boolean')
-      ) {
+      if (keyboardMode && ((q.type === 'select' && choices) || q.type === 'boolean')) {
         rawAnswer = await promptKeyboardChoice(
-          promptHeading,
+          promptHeading.trimStart(),
           q.type === 'boolean'
             ? [
                 { value: 'true', label: 'Yes' },
@@ -594,6 +740,11 @@ export class InteractivePromptEngine {
               ]
             : choices || [],
           q.type === 'boolean' ? String(Boolean(resolvedDefault)) : resolvedDefault,
+          {
+            confirmationLabel: getQuestionDisplayLabel(q.key),
+            step: displayedStep,
+            totalSteps: activeQuestions.length,
+          },
         );
       } else {
         rawAnswer = await askTypedLine(promptText);
@@ -712,4 +863,21 @@ export class InteractivePromptEngine {
     console.log('Please enter a different project name.');
     return undefined;
   }
+}
+
+function getQuestionDisplayLabel(key: string): string {
+  const labels: Record<string, string> = {
+    projectName: 'Project Name',
+    mode: 'Project Mode',
+    frontend: 'Frontend Framework',
+    backend: 'Backend Framework',
+    styling: 'Styling',
+    database: 'Database',
+    orm: 'ORM',
+    packageManager: 'Package Manager',
+    docker: 'Docker',
+    eslint: 'ESLint',
+    prettier: 'Prettier',
+  };
+  return labels[key] || key;
 }

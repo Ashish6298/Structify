@@ -441,7 +441,7 @@ export function getLegacyStarterTemplates(
 
     files.push({
       path: '.eslintrc.json',
-      content: `{\n  "root": true,\n  "parser": "@typescript-eslint/parser",\n  "plugins": ["@typescript-eslint"],\n  "extends": [\n    "eslint:recommended",\n    "plugin:@typescript-eslint/recommended"\n  ],\n  "rules": {}\n}\n`,
+      content: `{\n  "root": true,\n  "parser": "@typescript-eslint/parser",\n  "plugins": ["@typescript-eslint"],\n  "extends": [\n    "eslint:recommended",\n    "plugin:@typescript-eslint/recommended"\n  ],\n  "rules": {\n    "@typescript-eslint/no-unused-vars": [\n      "error",\n      {\n        "argsIgnorePattern": "^_",\n        "varsIgnorePattern": "^_"\n      }\n    ]\n  }\n}\n`,
     });
   }
 

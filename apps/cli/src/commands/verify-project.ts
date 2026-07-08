@@ -1,5 +1,5 @@
 import path from 'path';
-import { execSync } from 'child_process';
+import * as childProcess from 'child_process';
 import { runProjectHealthCheck, validateGeneratedProject } from '@structify/core';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
@@ -31,10 +31,11 @@ export async function handleVerifyProject(
   let buildError: string | null = null;
   if (options.build) {
     try {
-      execSync('npm run build', {
+      childProcess.execSync('npm run build', {
         cwd: projectPath,
         stdio: 'pipe',
         env: { ...process.env, CI: 'true' },
+        windowsHide: true,
       });
     } catch (e: unknown) {
       buildPassed = false;

@@ -425,11 +425,17 @@ export async function handlePreset(
       output.info(`File path: ${found.filePath}`);
       output.info(`Opening with editor: ${editor}...`);
 
-      exec(`${editor} "${found.filePath}"`, (err) => {
-        if (err) {
-          output.warn(`Failed to open editor automatically. Please edit manually.`);
-        }
-      });
+      exec(
+        `${editor} "${found.filePath}"`,
+        {
+          windowsHide: true,
+        },
+        (err) => {
+          if (err) {
+            output.warn(`Failed to open editor automatically. Please edit manually.`);
+          }
+        },
+      );
       return;
     }
 

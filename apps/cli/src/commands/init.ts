@@ -313,8 +313,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
   }
 
   if (!context.json) {
-    output.divider();
-    output.subheading('Project Summary');
+    output.info('');
     projectSummary.forEach((line) => output.info(line));
   }
 
@@ -323,6 +322,8 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     const confirmed = await promptBooleanConfirmation(
       '\nGenerate this project and write files to disk?',
       true,
+      undefined,
+      { confirmationLabel: 'Generate Project' },
     );
     if (!confirmed) {
       output.info('Scaffolding execution aborted by user.');
@@ -398,7 +399,6 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     }
   }
 
-  output.success('\nProject generated successfully.');
   if (validation) {
     if (!validation.valid) {
       output.warn(`Structural validation found ${validation.issues.length} issue(s).`);
@@ -406,8 +406,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
       output.success('Structural validation passed.');
     }
   }
-  output.divider();
-  output.subheading('Generation Summary');
+  output.info('');
   formatSuccessSummary(
     normalized,
     targetDir,
@@ -424,20 +423,27 @@ export function formatProjectSummary(
   install: boolean,
 ): string[] {
   return [
-    `Project name: ${config.projectName}`,
-    `Output path: ${path.resolve(targetDir)}`,
-    `Project mode: ${formatValue(config.mode)}`,
-    `Frontend framework: ${formatValue(config.stack.frontend)}`,
-    `Backend framework: ${formatValue(config.stack.backend)}`,
-    `Styling library: ${formatValue(config.stack.styling)}`,
-    `Database: ${formatValue(config.stack.database)}`,
-    `ORM: ${formatValue(config.stack.orm)}`,
-    `Package manager: ${config.stack.packageManager}`,
-    `Docker: ${formatBoolean(config.tools.docker)}`,
-    `ESLint: ${formatBoolean(config.tools.eslint)}`,
-    `Prettier: ${formatBoolean(config.tools.prettier)}`,
-    `GitHub Actions: ${formatBoolean(config.tools.githubActions)}`,
-    `Install dependencies: ${formatBoolean(install)}`,
+    'Project Review',
+    '',
+    'Project',
+    formatReviewRow('Name', config.projectName),
+    formatReviewRow('Location', path.resolve(targetDir)),
+    formatReviewRow('Mode', formatValue(config.mode)),
+    '',
+    'Stack',
+    formatReviewRow('Frontend', formatValue(config.stack.frontend)),
+    formatReviewRow('Backend', formatValue(config.stack.backend)),
+    formatReviewRow('Styling', formatValue(config.stack.styling)),
+    formatReviewRow('Database', formatValue(config.stack.database)),
+    formatReviewRow('ORM', formatValue(config.stack.orm)),
+    '',
+    'Tooling',
+    formatReviewRow('Package Manager', config.stack.packageManager),
+    formatReviewRow('Docker', formatBoolean(config.tools.docker)),
+    formatReviewRow('ESLint', formatBoolean(config.tools.eslint)),
+    formatReviewRow('Prettier', formatBoolean(config.tools.prettier)),
+    formatReviewRow('GitHub Actions', formatBoolean(config.tools.githubActions)),
+    formatReviewRow('Install Deps', formatBoolean(install)),
   ];
 }
 
@@ -450,28 +456,37 @@ export function formatSuccessSummary(
   const packageJsonPath = path.join(targetDir, 'package.json');
   const scripts = readPackageScripts(packageJsonPath);
   const lines = [
-    `Location: ${path.resolve(targetDir)}`,
-    `Stack: ${formatStack(config)}`,
-    `Generated files: ${generatedFileCount}`,
-    `Duration: ${durationMs}ms`,
-    `Enabled tools: ${formatEnabledTools(config)}`,
+    'Project Created Successfully',
     '',
-    'Next commands:',
-    `  1. cd ${targetDir}`,
-    '  2. npm install',
+    'Location',
+    `  ${path.resolve(targetDir)}`,
+    '',
+    'Stack',
+    `  ${formatStack(config)}`,
+    '',
+    'Generated',
+    formatReviewRow('Files', String(generatedFileCount)),
+    formatReviewRow('Duration', formatDuration(durationMs)),
+    '',
+    'Enabled Tools',
+    `  ${formatEnabledTools(config)}`,
+    '',
+    'Next Steps',
+    `  cd ${targetDir}`,
+    '  npm install',
   ];
 
   if (scripts.dev) {
-    lines.push('  3. npm run dev');
+    lines.push('  npm run dev');
   }
 
   if (scripts['dev:web'] || scripts['dev:api']) {
-    lines.push('', 'Additional development scripts:');
+    lines.push('', 'Additional Development Scripts');
     if (scripts['dev:web']) {
-      lines.push('  - npm run dev:web');
+      lines.push('  npm run dev:web');
     }
     if (scripts['dev:api']) {
-      lines.push('  - npm run dev:api');
+      lines.push('  npm run dev:api');
     }
   }
 
@@ -508,6 +523,17 @@ function formatEnabledTools(config: NormalizedProjectConfig): string {
     config.tools.githubActions ? 'GitHub Actions' : undefined,
   ].filter(Boolean);
   return enabled.length > 0 ? enabled.join(', ') : 'None';
+}
+
+function formatReviewRow(label: string, value: string): string {
+  return `  ${label.padEnd(16)} ${value}`;
+}
+
+function formatDuration(durationMs: number): string {
+  if (durationMs >= 1000) {
+    return `${(durationMs / 1000).toFixed(1)}s`;
+  }
+  return `${durationMs}ms`;
 }
 
 function formatBoolean(value: boolean): string {

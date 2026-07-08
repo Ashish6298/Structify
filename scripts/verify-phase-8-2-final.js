@@ -171,7 +171,8 @@ function repositoryConsistencyChecks() {
   const staleReportFiles = files.filter(
     (file) =>
       /^phase-.*verification-report\.txt$/.test(path.basename(file)) &&
-      path.basename(file) !== 'phase-8-2-final-verification-report.txt',
+      path.basename(file) !== 'phase-8-2-final-verification-report.txt' &&
+      path.basename(file) !== 'phase-9-12-enterprise-verification-report.txt',
   );
   const badPnpm = [];
   const stalePhrases = [];

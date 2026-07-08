@@ -3,8 +3,30 @@ import { registerCommands } from './commands/index.js';
 import { createCLIContext } from './context.js';
 import { CLIOutput } from './utils/output.js';
 import { StructifyCLIError } from './utils/error.js';
+import { runCentralizedCleanup } from './utils/prompts.js';
 
 async function main() {
+  process.on('exit', () => {
+    runCentralizedCleanup();
+  });
+
+  process.on('SIGINT', () => {
+    runCentralizedCleanup();
+    process.exit(130);
+  });
+
+  process.on('uncaughtException', (err) => {
+    runCentralizedCleanup();
+    console.error(err);
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason) => {
+    runCentralizedCleanup();
+    console.error(reason);
+    process.exit(1);
+  });
+
   const program = new Command();
 
   program

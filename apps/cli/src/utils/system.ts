@@ -1,5 +1,5 @@
 import os from 'os';
-import { execSync } from 'child_process';
+import * as childProcess from 'child_process';
 
 export interface SystemMetrics {
   cpuModel: string;
@@ -9,8 +9,15 @@ export interface SystemMetrics {
   freeDiskSpaceBytes?: number;
 }
 
-export function getSystemMetrics(): SystemMetrics {
+interface SystemMetricsDependencies {
+  platform?: () => NodeJS.Platform;
+  execFileSync?: typeof childProcess.execFileSync;
+}
+
+export function getSystemMetrics(deps: SystemMetricsDependencies = {}): SystemMetrics {
   const cpus = os.cpus();
+  const platform = deps.platform ?? os.platform;
+  const execFileSync = deps.execFileSync ?? childProcess.execFileSync;
   const cpuModel = cpus.length > 0 ? cpus[0].model : 'Unknown';
   const cpuCores = cpus.length;
   const totalMemoryBytes = os.totalmem();
@@ -18,10 +25,11 @@ export function getSystemMetrics(): SystemMetrics {
 
   let freeDiskSpaceBytes: number | undefined;
   try {
-    if (os.platform() === 'win32') {
-      const output = execSync('wmic logicaldisk get size,freespace,deviceid', {
+    if (platform() === 'win32') {
+      const output = execFileSync('wmic', ['logicaldisk', 'get', 'size,freespace,deviceid'], {
         encoding: 'utf8',
         stdio: 'pipe',
+        windowsHide: true,
       });
       // Parse wmic output for C:
       const lines = output.trim().split('\n');
@@ -35,7 +43,11 @@ export function getSystemMetrics(): SystemMetrics {
         }
       }
     } else {
-      const output = execSync('df -k .', { encoding: 'utf8', stdio: 'pipe' });
+      const output = execFileSync('df', ['-k', '.'], {
+        encoding: 'utf8',
+        stdio: 'pipe',
+        windowsHide: true,
+      });
       const lines = output.trim().split('\n');
       if (lines.length >= 2) {
         const parts = lines[1].trim().split(/\s+/);

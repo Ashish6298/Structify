@@ -3,6 +3,8 @@ import { CLIContext, createCLIContext } from '../context.js';
 import { CLIOutput } from './output.js';
 import { StructifyCLIError } from './error.js';
 
+import { runCentralizedCleanup } from './prompts.js';
+
 export type CommandAction<T> = (options: T, context: CLIContext) => Promise<void>;
 
 export interface CommandMiddleware {
@@ -100,6 +102,8 @@ export function wrapAction<T extends Record<string, unknown>>(
         }
         process.exit(1);
       }
+    } finally {
+      runCentralizedCleanup();
     }
   };
 }
