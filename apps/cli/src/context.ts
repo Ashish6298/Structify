@@ -2,6 +2,7 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import { getSystemMetrics, SystemMetrics } from './utils/system.js';
+import { getCliVersion } from './utils/version.js';
 
 export interface CLIContext {
   packageName: string;
@@ -50,7 +51,7 @@ export function createCLIContext(
 
   return {
     packageName: 'structify-tool',
-    packageVersion: '1.0.0',
+    packageVersion: getCliVersion(),
     cwd: targetCwd,
     homeDir: os.homedir(),
     tmpDir: os.tmpdir(),

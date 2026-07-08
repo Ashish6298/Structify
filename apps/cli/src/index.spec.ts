@@ -27,6 +27,7 @@ import {
 import { ConfigurationLoaderManager } from './utils/loader.js';
 import { CLIOutput } from './utils/output.js';
 import { getSystemMetrics } from './utils/system.js';
+import { getCliVersion } from './utils/version.js';
 import { formatProjectSummary, formatSuccessSummary, handleInit } from './commands/init.js';
 import validFixture from './fixtures/valid-config.json';
 import invalidFixture from './fixtures/invalid-config.json';
@@ -75,6 +76,51 @@ describe('CLI Shell Unit Tests', () => {
         expect.anything(),
         expect.anything(),
       );
+    });
+  });
+
+  describe('CLI Version Resolution', () => {
+    it('should read the current CLI package version from package metadata', () => {
+      const packagePath = path.resolve(__dirname, '..', 'package.json');
+      const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8')) as {
+        version: string;
+      };
+
+      expect(getCliVersion(path.dirname(packagePath), { includeRuntimeFallbacks: false })).toBe(
+        packageJson.version,
+      );
+      expect(createCLIContext(['node', 'structify', '--version'], {}).packageVersion).toBe(
+        packageJson.version,
+      );
+    });
+
+    it('should resolve the package version from a built dist directory layout', () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'structify-version-dist-'));
+      const packageRoot = path.join(tmp, 'node_modules', 'structify-tool');
+      const distDir = path.join(packageRoot, 'dist');
+      fs.mkdirSync(distDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(packageRoot, 'package.json'),
+        JSON.stringify({ name: 'structify-tool', version: '9.8.7' }),
+      );
+
+      expect(getCliVersion(distDir, { includeRuntimeFallbacks: false })).toBe('9.8.7');
+      fs.rmSync(tmp, { recursive: true, force: true });
+    });
+
+    it('should fall back safely when package metadata cannot be read', () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'structify-version-missing-'));
+
+      expect(getCliVersion(tmp, { includeRuntimeFallbacks: false })).toBe('0.0.0');
+      fs.rmSync(tmp, { recursive: true, force: true });
+    });
+
+    it('should not hardcode the Commander version output', () => {
+      const source = fs.readFileSync(path.resolve(__dirname, 'index.ts'), 'utf8');
+
+      expect(source).toContain('.version(getCliVersion())');
+      expect(source).not.toContain(".version('1.0.0')");
+      expect(source).not.toContain('.version("1.0.0")');
     });
   });
 

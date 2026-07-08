@@ -4,6 +4,7 @@ import { createCLIContext } from './context.js';
 import { CLIOutput } from './utils/output.js';
 import { StructifyCLIError } from './utils/error.js';
 import { runCentralizedCleanup } from './utils/prompts.js';
+import { getCliVersion } from './utils/version.js';
 
 async function main() {
   process.on('exit', () => {
@@ -34,7 +35,7 @@ async function main() {
     .description(
       'Professional platform for initializing, extending, and inspecting software architectures',
     )
-    .version('1.0.0');
+    .version(getCliVersion());
 
   // Register global options
   program
