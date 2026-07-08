@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { EventEmitter } from 'events';
 import { describe, it, expect, vi } from 'vitest';
 import { createCLIContext } from './context.js';
 import {
@@ -12,8 +13,14 @@ import {
 import {
   getCompatibleOrmChoices,
   InteractivePromptEngine,
+  moveSelection,
   normalizeProjectNameInput,
+  promptBooleanConfirmation,
+  promptKeyboardChoice,
   QuestionMetadata,
+  resolveBooleanInput,
+  resolveSelectInput,
+  supportsKeyboardNavigation,
   validateProjectNameForWizard,
 } from './utils/prompts.js';
 import { ConfigurationLoaderManager } from './utils/loader.js';
@@ -140,6 +147,227 @@ describe('CLI Shell Unit Tests', () => {
 
       expect(labels).toEqual(['[Step 1]', '[Step 2]', '[Step 3]', '[Step 4]']);
       expect(labels.some((label) => /\/\d+\]/.test(label))).toBe(false);
+    });
+
+    it('should keep typed number input for select prompts', () => {
+      const choices = [
+        { value: 'next', label: 'Next.js' },
+        { value: 'vite-react', label: 'React (Vite)' },
+      ];
+
+      expect(resolveSelectInput('2', choices, 'next')).toBe('vite-react');
+    });
+
+    it('should keep typed y/n input for boolean prompts', () => {
+      expect(resolveBooleanInput('y', false)).toBe(true);
+      expect(resolveBooleanInput('n', true)).toBe(false);
+    });
+
+    it('should accept defaults on Enter for select and boolean prompts', () => {
+      const choices = [
+        { value: 'next', label: 'Next.js' },
+        { value: 'vite-react', label: 'React (Vite)' },
+      ];
+
+      expect(resolveSelectInput('', choices, 'next')).toBe('next');
+      expect(resolveBooleanInput('', true)).toBe(true);
+      expect(resolveBooleanInput('', false)).toBe(false);
+    });
+
+    it('should move selection with arrow navigation', () => {
+      expect(moveSelection(0, 'down', 3)).toBe(1);
+      expect(moveSelection(0, 'up', 3)).toBe(2);
+    });
+
+    it('should detect non-interactive fallback mode', () => {
+      const input = { isTTY: false } as NodeJS.ReadStream;
+      const output = { isTTY: false } as NodeJS.WriteStream;
+
+      expect(supportsKeyboardNavigation({ input, output })).toBe(false);
+    });
+
+    it('should select single-choice options with arrow keys and Enter', async () => {
+      const input = new FakeInput();
+      const output = new FakeOutput();
+      const result = promptKeyboardChoice(
+        'Select frontend framework',
+        [
+          { value: 'next', label: 'Next.js' },
+          { value: 'vite-react', label: 'React (Vite)' },
+        ],
+        'next',
+        {
+          input: input as NodeJS.ReadStream,
+          output: output as unknown as NodeJS.WriteStream,
+          forceInteractive: true,
+        },
+      );
+
+      input.emit('keypress', '', { name: 'down' });
+      input.emit('keypress', '', { name: 'return' });
+
+      await expect(result).resolves.toBe('vite-react');
+      expect(output.text()).toContain('[selected]');
+    });
+
+    it('should accept typed number input inside interactive select prompts', async () => {
+      const input = new FakeInput();
+      const output = new FakeOutput();
+      const result = promptKeyboardChoice(
+        'Select frontend framework',
+        [
+          { value: 'next', label: 'Next.js' },
+          { value: 'vite-react', label: 'React (Vite)' },
+        ],
+        'next',
+        {
+          input: input as NodeJS.ReadStream,
+          output: output as unknown as NodeJS.WriteStream,
+          forceInteractive: true,
+        },
+      );
+
+      input.emit('keypress', '2', { name: '2' });
+      input.emit('keypress', '', { name: 'return' });
+
+      await expect(result).resolves.toBe('vite-react');
+    });
+
+    it('should accept typed y/n input inside interactive yes/no prompts', async () => {
+      const input = new FakeInput();
+      const output = new FakeOutput();
+      const result = promptBooleanConfirmation('Add ESLint configurations?', true, undefined, {
+        input: input as NodeJS.ReadStream,
+        output: output as unknown as NodeJS.WriteStream,
+        forceInteractive: true,
+      });
+
+      input.emit('keypress', 'n', { name: 'n' });
+      input.emit('keypress', '', { name: 'return' });
+
+      await expect(result).resolves.toBe(false);
+    });
+
+    it('should redraw option blocks without duplicated headers or partial fragments', async () => {
+      const input = new FakeInput();
+      const output = new FakeOutput();
+      const result = promptKeyboardChoice(
+        '[Step 2] Select project mode',
+        [
+          { value: 'frontend-only', label: 'Frontend Only' },
+          { value: 'backend-only', label: 'Backend Only' },
+          { value: 'fullstack', label: 'Fullstack' },
+        ],
+        'fullstack',
+        {
+          input: input as NodeJS.ReadStream,
+          output: output as unknown as NodeJS.WriteStream,
+          forceInteractive: true,
+        },
+      );
+
+      input.emit('keypress', '', { name: 'up' });
+      input.emit('keypress', '', { name: 'down' });
+      input.emit('keypress', '', { name: 'down' });
+      input.emit('keypress', '', { name: 'return' });
+
+      await expect(result).resolves.toBe('frontend-only');
+      const rendered = output.text();
+      expect(countOccurrences(rendered, '[Step 2] Select project mode')).toBe(1);
+      expect(countOccurrences(rendered, '[S')).toBe(1);
+      expect(rendered).not.toMatch(/\n{4,}/);
+    });
+
+    it('should clean up raw mode, cursor state, and key listeners after selection', async () => {
+      const input = new FakeInput();
+      const output = new FakeOutput();
+      const result = promptKeyboardChoice(
+        'Select package manager',
+        [{ value: 'npm', label: 'npm' }],
+        'npm',
+        {
+          input: input as NodeJS.ReadStream,
+          output: output as unknown as NodeJS.WriteStream,
+          forceInteractive: true,
+        },
+      );
+
+      expect(input.isRaw).toBe(true);
+      input.emit('keypress', '', { name: 'return' });
+
+      await expect(result).resolves.toBe('npm');
+      expect(input.isRaw).toBe(false);
+      expect(input.listenerCount('keypress')).toBe(0);
+      expect(output.text()).toContain('\x1b[?25l');
+      expect(output.text()).toContain('\x1b[?25h');
+    });
+
+    it('should restore terminal state and reject on Ctrl+C', async () => {
+      const input = new FakeInput();
+      const output = new FakeOutput();
+      const result = promptKeyboardChoice(
+        'Select database engine',
+        [
+          { value: 'postgres', label: 'PostgreSQL' },
+          { value: 'mongodb', label: 'MongoDB' },
+        ],
+        'postgres',
+        {
+          input: input as NodeJS.ReadStream,
+          output: output as unknown as NodeJS.WriteStream,
+          forceInteractive: true,
+        },
+      );
+
+      input.emit('keypress', '\u0003', { ctrl: true, name: 'c' });
+
+      await expect(result).rejects.toThrow('User cancelled scaffolding execution.');
+      expect(input.isRaw).toBe(false);
+      expect(input.listenerCount('keypress')).toBe(0);
+      expect(output.text()).toContain('\x1b[?25h');
+    });
+
+    it('should handle rapid key navigation deterministically', async () => {
+      const input = new FakeInput();
+      const output = new FakeOutput();
+      const result = promptKeyboardChoice(
+        'Select styling library',
+        [
+          { value: 'tailwind', label: 'Tailwind CSS' },
+          { value: 'mui', label: 'Material UI' },
+          { value: 'none', label: 'None' },
+        ],
+        'tailwind',
+        {
+          input: input as NodeJS.ReadStream,
+          output: output as unknown as NodeJS.WriteStream,
+          forceInteractive: true,
+        },
+      );
+
+      for (let index = 0; index < 10; index++) {
+        input.emit('keypress', '', { name: 'down' });
+      }
+      input.emit('keypress', '', { name: 'return' });
+
+      await expect(result).resolves.toBe('mui');
+      expect(countOccurrences(output.text(), 'Select styling library')).toBe(1);
+    });
+
+    it('should select yes/no prompts with arrow keys and Enter', async () => {
+      const input = new FakeInput();
+      const output = new FakeOutput();
+      const result = promptBooleanConfirmation('Enable Docker configurations?', true, undefined, {
+        input: input as NodeJS.ReadStream,
+        output: output as unknown as NodeJS.WriteStream,
+        forceInteractive: true,
+      });
+
+      input.emit('keypress', '', { name: 'down' });
+      input.emit('keypress', '', { name: 'return' });
+
+      await expect(result).resolves.toBe(false);
+      expect(output.text()).toContain('No (false)');
     });
   });
 
@@ -351,4 +579,36 @@ describe('CLI Shell Unit Tests', () => {
 
 async function simulateWizardConfig(input: ProjectConfig): Promise<ProjectConfig> {
   return Promise.resolve(input);
+}
+
+function countOccurrences(value: string, pattern: string): number {
+  return value.split(pattern).length - 1;
+}
+
+class FakeInput extends EventEmitter {
+  isTTY = true;
+  isRaw = false;
+
+  setRawMode(value: boolean): this {
+    this.isRaw = value;
+    return this;
+  }
+
+  resume(): this {
+    return this;
+  }
+}
+
+class FakeOutput {
+  isTTY = true;
+  private chunks: string[] = [];
+
+  write(chunk: string | Uint8Array): boolean {
+    this.chunks.push(String(chunk));
+    return true;
+  }
+
+  text(): string {
+    return this.chunks.join('');
+  }
 }

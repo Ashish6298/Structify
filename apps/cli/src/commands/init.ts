@@ -1,11 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import readline from 'readline';
 import { createHash } from 'crypto';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
 import { StructifyCLIError } from '../utils/error.js';
-import { InteractivePromptEngine } from '../utils/prompts.js';
+import { InteractivePromptEngine, promptBooleanConfirmation } from '../utils/prompts.js';
 import { ConfigurationLoaderManager } from '../utils/loader.js';
 import {
   validateStack,
@@ -321,20 +320,11 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
 
   // Confirmation Wizard
   if (!options.yes && !options.config && !options.preset && !options.presetFile) {
-    const confirmAns = await new Promise<string>((res) => {
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
-      rl.question(
-        '\nGenerate this project and write files to disk? (y/n) [Default: y]: ',
-        (answer) => {
-          rl.close();
-          res(answer.trim().toLowerCase());
-        },
-      );
-    });
-    if (confirmAns !== '' && !confirmAns.startsWith('y')) {
+    const confirmed = await promptBooleanConfirmation(
+      '\nGenerate this project and write files to disk?',
+      true,
+    );
+    if (!confirmed) {
       output.info('Scaffolding execution aborted by user.');
       return;
     }

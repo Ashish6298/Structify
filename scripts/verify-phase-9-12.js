@@ -81,11 +81,11 @@ ${docOutput}
     ['Dependency Status', 'npm ls --workspaces --depth=0 --package-lock=false', 120000],
     ['Format Check', 'npm run format:check', 180000],
     ['Core Typecheck', 'npm run typecheck --workspace @structify/core', 120000],
-    ['CLI Typecheck', 'npm run typecheck --workspace structify-cli', 120000],
+    ['CLI Typecheck', 'npm run typecheck --workspace structify-tool', 120000],
     ['Core Lint', 'npm run lint --workspace @structify/core', 120000],
-    ['CLI Lint', 'npm run lint --workspace structify-cli', 120000],
+    ['CLI Lint', 'npm run lint --workspace structify-tool', 120000],
     ['Core Build', 'npm run build --workspace @structify/core', 120000],
-    ['CLI Build', 'npm run build --workspace structify-cli', 120000],
+    ['CLI Build', 'npm run build --workspace structify-tool', 120000],
     [
       'Focused Phase 9-12 Enterprise Platform Tests',
       'npx vitest run src/generation/enterprise-platform.spec.ts',
@@ -99,7 +99,7 @@ ${docOutput}
       path.join(ROOT, 'packages/core'),
     ],
     ['Full Core Test Suite', 'npm run test --workspace @structify/core', 180000],
-    ['CLI Test Suite', 'npm run test --workspace structify-cli', 180000],
+    ['CLI Test Suite', 'npm run test --workspace structify-tool', 180000],
   ];
   for (const [title, command, timeout, cwd] of checks) {
     allPassed = runCheck(title, command, { timeout, cwd }) && allPassed;
