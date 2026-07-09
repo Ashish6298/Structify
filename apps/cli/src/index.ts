@@ -106,18 +106,7 @@ function formatHelpScreen(program: Command, context: ReturnType<typeof createCLI
 
   const lines: string[] = [];
 
-  // 1. ASCII Art Header
-  lines.push(cyan('╔══════════════════════════════════════════════════════════════════════════╗'));
-  lines.push(cyan('  ███████╗████████╗██████╗ ██╗   ██╗ ██████╗████████╗██╗███████╗██╗   ██╗'));
-  lines.push(cyan('  ██╔════╝╚══██╔══╝██╔══██╗██║   ██║██╔════╝╚══██╔══╝██║██╔════╝╚██╗ ██╔╝'));
-  lines.push(cyan('  ███████╗   ██║   ██████╔╝██║   ██║██║        ██║   ██║█████╗   ╚████╔╝ '));
-  lines.push(cyan('  ╚════██║   ██║   ██╔══██╗██║   ██║██║        ██║   ██║██╔══╝    ╚██╔╝  '));
-  lines.push(cyan('  ███████║   ██║   ██║  ██║╚██████╔╝╚██████╗   ██║   ██║██║        ██║   '));
-  lines.push(cyan('  ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝  ╚═════╝   ╚═╝   ╚═╝╚═╝        ╚═╝   '));
-  lines.push(cyan('╚══════════════════════════════════════════════════════════════════════════╝'));
-  lines.push('');
-
-  // 2. Usage
+  // 1. Usage
   lines.push(`${cyan('◆')} ${bold('Usage:')} ${purple('structify')} ${gray('[options]')} ${cyan('[command]')}`);
   lines.push('');
 
