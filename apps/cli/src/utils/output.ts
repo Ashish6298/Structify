@@ -2,7 +2,7 @@ import { CLIContext } from '../context.js';
 import { getElapsedMs } from './middleware.js';
 
 export class CLIOutput {
-  constructor(private context: CLIContext) {}
+  constructor(private context: CLIContext) { }
 
   private colorize(colorCode: string, text: string): string {
     if (this.context.noColor) {
@@ -39,6 +39,35 @@ export class CLIOutput {
     console.log(this.colorize('\x1b[90m', `Repository: https://github.com/structify/structify`));
     console.log(`Eliminating project setup overhead by generating standardized structures.`);
     this.divider();
+  }
+
+  showWelcomeScreen(): void {
+    if (this.context.json) return;
+
+    const cyan = (text: string) => this.colorize('\x1b[36m', text);
+    const purple = (text: string) => this.colorize('\x1b[35m', text);
+    const bold = (text: string) => this.colorize('\x1b[1m', text);
+    const gray = (text: string) => this.colorize('\x1b[90m', text);
+
+    console.log(cyan('╔══════════════════════════════════════════════════════════════════════════╗'));
+    console.log(cyan('  ███████╗████████╗██████╗ ██╗   ██╗ ██████╗████████╗██╗███████╗██╗   ██╗'));
+    console.log(cyan('  ██╔════╝╚══██╔══╝██╔══██╗██║   ██║██╔════╝╚══██╔══╝██║██╔════╝╚██╗ ██╔╝'));
+    console.log(cyan('  ███████╗   ██║   ██████╔╝██║   ██║██║        ██║   ██║█████╗   ╚████╔╝ '));
+    console.log(cyan('  ╚════██║   ██║   ██╔══██╗██║   ██║██║        ██║   ██║██╔══╝    ╚██╔╝  '));
+    console.log(cyan('  ███████║   ██║   ██║  ██║╚██████╔╝╚██████╗   ██║   ██║██║        ██║   '));
+    console.log(cyan('  ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝  ╚═════╝   ╚═╝   ╚═╝╚═╝        ╚═╝   '));
+    console.log('');
+    console.log('                     One CLI. Endless Possibilities')
+    console.log(cyan('╚══════════════════════════════════════════════════════════════════════════╝'));
+    console.log('');
+    console.log(`${cyan('◆')} ${bold('Version')} ${gray('─')} ${purple('v' + this.context.packageVersion)}`);
+    console.log('');
+
+    console.log(gray('╭─ QUICK START ──────────────────────────────────────────╮'));
+    console.log(`${gray('│')} Run ${purple('structify --help')} to see all commands               ${gray('│')}`);
+    console.log(`${gray('│')} Run ${purple('structify --version')} to check version               ${gray('│')}`);
+    console.log(gray('╰────────────────────────────────────────────────────────╯'));
+    console.log('');
   }
 
   heading(text: string): void {

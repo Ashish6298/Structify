@@ -69,14 +69,9 @@ export function detectStack(
     orm: mapOrm(manifestStack?.orm, analysis.framework.orm),
     styling: mapStyling(manifestStack?.styling, analysis.framework.styling),
     packageManager: mapPackageManager(manifestStack?.packageManager, analysis.packageManager.name),
-    docker:
-      manifestStack?.docker ??
-      analysis.modules.detected.includes('docker') ??
-      false,
+    docker: manifestStack?.docker ?? analysis.modules.detected.includes('docker') ?? false,
     githubActions:
-      manifestStack?.githubActions ??
-      analysis.modules.detected.includes('github-actions') ??
-      false,
+      manifestStack?.githubActions ?? analysis.modules.detected.includes('github-actions') ?? false,
     eslint: manifestStack?.eslint ?? analysis.modules.detected.includes('eslint'),
     prettier: manifestStack?.prettier ?? analysis.modules.detected.includes('prettier'),
     git: analysis.files.some((file) => file.path === '.git'),
@@ -226,10 +221,7 @@ function mapStyling(override: string | undefined, detected: string[]): DetectedS
   return value ? 'unknown' : 'none';
 }
 
-function mapPackageManager(
-  override: string | undefined,
-  detected: string,
-): DetectedPackageManager {
+function mapPackageManager(override: string | undefined, detected: string): DetectedPackageManager {
   const value = override ?? detected;
   return value === 'npm' ? 'npm' : 'unknown';
 }

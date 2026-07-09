@@ -99,14 +99,7 @@ export interface ProjectMetadataInfo {
 }
 
 export interface ArchitectureBucket {
-  key:
-    | 'frontend'
-    | 'backend'
-    | 'shared'
-    | 'assets'
-    | 'configuration'
-    | 'public'
-    | 'database';
+  key: 'frontend' | 'backend' | 'shared' | 'assets' | 'configuration' | 'public' | 'database';
   paths: string[];
   fileIds: string[];
   files: ArchitecturalFile[];

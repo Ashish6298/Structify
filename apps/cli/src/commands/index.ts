@@ -5,6 +5,7 @@ import { handleDoctor } from './doctor.js';
 import { handleAdd } from './add.js';
 import { handleInspect } from './inspect.js';
 import { handleGraph } from './graph.js';
+import { handleDeps } from './deps.js';
 import { handleRepair } from './repair.js';
 import { handleVerifyProject } from './verify-project.js';
 import { handleUpgrade } from './upgrade.js';
@@ -19,9 +20,12 @@ import {
   handleTemplates,
   handleValidateTemplate,
 } from './phase8.js';
+import { handleHistory } from './history.js';
 import { handleEnterpriseCommand } from './phase912.js';
 import { createCLIContext } from '../context.js';
 import { wrapAction } from '../utils/middleware.js';
+
+
 
 export function registerCommands(program: Command): void {
   program
@@ -221,6 +225,35 @@ export function registerCommands(program: Command): void {
       await wrapped(options, commandInstance);
     });
 
+  const ENTERPRISE_CMD_DESCRIPTIONS: Record<string, string> = {
+    registry: 'Manage connected enterprise module registries',
+    install: 'Install custom modules from registry',
+    uninstall: 'Uninstall stack modules from project',
+    update: 'Update modules to latest compatible versions',
+    search: 'Search registry for custom stack modules',
+    publish: 'Publish local stack module to registry',
+    'validate-workspace': 'Validate workspace configuration integrity',
+    diagnose: 'Run workspace health check diagnostics',
+    'explain-generation': 'Explain generation differences for template',
+    'explain-merge': 'Analyze and explain git/file merge strategies',
+    'explain-blueprint': 'Explain stack Blueprint configurations',
+    'explain-hook': 'Inspect and explain lifecycle hook executions',
+    'dependency-graph': 'Generate project package dependency graph',
+    'template-graph': 'Generate local template dependency graph',
+    'blueprint-graph': 'Generate project Blueprint dependency graph',
+    'plugin-graph': 'Generate active plugins execution graph',
+    'workspace-report': 'Generate comprehensive workspace status report',
+    'export-report': 'Export diagnostic status reports to disk',
+    profile: 'Profile execution performance of template build',
+    benchmark: 'Run performance benchmark tests on generator',
+    'clean-cache': 'Clean local template and artifact cache',
+    'warm-cache': 'Pre-build and warm template build caches',
+    migration: 'Preview or apply database migrations',
+    rollback: 'Rollback workspace to previous snapshot',
+    snapshot: 'Take a snapshot of current workspace files',
+    restore: 'Restore workspace files from snapshot',
+  };
+
   const enterpriseCommands = [
     'registry',
     'install',
@@ -252,7 +285,7 @@ export function registerCommands(program: Command): void {
   for (const enterpriseCommand of enterpriseCommands) {
     program
       .command(enterpriseCommand)
-      .description(`Enterprise generation platform command: ${enterpriseCommand}`)
+      .description(ENTERPRISE_CMD_DESCRIPTIONS[enterpriseCommand] || `Enterprise generation platform command: ${enterpriseCommand}`)
       .argument('[action]', 'Command action')
       .argument('[target]', 'Optional command target')
       .option('-d, --dry-run', 'Preview enterprise operation without writing files')
@@ -334,13 +367,16 @@ export function registerCommands(program: Command): void {
   program
     .command('add')
     .description('Add a module incrementally into an existing workspace')
-    .argument('<moduleName>', 'Name of module (e.g. docker, eslint, prisma)')
+    .argument('<moduleName>', 'Name of module (e.g. docker, eslint, prisma) or marketplace category (e.g. auth, payments, logging)')
     .option('-d, --dry-run', 'Preview module patch plan without writing files')
     .option('-y, --yes', 'Apply without confirmation')
     .option('--force', 'Allow intentional overwrites when conflicts are safe')
     .option('--path <path>', 'Project path to modify')
     .option('--database <database>', 'Database override for database modules')
-    .addHelpText('after', '\nExamples:\n  $ structify add docker')
+    .addHelpText(
+      'after',
+      '\nMarketplace Categories:\n  auth, payments, logging, monitoring, cache, queue, email, storage, validation, analytics\n\nExamples:\n  $ structify add docker\n  $ structify add auth\n  $ structify add payments'
+    )
     .action(async (moduleName, options, commandInstance) => {
       const globalOpts = program.opts();
       const context = createCLIContext(process.argv, { ...globalOpts, ...options });
@@ -361,6 +397,20 @@ export function registerCommands(program: Command): void {
       (commandInstance as Command & { context?: unknown }).context = context;
 
       const wrapped = wrapAction('inspect', (opts, ctx) => handleInspect(opts, ctx));
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('deps')
+    .description('Analyze project package dependencies and imports')
+    .option('--path <path>', 'Project path to analyze')
+    .addHelpText('after', '\nExamples:\n  $ structify deps\n  $ structify deps --json')
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+
+      const wrapped = wrapAction('deps', (opts, ctx) => handleDeps(opts, ctx));
       await wrapped(options, commandInstance);
     });
 
@@ -423,6 +473,22 @@ export function registerCommands(program: Command): void {
       const wrapped = wrapAction('preset', (_opts, ctx) =>
         handlePreset(action, presetName, extraArg, ctx),
       );
+      await wrapped(options, commandInstance);
+    });
+
+  program
+    .command('history')
+    .description('View persistent project history timeline')
+    .option('--json', 'Render machine-readable JSON payloads')
+    .option('--limit <num>', 'Limit the number of history logs displayed')
+    .option('--since <date>', 'Display history logs after a specific timestamp')
+    .option('--path <path>', 'Path to project root')
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+
+      const wrapped = wrapAction('history', (opts, ctx) => handleHistory(opts, ctx));
       await wrapped(options, commandInstance);
     });
 }

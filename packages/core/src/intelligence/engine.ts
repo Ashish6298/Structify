@@ -12,13 +12,7 @@ import {
   ProjectNode,
   ProjectPackageManagerInfo,
 } from './types.js';
-import {
-  isArchitectural,
-  isAsset,
-  isConfiguration,
-  isGenerated,
-  isIgnored,
-} from './ignore.js';
+import { isArchitectural, isAsset, isConfiguration, isGenerated, isIgnored } from './ignore.js';
 
 type Manifest = Record<string, unknown>;
 
@@ -147,8 +141,12 @@ function walkProject(
     const childNames = entry.isDirectory()
       ? fs
           .readdirSync(absoluteEntryPath, { withFileTypes: true })
-          .filter((child) => !isIgnored(normalizeRelativePath(path.join(entryRelativePath, child.name))))
-          .map((child) => createId('file', normalizeRelativePath(path.join(entryRelativePath, child.name))))
+          .filter(
+            (child) => !isIgnored(normalizeRelativePath(path.join(entryRelativePath, child.name))),
+          )
+          .map((child) =>
+            createId('file', normalizeRelativePath(path.join(entryRelativePath, child.name))),
+          )
       : [];
 
     const fileRecord = createArchitecturalFile(
@@ -581,7 +579,8 @@ function readRecord(manifest: Manifest | undefined, field: string): Record<strin
   }
   return Object.fromEntries(
     Object.entries(value).filter(
-      (entry): entry is [string, string] => typeof entry[0] === 'string' && typeof entry[1] === 'string',
+      (entry): entry is [string, string] =>
+        typeof entry[0] === 'string' && typeof entry[1] === 'string',
     ),
   );
 }
