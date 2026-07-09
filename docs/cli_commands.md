@@ -261,7 +261,6 @@ structify explain-generation [action] [target] [--json]
 structify explain-merge [action] [target] [--json]
 structify explain-blueprint [action] [target] [--json]
 structify explain-hook [action] [target] [--json]
-structify graph [action] [target] [--json]
 structify dependency-graph [action] [target] [--json]
 structify template-graph [action] [target] [--json]
 structify blueprint-graph [action] [target] [--json]
@@ -279,3 +278,29 @@ structify restore [action] [target] [--json] [--dry-run]
 ```
 
 These commands are additive report and planning surfaces by default. Existing commands keep their previous behavior.
+
+---
+
+## 10. `structify graph`
+
+Renders a terminal-first architecture tree from Structify's Project Intelligence Engine and Architecture View Model.
+
+```bash
+structify graph
+structify graph --path ./my-project --depth 3
+structify graph --full
+structify graph --important
+structify graph --md
+```
+
+The command consumes the existing architecture analysis instead of scanning the filesystem again. It renders a Unicode tree that highlights architectural folders and important files while hiding generated and ignored content.
+
+The supported modes are:
+
+- `structify graph` for a concise overview of the most important architecture
+- `--depth <n>` for progressively deeper exploration
+- `--full` to include every architectural file identified by the Intelligence Engine
+- `--important` to show only project-defining files such as package manifests, configuration, and schema files
+- `--md` to write a deterministic `PROJECT_STRUCTURE.md` file in the project root
+
+The terminal output ends with a compact summary of the displayed sections, folders, files, important files, and ignored files.

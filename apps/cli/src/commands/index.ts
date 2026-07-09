@@ -4,6 +4,7 @@ import { handleValidate } from './validate.js';
 import { handleDoctor } from './doctor.js';
 import { handleAdd } from './add.js';
 import { handleInspect } from './inspect.js';
+import { handleGraph } from './graph.js';
 import { handleRepair } from './repair.js';
 import { handleVerifyProject } from './verify-project.js';
 import { handleUpgrade } from './upgrade.js';
@@ -233,7 +234,6 @@ export function registerCommands(program: Command): void {
     'explain-merge',
     'explain-blueprint',
     'explain-hook',
-    'graph',
     'dependency-graph',
     'template-graph',
     'blueprint-graph',
@@ -273,6 +273,28 @@ export function registerCommands(program: Command): void {
         await wrapped(options, commandInstance);
       });
   }
+
+  program
+    .command('graph')
+    .description('Render a clean Unicode architecture tree of the project directly in the terminal')
+    .option('--path <path>', 'Project path to analyze')
+    .option('--depth <depth>', 'Depth of the tree exploration', (val) => parseInt(val, 10))
+    .option('--complete', 'Include all files in the architecture tree')
+    .option('--architecture', 'Show only architectural files (default)')
+    .option('--important', 'Display only files marked as important')
+    .option('--md', 'Export the tree to PROJECT_STRUCTURE.md')
+    .option('--output <path>', 'Write to a custom markdown file path')
+    .addHelpText(
+      'after',
+      '\nExamples:\n  $ structify graph\n  $ structify graph --complete\n  $ structify graph --output docs/architecture.md',
+    )
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('graph', (_opts, ctx) => handleGraph(options, ctx));
+      await wrapped(options, commandInstance);
+    });
 
   program
     .command('validate')
