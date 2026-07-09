@@ -4,6 +4,7 @@ import { handleValidate } from './validate.js';
 import { handleDoctor } from './doctor.js';
 import { handleAdd } from './add.js';
 import { handleInspect } from './inspect.js';
+import { handleGraph } from './graph.js';
 import { handleRepair } from './repair.js';
 import { handleVerifyProject } from './verify-project.js';
 import { handleUpgrade } from './upgrade.js';
@@ -233,7 +234,6 @@ export function registerCommands(program: Command): void {
     'explain-merge',
     'explain-blueprint',
     'explain-hook',
-    'graph',
     'dependency-graph',
     'template-graph',
     'blueprint-graph',
@@ -273,6 +273,23 @@ export function registerCommands(program: Command): void {
         await wrapped(options, commandInstance);
       });
   }
+
+  program
+    .command('graph')
+    .description('Generate a self-contained architecture explorer as graph.html')
+    .option('--path <path>', 'Project path to analyze')
+    .option('--output <path>', 'Output HTML file path')
+    .addHelpText(
+      'after',
+      '\nExamples:\n  $ structify graph\n  $ structify graph --path ./my-project --output ./graph.html',
+    )
+    .action(async (options, commandInstance) => {
+      const globalOpts = program.opts();
+      const context = createCLIContext(process.argv, { ...globalOpts, ...options });
+      (commandInstance as Command & { context?: unknown }).context = context;
+      const wrapped = wrapAction('graph', (_opts, ctx) => handleGraph(options, ctx));
+      await wrapped(options, commandInstance);
+    });
 
   program
     .command('validate')

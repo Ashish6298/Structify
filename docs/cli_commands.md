@@ -261,7 +261,6 @@ structify explain-generation [action] [target] [--json]
 structify explain-merge [action] [target] [--json]
 structify explain-blueprint [action] [target] [--json]
 structify explain-hook [action] [target] [--json]
-structify graph [action] [target] [--json]
 structify dependency-graph [action] [target] [--json]
 structify template-graph [action] [target] [--json]
 structify blueprint-graph [action] [target] [--json]
@@ -279,3 +278,29 @@ structify restore [action] [target] [--json] [--dry-run]
 ```
 
 These commands are additive report and planning surfaces by default. Existing commands keep their previous behavior.
+
+---
+
+## 10. `structify graph`
+
+Generates a self-contained `graph.html` Architecture Explorer.
+
+```bash
+structify graph
+structify graph --path ./my-project --output ./graph.html
+```
+
+The command consumes Structify's Project Intelligence Engine and Architecture View Model. It does not produce a dependency graph or a raw filesystem browser.
+
+The generated HTML includes:
+
+- project summary
+- search
+- expand and collapse controls
+- architectural vs complete project mode toggle
+- collapsible architecture sections
+- file details panel
+- statistics cards
+- light and dark mode
+
+The output is fully self-contained with no external CDN or runtime dependencies.
