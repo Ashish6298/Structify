@@ -1,4 +1,10 @@
-import { ArchitecturalCategory, ArchitecturalFileType, ArchitecturalImportance, ProjectAnalysis, ProjectNodeKind } from '../intelligence/types.js';
+import {
+  ArchitecturalCategory,
+  ArchitecturalFileType,
+  ArchitecturalImportance,
+  ProjectAnalysis,
+  ProjectNodeKind,
+} from '../intelligence/types.js';
 
 export type ArchitectureRenderMode = 'architectural' | 'complete';
 

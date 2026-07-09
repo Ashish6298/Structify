@@ -2,7 +2,12 @@ import path from 'path';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
 import { getElapsedMs } from '../utils/middleware.js';
-import { createUpgradePlan, runProjectHealthCheck } from '@structify/core';
+import {
+  createUpgradePlan,
+  runProjectHealthCheck,
+  analyzeProject,
+  analyzeDependencies,
+} from '@structify/core';
 
 export interface InspectOptions {
   path?: string;
@@ -23,6 +28,8 @@ export async function handleInspect(options: InspectOptions, context: CLIContext
   output.heading('Structify Project Inspection');
   const projectPath = path.resolve(context.cwd, options.path ?? '.');
 
+  const analysis = analyzeProject(projectPath);
+  const depReport = analyzeDependencies(projectPath, analysis);
   const healthReport = runProjectHealthCheck(projectPath);
   const { state, drift, detectedStack } = healthReport;
   const upgrade = createUpgradePlan(projectPath);
@@ -51,6 +58,7 @@ export async function handleInspect(options: InspectOptions, context: CLIContext
         driftReport: drift,
         moduleReport: { installedModules, availableCompatibleModules: availableModules },
         upgradeReport: upgrade,
+        dependencies: depReport,
         repairSuggestions: healthReport.repairability.repairSuggestions,
         fixableIssues: healthReport.repairability.fixableIssues,
         notFixableIssues: healthReport.repairability.notFixableIssues,
@@ -99,6 +107,9 @@ export async function handleInspect(options: InspectOptions, context: CLIContext
 
   output.info(`Files: ${state.files.length}`);
   output.info(`Drift: ${drift.hasDrift ? 'yes' : 'no'}`);
+  output.info(
+    `Dependencies: ${depReport.installedCount} Installed / ${depReport.outdatedCount} Outdated / ${depReport.deprecatedCount} Deprecated / ${depReport.unusedCount} Unused / ${depReport.breakingCount} Breaking / ${depReport.migrationCount} Migration Required`,
+  );
   output.info(`Installed Modules: ${installedModules.join(', ') || 'none'}`);
   output.info(`Available Modules: ${availableModules.join(', ') || 'none'}`);
   output.info(`Upgrade: ${upgrade.code}`);

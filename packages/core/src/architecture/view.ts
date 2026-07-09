@@ -4,7 +4,12 @@ import {
   ProjectAnalysis,
   ProjectNode,
 } from '../intelligence/types.js';
-import { ArchitectureRenderMode, ArchitectureSection, ArchitectureViewModel, ArchitectureViewNode } from './types.js';
+import {
+  ArchitectureRenderMode,
+  ArchitectureSection,
+  ArchitectureViewModel,
+  ArchitectureViewNode,
+} from './types.js';
 
 const SECTION_ORDER = [
   ['frontend', 'Frontend'],
@@ -34,7 +39,10 @@ export function createArchitectureView(
       backendFiles: analysis.files.filter((file) => file.category === 'backend').length,
       assets: analysis.files.filter((file) => file.category === 'assets').length,
       configuration: analysis.files.filter(
-        (file) => file.category === 'configuration' || file.category === 'environment' || file.category === 'metadata',
+        (file) =>
+          file.category === 'configuration' ||
+          file.category === 'environment' ||
+          file.category === 'metadata',
       ).length,
       databaseFiles: analysis.files.filter((file) => file.category === 'database').length,
     },
@@ -69,7 +77,9 @@ export function groupSections(
     const sorted = sortNodes(deduped);
     const flatFiles = flattenNodes(sorted).filter((node) => node.kind === 'file');
     const folders = sorted.filter((node) => node.kind !== 'file');
-    const architecturalFiles = flatFiles.filter((node) => node.kind === 'file' && node.type !== 'asset');
+    const architecturalFiles = flatFiles.filter(
+      (node) => node.kind === 'file' && node.type !== 'asset',
+    );
 
     return {
       id: `section:${key}`,

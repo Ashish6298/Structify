@@ -3,7 +3,7 @@ import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
 import { StructifyCLIError } from '../utils/error.js';
 import { getElapsedMs } from '../utils/middleware.js';
-import { createUpgradePlan, executePatchPlan } from '@structify/core';
+import { createUpgradePlan, executePatchPlan, appendHistoryEntry } from '@structify/core';
 
 export interface UpgradeOptions {
   dryRun?: boolean;
@@ -21,6 +21,13 @@ export async function handleUpgrade(options: UpgradeOptions, context: CLIContext
   if (context.json) {
     if (!options.dryRun && options.yes && !upgrade.reviewRequired) {
       const result = executePatchPlan(projectPath, upgrade.plan);
+      appendHistoryEntry(projectPath, {
+        operation: 'upgrade',
+        status: result.success ? 'success' : 'failed',
+        duration: getElapsedMs(context.startTime),
+        filesChanged: result.success ? result.appliedOperations.map((op) => op.targetPath) : [],
+        summary: 'Dependency Upgrade',
+      }, context.packageVersion);
       output.json({
         success: result.success,
         command: 'upgrade',
@@ -68,6 +75,13 @@ export async function handleUpgrade(options: UpgradeOptions, context: CLIContext
     throw new StructifyCLIError('UPGRADE_REQUIRES_REVIEW', upgrade.message);
   }
   const result = executePatchPlan(projectPath, upgrade.plan);
+  appendHistoryEntry(projectPath, {
+    operation: 'upgrade',
+    status: result.success ? 'success' : 'failed',
+    duration: getElapsedMs(context.startTime),
+    filesChanged: result.success ? result.appliedOperations.map((op) => op.targetPath) : [],
+    summary: 'Dependency Upgrade',
+  }, context.packageVersion);
   if (!result.success) {
     throw new StructifyCLIError(
       'INTERNAL_ERROR',

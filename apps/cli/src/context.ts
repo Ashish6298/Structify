@@ -38,7 +38,19 @@ export function createCLIContext(
     cwd?: string;
   },
 ): CLIContext {
-  const targetCwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
+  const argList = args || [];
+  const manualNoColor = argList.includes('--no-color');
+  const manualVerbose = argList.includes('--verbose');
+  const manualDebug = argList.includes('--debug');
+  const manualJson = argList.includes('--json');
+  
+  let manualCwd: string | undefined;
+  const cwdIdx = argList.indexOf('--cwd');
+  if (cwdIdx !== -1 && cwdIdx + 1 < argList.length) {
+    manualCwd = argList[cwdIdx + 1];
+  }
+
+  const targetCwd = options.cwd ? path.resolve(options.cwd) : (manualCwd ? path.resolve(manualCwd) : process.cwd());
 
   let detectedPackageManager: 'npm' | 'none' = 'none';
   try {
@@ -59,10 +71,10 @@ export function createCLIContext(
     nodeVersion: process.version,
     platform: os.platform(),
     arch: os.arch(),
-    debug: !!options.debug,
-    verbose: !!options.verbose,
-    json: !!options.json,
-    noColor: !!options.noColor || process.env.NO_COLOR === 'true',
+    debug: !!options.debug || manualDebug,
+    verbose: !!options.verbose || manualVerbose,
+    json: !!options.json || manualJson,
+    noColor: !!options.noColor || manualNoColor || process.env.NO_COLOR === 'true',
     isCI: process.env.CI === 'true',
     isTTY: process.stdout.isTTY ?? false,
     processId: process.pid,

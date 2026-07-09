@@ -1,6 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import { analyzeProject, createArchitectureView, renderArchitectureTree, renderArchitectureTreeMarkdown } from '@structify/core';
+import {
+  analyzeProject,
+  createArchitectureView,
+  renderArchitectureTree,
+  renderArchitectureTreeMarkdown,
+  appendHistoryEntry,
+} from '@structify/core';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
 import { getElapsedMs } from '../utils/middleware.js';
@@ -30,6 +36,15 @@ export async function handleGraph(options: GraphOptions, context: CLIContext): P
 
   const rendered = renderArchitectureTree(view, renderOptions);
   const isWritingMarkdown = Boolean(options.md || options.output);
+  const elapsed = getElapsedMs(context.startTime);
+
+  appendHistoryEntry(projectPath, {
+    operation: 'graph',
+    status: 'success',
+    duration: elapsed,
+    filesChanged: isWritingMarkdown ? [options.output ?? 'PROJECT_STRUCTURE.md'] : [],
+    summary: 'Generated Graph',
+  }, context.packageVersion);
 
   if (isWritingMarkdown) {
     const markdownPath = path.resolve(projectPath, options.output ?? 'PROJECT_STRUCTURE.md');

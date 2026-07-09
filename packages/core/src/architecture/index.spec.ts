@@ -59,7 +59,9 @@ describe('Architecture View Model', () => {
     const architecturalView = filterArchitecturalView(analysis);
     const completeView = filterCompleteView(analysis);
 
-    expect(completeView.sections.flatMap((section) => section.childNodes).length).toBeGreaterThanOrEqual(
+    expect(
+      completeView.sections.flatMap((section) => section.childNodes).length,
+    ).toBeGreaterThanOrEqual(
       architecturalView.sections.flatMap((section) => section.childNodes).length,
     );
   });

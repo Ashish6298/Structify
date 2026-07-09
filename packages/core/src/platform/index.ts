@@ -11,3 +11,5 @@ export * from './service-container.js';
 export * from './phase9.js';
 export * from './stack-detector.js';
 export * from './health-engine.js';
+export * from './marketplace.js';
+export * from './history.js';

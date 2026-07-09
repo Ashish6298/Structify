@@ -51,7 +51,8 @@ export function createArchitectureExplorerModelFromAnalysis(
           path: file.path,
           type: file.type,
           importance: file.importance,
-          size: typeof file.metadata['size'] === 'number' ? (file.metadata['size'] as number) : null,
+          size:
+            typeof file.metadata['size'] === 'number' ? (file.metadata['size'] as number) : null,
           lastModified:
             typeof file.metadata['lastModified'] === 'string'
               ? (file.metadata['lastModified'] as string)

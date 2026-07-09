@@ -1,11 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { isGenerated, isIgnored } from '../intelligence/ignore.js';
-import {
-  ArchitecturalImportance,
-  ProjectAnalysis,
-  ProjectNode,
-} from '../intelligence/types.js';
+import { ArchitecturalImportance, ProjectAnalysis, ProjectNode } from '../intelligence/types.js';
 import { ArchitectureViewModel } from './types.js';
 
 export type ArchitectureTreeRenderMode = 'overview' | 'full' | 'important';
@@ -490,8 +486,18 @@ function collectSummary(
     }
   }
 
-  const SECTION_KEYS = new Set(['frontend', 'backend', 'shared', 'database', 'assets', 'public', 'configuration']);
-  const sectionsDisplayed = Array.from(displayedCategories).filter((cat) => SECTION_KEYS.has(cat)).length;
+  const SECTION_KEYS = new Set([
+    'frontend',
+    'backend',
+    'shared',
+    'database',
+    'assets',
+    'public',
+    'configuration',
+  ]);
+  const sectionsDisplayed = Array.from(displayedCategories).filter((cat) =>
+    SECTION_KEYS.has(cat),
+  ).length;
 
   return {
     sectionsDisplayed,
@@ -533,7 +539,11 @@ function countVisibleNodes(
       if (!importantOnly) {
         count += 1;
       } else {
-        const fileImportance = getFileImportance(path.basename(node.path), node.path, node.importance);
+        const fileImportance = getFileImportance(
+          path.basename(node.path),
+          node.path,
+          node.importance,
+        );
         if (fileImportance === 'critical' || fileImportance === 'high') {
           count += 1;
         }
@@ -554,7 +564,9 @@ function countPhysicalIgnoredFiles(dir: string, baseDir: string): number {
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       const relativePath = path.relative(baseDir, fullPath).replaceAll('\\', '/');
-      const isCustomIgnored = GENERATED_FILE_PATTERNS.some((pattern) => pattern.test(entry.name)) || RENDERER_IGNORED_DIRS.has(entry.name);
+      const isCustomIgnored =
+        GENERATED_FILE_PATTERNS.some((pattern) => pattern.test(entry.name)) ||
+        RENDERER_IGNORED_DIRS.has(entry.name);
       if (isIgnored(relativePath) || isGenerated(relativePath) || isCustomIgnored) {
         if (entry.isDirectory()) {
           count += countAllPhysicalFiles(fullPath);

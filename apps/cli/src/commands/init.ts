@@ -21,6 +21,7 @@ import {
   validateGeneratedProject,
   PresetManager,
   PresetManifestMetadata,
+  appendHistoryEntry,
 } from '@structify/core';
 
 export interface InitOptions {
@@ -340,6 +341,17 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     install,
     force: options.force,
   });
+
+  appendHistoryEntry(targetDir, {
+    operation: context.commandName || 'init',
+    status: result.success ? 'success' : 'failed',
+    duration: result.durationMs,
+    filesChanged: result.success ? result.generatedFiles : [],
+    summary: 'Project Created',
+    details: {
+      config: selectedConfig,
+    }
+  }, context.packageVersion);
 
   if (options.eventLog && result.success) {
     const eventLogDir = path.join(targetDir, '.structify');
