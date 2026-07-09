@@ -15,7 +15,7 @@ describe('CLI graph command', () => {
     }
   });
 
-  it('writes a self-contained graph.html file', async () => {
+  it('renders a terminal architecture tree and does not emit graph.html', async () => {
     const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'structify-cli-graph-'));
     tempDirs.push(projectDir);
     writeProject(projectDir, {
@@ -25,27 +25,6 @@ describe('CLI graph command', () => {
     });
 
     const context = createCLIContext(['node', 'structify', 'graph'], { cwd: projectDir });
-    vi.spyOn(console, 'log').mockImplementation(() => undefined);
-
-    await handleGraph({}, context);
-
-    const outputPath = path.join(projectDir, 'graph.html');
-    expect(fs.existsSync(outputPath)).toBe(true);
-    expect(fs.readFileSync(outputPath, 'utf8')).toContain('Architecture Explorer');
-  });
-
-  it('emits JSON output in json mode', async () => {
-    const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'structify-cli-graph-json-'));
-    tempDirs.push(projectDir);
-    writeProject(projectDir, {
-      'package.json': '{"name":"cli-graph-json","dependencies":{"express":"^4.0.0"}}',
-      'src/server.ts': 'export const server = true;',
-    });
-
-    const context = createCLIContext(['node', 'structify', '--json', 'graph'], {
-      cwd: projectDir,
-      json: true,
-    });
     const logs: string[] = [];
     vi.spyOn(console, 'log').mockImplementation((message?: unknown) => {
       logs.push(String(message));
@@ -53,13 +32,32 @@ describe('CLI graph command', () => {
 
     await handleGraph({}, context);
 
-    const parsed = JSON.parse(logs.join('\n')) as {
-      success: boolean;
-      data: { outputPath: string; sections: string[] };
-    };
-    expect(parsed.success).toBe(true);
-    expect(parsed.data.outputPath.endsWith('graph.html')).toBe(true);
-    expect(parsed.data.sections.length).toBeGreaterThan(0);
+    const outputPath = path.join(projectDir, 'graph.html');
+    expect(fs.existsSync(outputPath)).toBe(false);
+    expect(logs.join('\n')).toContain('Architecture Tree');
+    expect(logs.join('\n')).toContain('package.json');
+  });
+
+  it('writes a markdown architecture tree when requested', async () => {
+    const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'structify-cli-graph-md-'));
+    tempDirs.push(projectDir);
+    writeProject(projectDir, {
+      'package.json': '{"name":"cli-graph-md","dependencies":{"express":"^4.0.0"}}',
+      'src/server.ts': 'export const server = true;',
+    });
+
+    const context = createCLIContext(['node', 'structify', 'graph', '--md'], { cwd: projectDir });
+    const logs: string[] = [];
+    vi.spyOn(console, 'log').mockImplementation((message?: unknown) => {
+      logs.push(String(message));
+    });
+
+    await handleGraph({ md: true }, context);
+
+    const markdownPath = path.join(projectDir, 'PROJECT_STRUCTURE.md');
+    expect(fs.existsSync(markdownPath)).toBe(true);
+    expect(fs.readFileSync(markdownPath, 'utf8')).toContain('```text');
+    expect(logs.join('\n')).toContain('Markdown:');
   });
 });
 

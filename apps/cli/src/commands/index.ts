@@ -276,12 +276,17 @@ export function registerCommands(program: Command): void {
 
   program
     .command('graph')
-    .description('Generate a self-contained architecture explorer as graph.html')
+    .description('Render a clean Unicode architecture tree of the project directly in the terminal')
     .option('--path <path>', 'Project path to analyze')
-    .option('--output <path>', 'Output HTML file path')
+    .option('--depth <depth>', 'Depth of the tree exploration', (val) => parseInt(val, 10))
+    .option('--complete', 'Include all files in the architecture tree')
+    .option('--architecture', 'Show only architectural files (default)')
+    .option('--important', 'Display only files marked as important')
+    .option('--md', 'Export the tree to PROJECT_STRUCTURE.md')
+    .option('--output <path>', 'Write to a custom markdown file path')
     .addHelpText(
       'after',
-      '\nExamples:\n  $ structify graph\n  $ structify graph --path ./my-project --output ./graph.html',
+      '\nExamples:\n  $ structify graph\n  $ structify graph --complete\n  $ structify graph --output docs/architecture.md',
     )
     .action(async (options, commandInstance) => {
       const globalOpts = program.opts();

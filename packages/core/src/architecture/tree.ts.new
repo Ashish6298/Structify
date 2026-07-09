@@ -1,0 +1,312 @@
+import path from 'path';
+import { isGenerated, isIgnored } from '../intelligence/ignore.js';
+import {
+  ArchitecturalFile,
+  ArchitecturalImportance,
+  ProjectAnalysis,
+  ProjectNode,
+} from '../intelligence/types.js';
+import { ArchitectureTreeRenderMode, ArchitectureTreeRenderOptions, ArchitectureTreeRenderResult, ArchitectureTreeRenderSummary } from './tree.js';
+import { ArchitectureViewModel } from './types.js';
+
+const PRIORITY_FOLDER_NAMES = new Set([
+  'apps',
+  'packages',
+  'frontend',
+  'backend',
+  'shared',
+  'database',
+  'public',
+  'assets',
+  'configuration',
+  'config',
+  'docs',
+  'documentation',
+  'scripts',
+  'src',
+  'app',
+  'pages',
+  'components',
+  'server',
+  'services',
+  'lib',
+  'prisma',
+  'db',
+  'tests',
+]);
+
+const IMPORTANT_FILE_NAMES = new Set([
+  'package.json',
+  'tsconfig.json',
+  'turbo.json',
+  'docker-compose.yml',
+  'docker-compose.yaml',
+  'README.md',
+  '.env.example',
+  '.env.local',
+  '.env.production',
+  'next.config.ts',
+  'next.config.js',
+  'vite.config.ts',
+  'vite.config.js',
+  'tailwind.config.ts',
+  'tailwind.config.js',
+  'postcss.config.js',
+  'postcss.config.ts',
+  'schema.prisma',
+  'prisma.schema',
+]);
+
+interface RenderNode {
+  name: string;
+  path: string;
+  kind: 'directory' | 'file';
+  importance: ArchitecturalImportance;
+  children: RenderNode[];
+}
+
+export function renderArchitectureTree(
+  view: ArchitectureViewModel,
+  options: ArchitectureTreeRenderOptions = {},
+): ArchitectureTreeRenderResult {
+  const mode = options.mode ?? 'overview';
+  const maxDepth = options.depth ?? (mode === 'full' ? Number.POSITIVE_INFINITY : 2);
+  const root = buildRenderableTree(view.source.tree, view.source, 0, mode, maxDepth);
+  const lines = [`📦 ${view.title}`];
+
+  if (root?.children.length) {
+    lines.push(...renderNodeLines(root.children, '', mode, maxDepth));
+  } else {
+    lines.push('└── 📄 No architectural structure available');
+  }
+
+  const summary = collectSummary(root?.children ?? [], view.source, mode, maxDepth);
+  lines.push('');
+  lines.push(
+    `Summary: ${summary.sectionsDisplayed} sections, ${summary.foldersDisplayed} folders, ${summary.filesDisplayed} files, ${summary.importantFiles} important files, ${summary.ignoredFiles} ignored files`,
+  );
+
+  return {
+    text: lines.join('\n'),
+    summary: {
+      ...summary,
+      sectionsDisplayed: view.sections.filter((section) => section.childNodes.length > 0).length,
+    },
+  };
+}
+
+export function renderArchitectureTreeMarkdown(
+  view: ArchitectureViewModel,
+  options: ArchitectureTreeRenderOptions = {},
+): string {
+  const rendered = renderArchitectureTree(view, options);
+  return ['```text', rendered.text.replace(/\nSummary:.*$/, ''), '```'].join('\n');
+}
+
+function buildRenderableTree(
+  node: ProjectNode,
+  analysis: ProjectAnalysis,
+  depth: number,
+  mode: ArchitectureTreeRenderMode,
+  maxDepth: number,
+): RenderNode | null {
+  if (isIgnored(node.path) || isGenerated(node.path)) {
+    return null;
+  }
+
+  if (node.kind === 'file') {
+    if (!shouldRenderFile(node.path, analysis, mode)) {
+      return null;
+    }
+
+    const file = analysis.files.find((candidate) => candidate.path === node.path);
+    return {
+      name: node.name,
+      path: node.path,
+      kind: 'file',
+      importance: file?.importance ?? 'low',
+      children: [],
+    };
+  }
+
+  const visibleChildren = node.children
+    .map((child) => buildRenderableTree(child, analysis, depth + 1, mode, maxDepth))
+    .filter((child): child is RenderNode => Boolean(child));
+
+  if (node.kind === 'root') {
+    return {
+      name: node.name,
+      path: node.path,
+      kind: 'directory',
+      importance: 'medium',
+      children: visibleChildren,
+    };
+  }
+
+  if (depth >= maxDepth && visibleChildren.length === 0) {
+    return null;
+  }
+
+  const file = analysis.files.find((candidate) => candidate.path === node.path);
+  const shouldIncludeDirectory =
+    mode === 'full' ||
+    isPriorityDirectory(node) ||
+    visibleChildren.length > 0 ||
+    (depth === 0 && hasImportantDescendant(node, analysis));
+
+  if (!shouldIncludeDirectory) {
+    return null;
+  }
+
+  return {
+    name: node.name,
+    path: node.path,
+    kind: 'directory',
+    importance: file?.importance ?? deriveDirectoryImportance(visibleChildren),
+    children: visibleChildren,
+  };
+}
+
+function renderNodeLines(
+  nodes: RenderNode[],
+  prefix: string,
+  mode: ArchitectureTreeRenderMode,
+  maxDepth: number,
+): string[] {
+  const lines: string[] = [];
+  for (let index = 0; index < nodes.length; index += 1) {
+    const node = nodes[index];
+    const connector = index === nodes.length - 1 ? '└── ' : '├── ';
+    const nextPrefix = prefix + (index === nodes.length - 1 ? '    ' : '│   ');
+    lines.push(`${prefix}${connector}${getNodeIcon(node)} ${node.name}`);
+
+    if (node.kind === 'directory' && node.children.length > 0) {
+      lines.push(...renderNodeLines(node.children, nextPrefix, mode, maxDepth));
+    }
+  }
+  return lines;
+}
+
+function shouldRenderFile(
+  targetPath: string,
+  analysis: ProjectAnalysis,
+  mode: ArchitectureTreeRenderMode,
+): boolean {
+  if (isIgnored(targetPath) || isGenerated(targetPath)) {
+    return false;
+  }
+
+  if (mode === 'full') {
+    return true;
+  }
+
+  const file = analysis.files.find((candidate) => candidate.path === targetPath);
+  if (!file) {
+    return false;
+  }
+
+  if (mode === 'important') {
+    return isImportantFile(file) || file.importance !== 'low';
+  }
+
+  return isImportantFile(file) || file.importance !== 'low';
+}
+
+function hasImportantDescendant(node: ProjectNode, analysis: ProjectAnalysis): boolean {
+  if (node.kind === 'file') {
+    const file = analysis.files.find((candidate) => candidate.path === node.path);
+    return file ? isImportantFile(file) : false;
+  }
+  return node.children.some((child) => hasImportantDescendant(child, analysis));
+}
+
+function isPriorityDirectory(node: ProjectNode): boolean {
+  const name = normalizeName(node.name);
+  if (PRIORITY_FOLDER_NAMES.has(name)) {
+    return true;
+  }
+  return node.path.split('/').some((segment) => PRIORITY_FOLDER_NAMES.has(normalizeName(segment)));
+}
+
+function isImportantFile(file: ArchitecturalFile): boolean {
+  return IMPORTANT_FILE_NAMES.has(file.name) || file.importance !== 'low';
+}
+
+function deriveDirectoryImportance(children: RenderNode[]): ArchitecturalImportance {
+  if (children.some((child) => child.importance === 'critical')) return 'critical';
+  if (children.some((child) => child.importance === 'high')) return 'high';
+  if (children.some((child) => child.importance === 'medium')) return 'medium';
+  return 'low';
+}
+
+function getNodeIcon(node: RenderNode): string {
+  if (node.kind === 'file') {
+    const fileName = path.basename(node.path).toLowerCase();
+    if (fileName.startsWith('.env')) {
+      return '🌱';
+    }
+    if (fileName.endsWith('.prisma') || fileName === 'schema.prisma') {
+      return '🗄️';
+    }
+    if (fileName.endsWith('.png') || fileName.endsWith('.svg') || fileName.endsWith('.jpg')) {
+      return '🖼️';
+    }
+    if (fileName === 'package.json' || fileName === 'tsconfig.json' || fileName === 'turbo.json') {
+      return '⚙️';
+    }
+    if (fileName === 'README.md' || fileName.endsWith('.md')) {
+      return '📚';
+    }
+    if (fileName === 'docker-compose.yml' || fileName === 'docker-compose.yaml') {
+      return '🧱';
+    }
+    return '📄';
+  }
+  return '📁';
+}
+
+function collectSummary(
+  nodes: RenderNode[],
+  analysis: ProjectAnalysis,
+  mode: ArchitectureTreeRenderMode,
+  maxDepth: number,
+): ArchitectureTreeRenderSummary {
+  return {
+    sectionsDisplayed: 0,
+    foldersDisplayed: countVisibleNodes(nodes, 'directory', mode, maxDepth),
+    filesDisplayed: countVisibleNodes(nodes, 'file', mode, maxDepth),
+    importantFiles: countVisibleNodes(nodes, 'file', mode, maxDepth, true),
+    ignoredFiles: analysis.files.filter((file) => isIgnored(file.path) || isGenerated(file.path)).length,
+  };
+}
+
+function countVisibleNodes(
+  nodes: RenderNode[],
+  kind: 'directory' | 'file',
+  mode: ArchitectureTreeRenderMode,
+  maxDepth: number,
+  importantOnly = false,
+  depth = 0,
+): number {
+  let count = 0;
+  for (const node of nodes) {
+    if (kind === 'directory' && node.kind === 'directory') {
+      count += 1;
+    }
+    if (kind === 'file' && node.kind === 'file' && (!importantOnly || isImportantFileName(node.path))) {
+      count += 1;
+    }
+    if (node.kind === 'directory' && node.children.length > 0 && depth < maxDepth) {
+      count += countVisibleNodes(node.children, kind, mode, maxDepth, importantOnly, depth + 1);
+    }
+  }
+  return count;
+}
+
+function isImportantFileName(targetPath: string): boolean {
+  return IMPORTANT_FILE_NAMES.has(path.basename(targetPath)) || targetPath.startsWith('.env');
+}
+
+function normalizeName(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}

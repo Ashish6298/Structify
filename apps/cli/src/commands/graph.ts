@@ -1,10 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {
-  analyzeProject,
-  createArchitectureExplorerModelFromAnalysis,
-  renderArchitectureExplorerHtml,
-} from '@structify/core';
+import { analyzeProject, createArchitectureView, renderArchitectureTree, renderArchitectureTreeMarkdown } from '@structify/core';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
 import { getElapsedMs } from '../utils/middleware.js';
@@ -12,17 +8,58 @@ import { getElapsedMs } from '../utils/middleware.js';
 export interface GraphOptions {
   path?: string;
   output?: string;
+  depth?: number;
+  complete?: boolean;
+  architecture?: boolean;
+  important?: boolean;
+  md?: boolean;
 }
 
 export async function handleGraph(options: GraphOptions, context: CLIContext): Promise<void> {
   const output = new CLIOutput(context);
   const projectPath = path.resolve(context.cwd, options.path ?? '.');
-  const targetPath = path.resolve(context.cwd, options.output ?? 'graph.html');
   const analysis = analyzeProject(projectPath);
-  const model = createArchitectureExplorerModelFromAnalysis(analysis);
 
-  fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-  fs.writeFileSync(targetPath, renderArchitectureExplorerHtml(model), 'utf8');
+  const isCompleteMode = options.complete === true;
+  const view = createArchitectureView(analysis, isCompleteMode ? 'complete' : 'architectural');
+
+  const renderOptions = {
+    mode: options.important ? 'important' : isCompleteMode ? 'full' : 'overview',
+    depth: options.depth,
+  } as const;
+
+  const rendered = renderArchitectureTree(view, renderOptions);
+  const isWritingMarkdown = Boolean(options.md || options.output);
+
+  if (isWritingMarkdown) {
+    const markdownPath = path.resolve(projectPath, options.output ?? 'PROJECT_STRUCTURE.md');
+    fs.mkdirSync(path.dirname(markdownPath), { recursive: true });
+    fs.writeFileSync(markdownPath, renderArchitectureTreeMarkdown(view, renderOptions), 'utf8');
+
+    if (context.json) {
+      output.json({
+        success: true,
+        command: 'graph',
+        timestamp: new Date().toISOString(),
+        durationMs: getElapsedMs(context.startTime),
+        data: {
+          projectPath,
+          markdownPath,
+          projectType: analysis.project.type,
+          summary: rendered.summary,
+        },
+      });
+      return;
+    }
+
+    output.heading('Architecture Tree');
+    output.info(`Project: ${projectPath}`);
+    output.info(`Markdown: ${markdownPath}`);
+    output.info('');
+    output.info(rendered.text);
+    output.showFooter('graph');
+    return;
+  }
 
   if (context.json) {
     output.json({
@@ -32,19 +69,17 @@ export async function handleGraph(options: GraphOptions, context: CLIContext): P
       durationMs: getElapsedMs(context.startTime),
       data: {
         projectPath,
-        outputPath: targetPath,
         projectType: analysis.project.type,
-        sections: model.views.architectural.sections.map((section) => section.title),
+        summary: rendered.summary,
+        sections: view.sections.map((section) => section.title),
       },
     });
     return;
   }
 
-  output.heading('Architecture Explorer');
+  output.heading('Architecture Tree');
   output.info(`Project: ${projectPath}`);
-  output.info(`Output: ${targetPath}`);
-  output.info(
-    `Sections: ${model.views.architectural.sections.map((section) => section.title).join(', ')}`,
-  );
+  output.info('');
+  output.info(rendered.text);
   output.showFooter('graph');
 }

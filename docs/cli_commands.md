@@ -283,24 +283,24 @@ These commands are additive report and planning surfaces by default. Existing co
 
 ## 10. `structify graph`
 
-Generates a self-contained `graph.html` Architecture Explorer.
+Renders a terminal-first architecture tree from Structify's Project Intelligence Engine and Architecture View Model.
 
 ```bash
 structify graph
-structify graph --path ./my-project --output ./graph.html
+structify graph --path ./my-project --depth 3
+structify graph --full
+structify graph --important
+structify graph --md
 ```
 
-The command consumes Structify's Project Intelligence Engine and Architecture View Model. It does not produce a dependency graph or a raw filesystem browser.
+The command consumes the existing architecture analysis instead of scanning the filesystem again. It renders a Unicode tree that highlights architectural folders and important files while hiding generated and ignored content.
 
-The generated HTML includes:
+The supported modes are:
 
-- project summary
-- search
-- expand and collapse controls
-- architectural vs complete project mode toggle
-- collapsible architecture sections
-- file details panel
-- statistics cards
-- light and dark mode
+- `structify graph` for a concise overview of the most important architecture
+- `--depth <n>` for progressively deeper exploration
+- `--full` to include every architectural file identified by the Intelligence Engine
+- `--important` to show only project-defining files such as package manifests, configuration, and schema files
+- `--md` to write a deterministic `PROJECT_STRUCTURE.md` file in the project root
 
-The output is fully self-contained with no external CDN or runtime dependencies.
+The terminal output ends with a compact summary of the displayed sections, folders, files, important files, and ignored files.

@@ -158,6 +158,9 @@ function shouldIncludeFile(file: ArchitecturalFile, mode: ArchitectureRenderMode
   if (mode === 'complete') {
     return true;
   }
+  if (file.importance !== 'low') {
+    return true;
+  }
   return isArchitecturalFile(file);
 }
 
