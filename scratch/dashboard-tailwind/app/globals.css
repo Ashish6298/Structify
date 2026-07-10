@@ -10,4 +10,7 @@
   box-sizing: border-box;
 }
 
-body { background: #f8fafc; color: #0f172a; }
+body {
+  background: #f8fafc;
+  color: #0f172a;
+}

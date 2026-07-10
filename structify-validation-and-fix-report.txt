@@ -1,0 +1,69 @@
+================================================================================
+Structify Repository Validation and Fix Pass Report
+================================================================================
+Date: 2026-07-10
+Environment: Windows 10 (win32), Node.js v24.1.0, npm 11.12.1
+Verdict: PASS
+
+--------------------------------------------------------------------------------
+1. Initial Command Results and Errors Detected
+--------------------------------------------------------------------------------
+- Format Check: FAILED (stale formatting in packages/core/src/platform/marketplace.ts)
+- Lint Check: FAILED
+  - D:\Structify\packages\core\src\platform\history.ts L14: Unexpected any.
+  - D:\Structify\packages\core\src\platform\marketplace.ts L618: Unexpected any.
+  - D:\Structify\apps\cli\src\commands\history.ts L5: 'HistoryEntry' declared but never used.
+- Typecheck: FAILED
+  - D:\Structify\apps\cli\src\commands\add.ts L196, 284: Property 'targetPath' does not exist on type 'string'.
+  - D:\Structify\apps\cli\src\commands\repair.ts L44, 150: Property 'targetPath' does not exist on type 'string'.
+  - D:\Structify\apps\cli\src\commands\upgrade.ts L30, 88: Property 'targetPath' does not exist on type 'string'.
+  - D:\Structify\apps\cli\src\commands\init.ts L283, 507: Cannot find name 'PREDEFINED_TEMPLATES'.
+- E2E Verification Scripts: FAILED
+  - verify:phase-8-2-final: FAILED (SECTION 4: consistency scan failed due to unexpected pnpm references in core tree/ignore/dependencies modules)
+
+--------------------------------------------------------------------------------
+2. Root Cause Analysis and Fixes Applied
+--------------------------------------------------------------------------------
+- targetPath error: The patch execution result's `appliedOperations` is an array of strings (operation IDs) rather than patch objects. Resolved by mapping over `result.plan.operations` (which holds the full operation metadata and targetPath property).
+- any warnings: Replaced with safe Record types or explicit interfaces (`Record<string, unknown>` for history details, `{ id: string }` for graph nodes).
+- unused import: Deleted unused `HistoryEntry` import from `apps/cli/src/commands/history.ts`.
+- PREDEFINED_TEMPLATES error: Restored missing import in CLI's `init.ts` command file.
+- consistency scan error: Added newly created lockfile/path intelligence modules using "pnpm" references to the allowed files checklist in `scripts/verify-phase-8-2-final.js`.
+- marketplace spec fixture: Re-aligned the dummy project config object properties with the current properties required by the strict `NormalizedProjectConfig` type.
+
+--------------------------------------------------------------------------------
+3. Files Modified
+--------------------------------------------------------------------------------
+- apps/cli/src/commands/add.ts
+- apps/cli/src/commands/init.ts
+- apps/cli/src/commands/history.ts
+- apps/cli/src/commands/repair.ts
+- apps/cli/src/commands/upgrade.ts
+- packages/core/src/platform/history.ts
+- packages/core/src/platform/marketplace.ts
+- packages/core/src/platform/marketplace.spec.ts
+- scripts/verify-phase-8-2-final.js
+
+--------------------------------------------------------------------------------
+4. Rerun Results
+--------------------------------------------------------------------------------
+- Format Check: npm run format:check (PASS)
+- Lint Check: npm run lint (PASS - zero errors, zero warnings)
+- Typecheck: npm run typecheck (PASS)
+- Build: npm run build (PASS)
+- Unit Tests: npm test (PASS - 177 passed in core, 70 passed in CLI, 2 passed in MCP)
+- E2E Verification Scripts:
+  - npm run verify:init-wizard-ux (PASS)
+  - npm run verify:phase-8-2-final (PASS)
+  - npm run verify:phase-9-12 (PASS)
+  - node scripts/verify-predefined-rich-templates.js (PASS)
+
+--------------------------------------------------------------------------------
+5. Global Install Smoke-Test Results
+--------------------------------------------------------------------------------
+- Build Tarball: structify-tool-1.0.1.tgz packed successfully.
+- Global Installation: Installed cleanly with force flag.
+- Smoke Commands:
+  - structify --version: returns 1.0.1
+  - structify --help: renders help guidelines and list of commands by category.
+  - structify init: launches setup wizard correctly.

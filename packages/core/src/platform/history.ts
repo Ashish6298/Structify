@@ -11,7 +11,7 @@ export interface HistoryEntry {
   filesChanged: string[];
   version: string;
   summary: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 const HISTORY_FILE = 'history.json';
@@ -38,7 +38,7 @@ export function readHistory(projectPath: string): HistoryEntry[] {
 export function appendHistoryEntry(
   projectPath: string,
   entry: Omit<HistoryEntry, 'id' | 'timestamp' | 'version'>,
-  cliVersion: string = '1.0.1'
+  cliVersion: string = '1.0.1',
 ): HistoryEntry {
   const dirPath = path.join(projectPath, STRUCTIFY_DIR);
   if (!fs.existsSync(dirPath)) {

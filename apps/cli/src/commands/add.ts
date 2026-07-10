@@ -12,7 +12,7 @@ import {
   buildIntegrationPatchPlan,
   readProjectState,
   CATEGORIES_LIST,
-  appendHistoryEntry
+  appendHistoryEntry,
 } from '@structify/core';
 
 export interface AddOptions {
@@ -26,14 +26,14 @@ export interface AddOptions {
 async function promptChoice(
   question: string,
   choices: { id: string; name: string }[],
-  rl: readline.Interface
+  rl: readline.Interface,
 ): Promise<string> {
   return new Promise((resolve) => {
     console.log(`\n${question}`);
     choices.forEach((choice, index) => {
       console.log(`  ${index + 1}) ${choice.name}`);
     });
-    
+
     const ask = () => {
       rl.question(`\nSelect an option [1-${choices.length}]: `, (answer) => {
         const num = parseInt(answer.trim(), 10);
@@ -72,7 +72,10 @@ export async function handleAdd(
     // 1. Detect project stack
     const detection = detectStack(projectPath);
     if (!detection.success) {
-      throw new StructifyCLIError('STACK_DETECTION_FAILED', detection.error || 'Failed to detect project stack.');
+      throw new StructifyCLIError(
+        'STACK_DETECTION_FAILED',
+        detection.error || 'Failed to detect project stack.',
+      );
     }
     const stack = detection.detectedStack;
     output.info(`Detected stack - Frontend: ${stack.frontend}, Backend: ${stack.backend}`);
@@ -110,10 +113,14 @@ export async function handleAdd(
     }
 
     output.success(`Selected Integration: ${selectedIntegration.name}`);
-    output.info(`- Compatibility: Frontend: ${selectedIntegration.compatibility.frontends.join(', ')}, Backend: ${selectedIntegration.compatibility.backends.join(', ')}`);
+    output.info(
+      `- Compatibility: Frontend: ${selectedIntegration.compatibility.frontends.join(', ')}, Backend: ${selectedIntegration.compatibility.backends.join(', ')}`,
+    );
     output.info(`- Dependencies: ${selectedIntegration.dependencies.join(', ')}`);
     if (selectedIntegration.envVars.length > 0) {
-      output.info(`- Environment Variables: ${selectedIntegration.envVars.map((v) => v.key).join(', ')}`);
+      output.info(
+        `- Environment Variables: ${selectedIntegration.envVars.map((v) => v.key).join(', ')}`,
+      );
     }
     output.info(`- Documentation: ${selectedIntegration.docsLink}`);
 
@@ -127,22 +134,45 @@ export async function handleAdd(
         output.error(`- ${conflict.message}`);
       }
       if (!options.force) {
-        appendHistoryEntry(projectPath, {
-          operation: 'add',
-          status: 'failed',
-          duration: getElapsedMs(context.startTime),
-          filesChanged: [],
-          summary: `Added ${selectedIntegration.name}`,
-        }, context.packageVersion);
-        throw new StructifyCLIError('PATCH_CONFLICT', 'Integration addition aborted due to conflicts. Run with --force to overwrite.');
+        appendHistoryEntry(
+          projectPath,
+          {
+            operation: 'add',
+            status: 'failed',
+            duration: getElapsedMs(context.startTime),
+            filesChanged: [],
+            summary: `Added ${selectedIntegration.name}`,
+          },
+          context.packageVersion,
+        );
+        throw new StructifyCLIError(
+          'PATCH_CONFLICT',
+          'Integration addition aborted due to conflicts. Run with --force to overwrite.',
+        );
       }
     }
 
     // Print preview plan details
     output.subheading('\nPreview Plan:');
-    output.info(`- Files to generate: ${plan.operations.filter((op) => op.type === 'create-file').map((op) => op.targetPath).join(', ') || 'none'}`);
-    output.info(`- Files to modify: ${plan.operations.filter((op) => op.type !== 'create-file').map((op) => op.targetPath).join(', ') || 'none'}`);
-    output.info(`- Dependencies to add: ${plan.dependencyChanges.map((c) => c.name).join(', ') || 'none'}`);
+    output.info(
+      `- Files to generate: ${
+        plan.operations
+          .filter((op) => op.type === 'create-file')
+          .map((op) => op.targetPath)
+          .join(', ') || 'none'
+      }`,
+    );
+    output.info(
+      `- Files to modify: ${
+        plan.operations
+          .filter((op) => op.type !== 'create-file')
+          .map((op) => op.targetPath)
+          .join(', ') || 'none'
+      }`,
+    );
+    output.info(
+      `- Dependencies to add: ${plan.dependencyChanges.map((c) => c.name).join(', ') || 'none'}`,
+    );
 
     if (dryRun) {
       output.info('\n[Dry Run] Integration plan generated successfully.');
@@ -157,15 +187,21 @@ export async function handleAdd(
     }
 
     const result = executePatchPlan(projectPath, plan);
-    appendHistoryEntry(projectPath, {
-      operation: 'add',
-      status: result.success ? 'success' : 'failed',
-      duration: getElapsedMs(context.startTime),
-      filesChanged: result.success ? result.appliedOperations.map((op) => op.targetPath) : [],
-      summary: `Added ${selectedIntegration.name}`,
-    }, context.packageVersion);
+    appendHistoryEntry(
+      projectPath,
+      {
+        operation: 'add',
+        status: result.success ? 'success' : 'failed',
+        duration: getElapsedMs(context.startTime),
+        filesChanged: result.success ? result.plan.operations.map((op) => op.targetPath) : [],
+        summary: `Added ${selectedIntegration.name}`,
+      },
+      context.packageVersion,
+    );
     if (!result.success) {
-      output.error(`Integration installation failed: ${result.errors.map((e) => e.message).join(', ')}`);
+      output.error(
+        `Integration installation failed: ${result.errors.map((e) => e.message).join(', ')}`,
+      );
       if (result.rollbackResults.length > 0) {
         output.warn(`Rollback executed for ${result.rollbackResults.length} operation(s).`);
       }
@@ -213,13 +249,17 @@ export async function handleAdd(
     }
     renderModulePlan(output, modulePlan, dryRun);
     if (modulePlan.code === 'MODULE_INCOMPATIBLE' || modulePlan.code === 'PATCH_CONFLICT') {
-      appendHistoryEntry(projectPath, {
-        operation: 'add',
-        status: 'failed',
-        duration: elapsed,
-        filesChanged: [],
-        summary: `Added ${moduleName ? moduleName.charAt(0).toUpperCase() + moduleName.slice(1) : 'Module'}`,
-      }, context.packageVersion);
+      appendHistoryEntry(
+        projectPath,
+        {
+          operation: 'add',
+          status: 'failed',
+          duration: elapsed,
+          filesChanged: [],
+          summary: `Added ${moduleName ? moduleName.charAt(0).toUpperCase() + moduleName.slice(1) : 'Module'}`,
+        },
+        context.packageVersion,
+      );
       throw new StructifyCLIError(modulePlan.code, modulePlan.message);
     }
     output.showFooter('add');
@@ -235,13 +275,17 @@ export async function handleAdd(
     throw new StructifyCLIError('INTERNAL_ERROR', 'Module plan was not produced.');
   }
   const result = executePatchPlan(projectPath, modulePlan.plan);
-  appendHistoryEntry(projectPath, {
-    operation: 'add',
-    status: result.success ? 'success' : 'failed',
-    duration: getElapsedMs(context.startTime),
-    filesChanged: result.success ? result.appliedOperations.map((op) => op.targetPath) : [],
-    summary: `Added ${modulePlan.moduleName.charAt(0).toUpperCase() + modulePlan.moduleName.slice(1)}`,
-  }, context.packageVersion);
+  appendHistoryEntry(
+    projectPath,
+    {
+      operation: 'add',
+      status: result.success ? 'success' : 'failed',
+      duration: getElapsedMs(context.startTime),
+      filesChanged: result.success ? result.plan.operations.map((op) => op.targetPath) : [],
+      summary: `Added ${modulePlan.moduleName.charAt(0).toUpperCase() + modulePlan.moduleName.slice(1)}`,
+    },
+    context.packageVersion,
+  );
   if (context.json) {
     output.json({
       success: result.success,

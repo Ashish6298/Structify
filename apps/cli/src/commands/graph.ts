@@ -38,13 +38,17 @@ export async function handleGraph(options: GraphOptions, context: CLIContext): P
   const isWritingMarkdown = Boolean(options.md || options.output);
   const elapsed = getElapsedMs(context.startTime);
 
-  appendHistoryEntry(projectPath, {
-    operation: 'graph',
-    status: 'success',
-    duration: elapsed,
-    filesChanged: isWritingMarkdown ? [options.output ?? 'PROJECT_STRUCTURE.md'] : [],
-    summary: 'Generated Graph',
-  }, context.packageVersion);
+  appendHistoryEntry(
+    projectPath,
+    {
+      operation: 'graph',
+      status: 'success',
+      duration: elapsed,
+      filesChanged: isWritingMarkdown ? [options.output ?? 'PROJECT_STRUCTURE.md'] : [],
+      summary: 'Generated Graph',
+    },
+    context.packageVersion,
+  );
 
   if (isWritingMarkdown) {
     const markdownPath = path.resolve(projectPath, options.output ?? 'PROJECT_STRUCTURE.md');

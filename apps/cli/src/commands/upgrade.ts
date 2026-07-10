@@ -21,13 +21,17 @@ export async function handleUpgrade(options: UpgradeOptions, context: CLIContext
   if (context.json) {
     if (!options.dryRun && options.yes && !upgrade.reviewRequired) {
       const result = executePatchPlan(projectPath, upgrade.plan);
-      appendHistoryEntry(projectPath, {
-        operation: 'upgrade',
-        status: result.success ? 'success' : 'failed',
-        duration: getElapsedMs(context.startTime),
-        filesChanged: result.success ? result.appliedOperations.map((op) => op.targetPath) : [],
-        summary: 'Dependency Upgrade',
-      }, context.packageVersion);
+      appendHistoryEntry(
+        projectPath,
+        {
+          operation: 'upgrade',
+          status: result.success ? 'success' : 'failed',
+          duration: getElapsedMs(context.startTime),
+          filesChanged: result.success ? result.plan.operations.map((op) => op.targetPath) : [],
+          summary: 'Dependency Upgrade',
+        },
+        context.packageVersion,
+      );
       output.json({
         success: result.success,
         command: 'upgrade',
@@ -75,13 +79,17 @@ export async function handleUpgrade(options: UpgradeOptions, context: CLIContext
     throw new StructifyCLIError('UPGRADE_REQUIRES_REVIEW', upgrade.message);
   }
   const result = executePatchPlan(projectPath, upgrade.plan);
-  appendHistoryEntry(projectPath, {
-    operation: 'upgrade',
-    status: result.success ? 'success' : 'failed',
-    duration: getElapsedMs(context.startTime),
-    filesChanged: result.success ? result.appliedOperations.map((op) => op.targetPath) : [],
-    summary: 'Dependency Upgrade',
-  }, context.packageVersion);
+  appendHistoryEntry(
+    projectPath,
+    {
+      operation: 'upgrade',
+      status: result.success ? 'success' : 'failed',
+      duration: getElapsedMs(context.startTime),
+      filesChanged: result.success ? result.plan.operations.map((op) => op.targetPath) : [],
+      summary: 'Dependency Upgrade',
+    },
+    context.packageVersion,
+  );
   if (!result.success) {
     throw new StructifyCLIError(
       'INTERNAL_ERROR',

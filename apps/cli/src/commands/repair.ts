@@ -35,13 +35,17 @@ export async function handleRepair(options: RepairOptions, context: CLIContext):
   if (context.json) {
     if (options.apply && options.yes && repair.plan.operations.length > 0) {
       const result = executePatchPlan(projectPath, repair.plan);
-      appendHistoryEntry(projectPath, {
-        operation: 'repair',
-        status: result.success ? 'success' : 'failed',
-        duration: getElapsedMs(context.startTime),
-        filesChanged: result.success ? result.appliedOperations.map((op) => op.targetPath) : [],
-        summary: 'Health Repair',
-      }, context.packageVersion);
+      appendHistoryEntry(
+        projectPath,
+        {
+          operation: 'repair',
+          status: result.success ? 'success' : 'failed',
+          duration: getElapsedMs(context.startTime),
+          filesChanged: result.success ? result.plan.operations.map((op) => op.targetPath) : [],
+          summary: 'Health Repair',
+        },
+        context.packageVersion,
+      );
       output.json({
         success: result.success,
         command: 'repair',
@@ -137,13 +141,17 @@ export async function handleRepair(options: RepairOptions, context: CLIContext):
     throw new StructifyCLIError('USAGE_ERROR', 'Use --yes with --apply to apply safe repairs.');
   }
   const result = executePatchPlan(projectPath, repair.plan);
-  appendHistoryEntry(projectPath, {
-    operation: 'repair',
-    status: result.success ? 'success' : 'failed',
-    duration: getElapsedMs(context.startTime),
-    filesChanged: result.success ? result.appliedOperations.map((op) => op.targetPath) : [],
-    summary: 'Health Repair',
-  }, context.packageVersion);
+  appendHistoryEntry(
+    projectPath,
+    {
+      operation: 'repair',
+      status: result.success ? 'success' : 'failed',
+      duration: getElapsedMs(context.startTime),
+      filesChanged: result.success ? result.plan.operations.map((op) => op.targetPath) : [],
+      summary: 'Health Repair',
+    },
+    context.packageVersion,
+  );
   if (!result.success) {
     throw new StructifyCLIError(
       'CONFLICT_ERROR',

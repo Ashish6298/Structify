@@ -25,8 +25,6 @@ import { handleEnterpriseCommand } from './phase912.js';
 import { createCLIContext } from '../context.js';
 import { wrapAction } from '../utils/middleware.js';
 
-
-
 export function registerCommands(program: Command): void {
   program
     .command('init')
@@ -285,7 +283,10 @@ export function registerCommands(program: Command): void {
   for (const enterpriseCommand of enterpriseCommands) {
     program
       .command(enterpriseCommand)
-      .description(ENTERPRISE_CMD_DESCRIPTIONS[enterpriseCommand] || `Enterprise generation platform command: ${enterpriseCommand}`)
+      .description(
+        ENTERPRISE_CMD_DESCRIPTIONS[enterpriseCommand] ||
+          `Enterprise generation platform command: ${enterpriseCommand}`,
+      )
       .argument('[action]', 'Command action')
       .argument('[target]', 'Optional command target')
       .option('-d, --dry-run', 'Preview enterprise operation without writing files')
@@ -367,7 +368,10 @@ export function registerCommands(program: Command): void {
   program
     .command('add')
     .description('Add a module incrementally into an existing workspace')
-    .argument('<moduleName>', 'Name of module (e.g. docker, eslint, prisma) or marketplace category (e.g. auth, payments, logging)')
+    .argument(
+      '<moduleName>',
+      'Name of module (e.g. docker, eslint, prisma) or marketplace category (e.g. auth, payments, logging)',
+    )
     .option('-d, --dry-run', 'Preview module patch plan without writing files')
     .option('-y, --yes', 'Apply without confirmation')
     .option('--force', 'Allow intentional overwrites when conflicts are safe')
@@ -375,7 +379,7 @@ export function registerCommands(program: Command): void {
     .option('--database <database>', 'Database override for database modules')
     .addHelpText(
       'after',
-      '\nMarketplace Categories:\n  auth, payments, logging, monitoring, cache, queue, email, storage, validation, analytics\n\nExamples:\n  $ structify add docker\n  $ structify add auth\n  $ structify add payments'
+      '\nMarketplace Categories:\n  auth, payments, logging, monitoring, cache, queue, email, storage, validation, analytics\n\nExamples:\n  $ structify add docker\n  $ structify add auth\n  $ structify add payments',
     )
     .action(async (moduleName, options, commandInstance) => {
       const globalOpts = program.opts();

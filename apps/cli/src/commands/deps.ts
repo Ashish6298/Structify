@@ -17,13 +17,17 @@ export async function handleDeps(options: DepsOptions, context: CLIContext): Pro
   const report = analyzeDependencies(projectPath, analysis);
   const elapsed = getElapsedMs(context.startTime);
 
-  appendHistoryEntry(projectPath, {
-    operation: 'deps',
-    status: 'success',
-    duration: elapsed,
-    filesChanged: [],
-    summary: 'Dependency Audit',
-  }, context.packageVersion);
+  appendHistoryEntry(
+    projectPath,
+    {
+      operation: 'deps',
+      status: 'success',
+      duration: elapsed,
+      filesChanged: [],
+      summary: 'Dependency Audit',
+    },
+    context.packageVersion,
+  );
 
   if (context.json) {
     output.json({

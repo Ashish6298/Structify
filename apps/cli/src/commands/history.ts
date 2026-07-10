@@ -2,7 +2,7 @@ import path from 'path';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
 import { StructifyCLIError } from '../utils/error.js';
-import { readHistory, HistoryEntry } from '@structify/core';
+import { readHistory } from '@structify/core';
 
 export interface HistoryOptions {
   json?: boolean;
@@ -11,10 +11,7 @@ export interface HistoryOptions {
   path?: string;
 }
 
-export async function handleHistory(
-  options: HistoryOptions,
-  context: CLIContext,
-): Promise<void> {
+export async function handleHistory(options: HistoryOptions, context: CLIContext): Promise<void> {
   const output = new CLIOutput(context);
   const projectPath = path.resolve(context.cwd, options.path ?? '.');
 
@@ -25,7 +22,10 @@ export async function handleHistory(
   if (options.since) {
     const sinceTime = new Date(options.since).getTime();
     if (isNaN(sinceTime)) {
-      throw new StructifyCLIError('USAGE_ERROR', `Invalid ISO date format for --since: "${options.since}"`);
+      throw new StructifyCLIError(
+        'USAGE_ERROR',
+        `Invalid ISO date format for --since: "${options.since}"`,
+      );
     }
     filtered = filtered.filter((entry) => new Date(entry.timestamp).getTime() >= sinceTime);
   }
@@ -34,7 +34,10 @@ export async function handleHistory(
   if (options.limit) {
     const limitNum = parseInt(options.limit, 10);
     if (isNaN(limitNum) || limitNum <= 0) {
-      throw new StructifyCLIError('USAGE_ERROR', `Invalid number format for --limit: "${options.limit}"`);
+      throw new StructifyCLIError(
+        'USAGE_ERROR',
+        `Invalid number format for --limit: "${options.limit}"`,
+      );
     }
     filtered = filtered.slice(-limitNum);
   }
@@ -55,7 +58,7 @@ export async function handleHistory(
   filtered.forEach((entry, index) => {
     // Print summary
     output.info(`[${entry.status.toUpperCase()}] ${entry.summary}`);
-    
+
     // Print details if verbose/debug is set or just generally
     if (context.verbose) {
       output.info(`  Operation: ${entry.operation}`);

@@ -43,14 +43,18 @@ export function createCLIContext(
   const manualVerbose = argList.includes('--verbose');
   const manualDebug = argList.includes('--debug');
   const manualJson = argList.includes('--json');
-  
+
   let manualCwd: string | undefined;
   const cwdIdx = argList.indexOf('--cwd');
   if (cwdIdx !== -1 && cwdIdx + 1 < argList.length) {
     manualCwd = argList[cwdIdx + 1];
   }
 
-  const targetCwd = options.cwd ? path.resolve(options.cwd) : (manualCwd ? path.resolve(manualCwd) : process.cwd());
+  const targetCwd = options.cwd
+    ? path.resolve(options.cwd)
+    : manualCwd
+      ? path.resolve(manualCwd)
+      : process.cwd();
 
   let detectedPackageManager: 'npm' | 'none' = 'none';
   try {

@@ -63,7 +63,9 @@ describe('CLI history command', () => {
       summary: 'Project Created',
     });
 
-    const context = createCLIContext(['node', 'structify', 'history', '--json'], { cwd: projectDir });
+    const context = createCLIContext(['node', 'structify', 'history', '--json'], {
+      cwd: projectDir,
+    });
     context.json = true;
     const logs: string[] = [];
     vi.spyOn(console, 'log').mockImplementation((message?: unknown) => {

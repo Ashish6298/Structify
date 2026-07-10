@@ -7,16 +7,20 @@ type DashboardShellProps = {
 export default function DashboardShell({ children }: DashboardShellProps) {
   const childrenArray = React.Children.toArray(children);
   const sidebar = childrenArray.find(
-    (child) => React.isValidElement(child) && (child.type as { name?: string }).name === 'Sidebar'
+    (child) =>
+      React.isValidElement(child) &&
+      (child.type as { name?: string }).name === 'Sidebar',
   );
   const topbar = childrenArray.find(
-    (child) => React.isValidElement(child) && (child.type as { name?: string }).name === 'Topbar'
+    (child) =>
+      React.isValidElement(child) &&
+      (child.type as { name?: string }).name === 'Topbar',
   );
   const mainContent = childrenArray.filter(
     (child) =>
       !React.isValidElement(child) ||
-      (((child.type as { name?: string }).name !== 'Sidebar' &&
-        (child.type as { name?: string }).name !== 'Topbar'))
+      ((child.type as { name?: string }).name !== 'Sidebar' &&
+        (child.type as { name?: string }).name !== 'Topbar'),
   );
 
   return (
@@ -28,7 +32,8 @@ export default function DashboardShell({ children }: DashboardShellProps) {
           {mainContent}
         </main>
         <footer className="mx-auto max-w-4xl px-6 py-6 text-xs text-slate-400 border-t border-slate-200 text-center w-full">
-          Built with Structify. Replace this starter content with your own production copy.
+          Built with Structify. Replace this starter content with your own
+          production copy.
         </footer>
       </div>
     </div>

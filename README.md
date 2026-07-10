@@ -35,7 +35,6 @@
 <tr>
 <td>
 
-
 <h2>
 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Blue%20book/3D/blue_book_3d.png" width="34" align="center">
 Overview
@@ -68,11 +67,9 @@ Built around a modular generation engine, Structify combines **interactive proje
 
 Whether you're building a **frontend application**, **REST API**, **full-stack platform**, **microservice**, **CLI tool**, or **AI-powered application**, Structify provides a consistent, maintainable, and production-ready foundation—allowing you to focus on building features instead of configuring infrastructure.
 
-
 </td>
 </tr>
 </table>
-
 
 # 🎯 Why Structify Tool?
 
@@ -120,7 +117,6 @@ Structify Tool eliminates these repetitive tasks by generating a complete produc
   </tr>
 </table>
 
-
 <table align="center">
 <tr>
 
@@ -128,23 +124,17 @@ Structify Tool eliminates these repetitive tasks by generating a complete produc
 
 <img width="42" src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Package/3D/package_3d.png"/>
 
-
 <b>Latest Version</b>
-
-
 
 <img src="https://img.shields.io/npm/v/structify-tool?style=flat-square&logo=npm&logoColor=white"/>
 
 </td>
 
-
 <td align="center" width="160">
 
 <img width="42" src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Star/3D/star_3d.png"/>
 
-
 <b>GitHub Stars</b>
-
 
 <img src="https://img.shields.io/github/stars/Ashish6298/Structify?style=flat-square"/>
 
@@ -154,10 +144,7 @@ Structify Tool eliminates these repetitive tasks by generating a complete produc
 
 <img width="42" src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Shield/3D/shield_3d.png"/>
 
-
-
 <b>MIT License</b>
-
 
 <img src="https://img.shields.io/github/license/Ashish6298/Structify?style=flat-square"/>
 
@@ -167,9 +154,7 @@ Structify Tool eliminates these repetitive tasks by generating a complete produc
 
 <img width="42" src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Gear/3D/gear_3d.png"/>
 
-
 <b>Node.js</b>
-
 
 <img src="https://img.shields.io/badge/18%2B-Supported-339933?style=flat-square&logo=node.js&logoColor=white"/>
 
@@ -199,15 +184,15 @@ Whether you're building a **frontend application**, **backend API**, **full-stac
 
 <br/>
 
-| 🚀 Key Highlights |
-| :---------------- |
-| ⚡ Generate production-ready projects in seconds |
-| 🏗️ Enterprise-grade project architecture |
+| 🚀 Key Highlights                                             |
+| :------------------------------------------------------------ |
+| ⚡ Generate production-ready projects in seconds              |
+| 🏗️ Enterprise-grade project architecture                      |
 | 🛡️ Deterministic execution with automatic rollback protection |
-| 📋 Interactive CLI with intelligent validation |
-| 🧩 Modular, extensible, and blueprint-driven architecture |
-| 🤖 Built-in AI & Model Context Protocol (MCP) support |
-| 🌍 Cross-platform support for Windows, Linux, and macOS |
+| 📋 Interactive CLI with intelligent validation                |
+| 🧩 Modular, extensible, and blueprint-driven architecture     |
+| 🤖 Built-in AI & Model Context Protocol (MCP) support         |
+| 🌍 Cross-platform support for Windows, Linux, and macOS       |
 
 </td>
 </tr>
@@ -230,17 +215,17 @@ Yet, developers often lose valuable time manually configuring development enviro
 
 <br/>
 
-| ❌ Traditional Project Setup |
-| :--------------------------- |
-| 📁 Manually creating project folders and architecture |
-| 📦 Installing and managing dependencies |
-| ⚙️ Configuring TypeScript, ESLint, and Prettier |
-| 🐳 Creating Docker and container configurations |
-| 🗄️ Setting up databases, ORMs, and environment variables |
-| 🧪 Configuring testing frameworks and code quality tools |
-| 🚀 Creating CI/CD pipelines and GitHub Actions |
+| ❌ Traditional Project Setup                              |
+| :-------------------------------------------------------- |
+| 📁 Manually creating project folders and architecture     |
+| 📦 Installing and managing dependencies                   |
+| ⚙️ Configuring TypeScript, ESLint, and Prettier           |
+| 🐳 Creating Docker and container configurations           |
+| 🗄️ Setting up databases, ORMs, and environment variables  |
+| 🧪 Configuring testing frameworks and code quality tools  |
+| 🚀 Creating CI/CD pipelines and GitHub Actions            |
 | 📄 Writing repetitive boilerplate files and configuration |
-| 🔧 Maintaining consistency across multiple projects |
+| 🔧 Maintaining consistency across multiple projects       |
 
 <br/>
 
@@ -271,13 +256,13 @@ Every project is generated through a deterministic execution engine that validat
 
 <br/>
 
-| 🚀 What Makes Structify Different |
-| :-------------------------------- |
-| 🔍 **Transparent** — Preview every operation through a deterministic execution plan before any files are generated. |
-| 🎯 **Predictable** — Execute dry runs with reproducible results, making every generation process reliable and consistent. |
-| 🛡️ **Rollback Safe** — Transactional file operations automatically restore your project if an error occurs during generation. |
-| 🏗️ **Framework Agnostic** — Generate projects across multiple frameworks, architectures, and technology stacks using a unified generation engine. |
-| 🧩 **Extensible** — Built around modular generators, templates, blueprints, plugins, and registries for maximum flexibility. |
+| 🚀 What Makes Structify Different                                                                                                                                  |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🔍 **Transparent** — Preview every operation through a deterministic execution plan before any files are generated.                                                |
+| 🎯 **Predictable** — Execute dry runs with reproducible results, making every generation process reliable and consistent.                                          |
+| 🛡️ **Rollback Safe** — Transactional file operations automatically restore your project if an error occurs during generation.                                      |
+| 🏗️ **Framework Agnostic** — Generate projects across multiple frameworks, architectures, and technology stacks using a unified generation engine.                  |
+| 🧩 **Extensible** — Built around modular generators, templates, blueprints, plugins, and registries for maximum flexibility.                                       |
 | 🤖 **AI Ready** — Includes a built-in **Model Context Protocol (MCP)** server, enabling AI assistants to understand, inspect, and generate projects intelligently. |
 
 <br/>
@@ -292,7 +277,6 @@ Whether you're starting a personal side project, building an enterprise applicat
 <table align="center" width="100%">
 <tr>
 <td>
-  
 
 <h2>
 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Sparkles/3D/sparkles_3d.png" width="34">
@@ -400,18 +384,18 @@ Structify is built for the next generation of AI-assisted software development.
 
 ### 🌟 Highlights
 
-| Feature | Included |
-| :------ | :-------: |
-| 🚀 Production-Ready Scaffolding | ✅ |
-| 🛡️ Rollback Protection | ✅ |
-| 📋 Interactive CLI | ✅ |
-| 🧩 Blueprint Architecture | ✅ |
-| 🏗️ Enterprise Templates | ✅ |
-| 🔍 Project Diagnostics | ✅ |
-| 🤖 Built-in MCP Server | ✅ |
-| 🌍 Cross-Platform Support | ✅ |
-| ⚡ Dry-Run Execution | ✅ |
-| 📦 Modular Plugin System | ✅ |
+| Feature                         | Included |
+| :------------------------------ | :------: |
+| 🚀 Production-Ready Scaffolding |    ✅    |
+| 🛡️ Rollback Protection          |    ✅    |
+| 📋 Interactive CLI              |    ✅    |
+| 🧩 Blueprint Architecture       |    ✅    |
+| 🏗️ Enterprise Templates         |    ✅    |
+| 🔍 Project Diagnostics          |    ✅    |
+| 🤖 Built-in MCP Server          |    ✅    |
+| 🌍 Cross-Platform Support       |    ✅    |
+| ⚡ Dry-Run Execution            |    ✅    |
+| 📦 Modular Plugin System        |    ✅    |
 
 </td>
 </tr>
@@ -451,14 +435,14 @@ Structify
 
 ### 📂 Workspace Overview
 
-| Directory | Purpose |
-| :-------- | :------ |
-| **`apps/cli`** | Interactive CLI responsible for project generation, validation, inspection, and diagnostics. |
-| **`apps/mcp-server`** | Provides AI integration through the **Model Context Protocol (MCP)** for intelligent project understanding and automation. |
-| **`packages/core`** | Contains Structify's core generation engine, template system, planning engine, blueprint architecture, validation pipeline, and rollback mechanism. |
-| **`packages/logger`** | Shared logging utilities used consistently across the entire platform. |
-| **`docs`** | Houses architecture documentation, CLI guides, specifications, roadmaps, and technical references. |
-| **`scripts`** | Automation scripts for development, testing, packaging, releases, and maintenance tasks. |
+| Directory             | Purpose                                                                                                                                             |
+| :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`apps/cli`**        | Interactive CLI responsible for project generation, validation, inspection, and diagnostics.                                                        |
+| **`apps/mcp-server`** | Provides AI integration through the **Model Context Protocol (MCP)** for intelligent project understanding and automation.                          |
+| **`packages/core`**   | Contains Structify's core generation engine, template system, planning engine, blueprint architecture, validation pipeline, and rollback mechanism. |
+| **`packages/logger`** | Shared logging utilities used consistently across the entire platform.                                                                              |
+| **`docs`**            | Houses architecture documentation, CLI guides, specifications, roadmaps, and technical references.                                                  |
+| **`scripts`**         | Automation scripts for development, testing, packaging, releases, and maintenance tasks.                                                            |
 
 <br/>
 
@@ -503,14 +487,14 @@ Every generation engine is isolated, making future frameworks and generators eas
 
 ### 🛠 Common CLI Commands
 
-| Command | Description |
-| :------ | :---------- |
-| `structify init my-project` | Create a new project using the interactive generator |
-| `structify generate my-project` | Generate a project from templates and blueprints |
-| `structify verify-project` | Validate the project structure and configuration |
-| `structify doctor` | Run diagnostics and identify potential issues |
-| `structify inspect` | Inspect project architecture and metadata |
-| `structify repair --dry-run` | Preview automatic repairs without modifying files |
+| Command                         | Description                                          |
+| :------------------------------ | :--------------------------------------------------- |
+| `structify init my-project`     | Create a new project using the interactive generator |
+| `structify generate my-project` | Generate a project from templates and blueprints     |
+| `structify verify-project`      | Validate the project structure and configuration     |
+| `structify doctor`              | Run diagnostics and identify potential issues        |
+| `structify inspect`             | Inspect project architecture and metadata            |
+| `structify repair --dry-run`    | Preview automatic repairs without modifying files    |
 
 <br/>
 
@@ -594,23 +578,20 @@ Enterprise-ready templates, blueprints, plugins, and modular generators provide 
 </tr>
 </table>
 
-
-
 ### 🌟 Core Philosophy
 
-| Principle | Commitment |
-| :-------- | :--------- |
-| ⚡ Productivity First | Eliminate repetitive project setup and boilerplate. |
-| 🛡️ Reliability | Deterministic execution with validation and rollback protection. |
-| 🏗️ Scalability | Designed for projects ranging from personal apps to enterprise platforms. |
-| 🧩 Extensibility | Modular architecture with templates, blueprints, and plugins. |
-| 🤖 AI Ready | Built with native support for AI-assisted development through MCP. |
-| 🌍 Consistency | Generate predictable, maintainable, and production-ready project structures across every environment. |
+| Principle             | Commitment                                                                                            |
+| :-------------------- | :---------------------------------------------------------------------------------------------------- |
+| ⚡ Productivity First | Eliminate repetitive project setup and boilerplate.                                                   |
+| 🛡️ Reliability        | Deterministic execution with validation and rollback protection.                                      |
+| 🏗️ Scalability        | Designed for projects ranging from personal apps to enterprise platforms.                             |
+| 🧩 Extensibility      | Modular architecture with templates, blueprints, and plugins.                                         |
+| 🤖 AI Ready           | Built with native support for AI-assisted development through MCP.                                    |
+| 🌍 Consistency        | Generate predictable, maintainable, and production-ready project structures across every environment. |
 
 </td>
 </tr>
 </table>
-
 
 <table align="center" width="100%">
 <tr>
@@ -622,7 +603,6 @@ Documentation
 </h2>
 
 Structify includes comprehensive documentation covering every aspect of the platform—from architecture and project generation to CLI usage, validation, AI integration, and future roadmap planning. Whether you're a first-time user, contributor, or enterprise team, the documentation is designed to help you get productive quickly.
-
 
 <table width="100%">
 <tr>
@@ -682,14 +662,11 @@ Structify includes comprehensive documentation covering every aspect of the plat
 </tr>
 </table>
 
-
-
 **💡 Tip:** All documentation is available inside the **`docs/`** directory and is continuously updated alongside every new Structify release.
 
 </td>
 </tr>
 </table>
-
 
 <table align="center" width="100%">
 <tr>
@@ -703,7 +680,6 @@ Contributing
 Structify is an open-source project built for developers, by developers. Whether you're fixing bugs, improving documentation, proposing new features, optimizing performance, or contributing new templates and blueprints, every contribution helps make Structify better for the entire community.
 
 We welcome **bug reports**, **feature requests**, **documentation improvements**, **code contributions**, and **architectural discussions**. Before opening a Pull Request, please review the contribution guidelines and ensure your changes align with the project's coding standards and design principles.
-
 
 ### 🚀 Ways to Contribute
 
@@ -745,11 +721,9 @@ For complete license information, see the **LICENSE** file included in this repo
 
 ## 💙 Built for Developers
 
-> *"Great software begins with great foundations."*
+> _"Great software begins with great foundations."_
 
 Structify exists to eliminate repetitive project setup, automate modern development workflows, and help developers spend **less time configuring projects** and **more time building exceptional software.**
-
-
 
 ### ⭐ If Structify helped you, consider supporting the project!
 

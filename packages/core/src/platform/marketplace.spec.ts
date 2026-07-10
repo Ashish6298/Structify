@@ -1,13 +1,11 @@
-import { describe, it, expect } from 'vitest';
-import path from 'path';
-import fs from 'fs';
+import { describe, expect, it } from 'vitest';
 import {
-  getIntegrationsForCategory,
   buildIntegrationPatchPlan,
-  INTEGRATIONS_CATALOG
+  getIntegrationsForCategory,
+  INTEGRATIONS_CATALOG,
 } from './marketplace.js';
-import { DetectedStack } from './stack-detector.js';
 import { ProjectState } from './phase9.js';
+import { DetectedStack } from './stack-detector.js';
 
 describe('Smart Marketplace Integrations', () => {
   const dummyStack: DetectedStack = {
@@ -25,37 +23,74 @@ describe('Smart Marketplace Integrations', () => {
     editorconfig: false,
     detectionSource: 'none',
     confidence: 'low',
-    indicators: []
+    indicators: [],
   };
 
   it('correctly filters catalog integrations by category and stack', () => {
     const integrations = getIntegrationsForCategory('auth', dummyStack);
+
     expect(integrations.length).toBeGreaterThan(0);
-    expect(integrations.every((i) => i.category === 'auth')).toBe(true);
-    
-    // Clerk is next compatible, should be in list
-    const hasClerk = integrations.some((i) => i.id === 'clerk');
+    expect(integrations.every((integration) => integration.category === 'auth')).toBe(true);
+
+    const hasClerk = integrations.some((integration) => integration.id === 'clerk');
     expect(hasClerk).toBe(true);
   });
 
   it('correctly builds a patch plan for an integration', () => {
-    const integration = INTEGRATIONS_CATALOG.find((i) => i.id === 'better-auth')!;
+    const integration = INTEGRATIONS_CATALOG.find(
+      (catalogIntegration) => catalogIntegration.id === 'better-auth',
+    );
+
+    expect(integration).toBeDefined();
+
     const state: ProjectState = {
       projectPath: '.',
-      files: [],
-      modifiedFiles: [],
+      exists: true,
       config: {
-        name: 'test-project',
+        projectName: 'test-project',
         version: '1.0.0',
-        template: 'next',
-        modules: []
+        mode: 'frontend-only',
+        language: 'typescript',
+        stack: {
+          frontend: 'next',
+          backend: 'none',
+          styling: 'tailwind',
+          database: 'none',
+          orm: 'none',
+          packageManager: 'npm',
+        },
+        tools: {
+          docker: false,
+          eslint: true,
+          prettier: true,
+          githubActions: false,
+          git: true,
+          editorconfig: false,
+          husky: false,
+          lintStaged: false,
+          commitlint: false,
+        },
       },
-      packageManager: 'npm'
+      packageManager: 'npm',
+      generatorVersions: {},
+      pluginVersions: {},
+      moduleVersions: {},
+      expectedFiles: [],
+      files: [],
+      scripts: {},
+      dependencies: {},
+      devDependencies: {},
+      missingFiles: [],
+      modifiedFiles: [],
+      unknownFiles: [],
+      diagnostics: [],
+      eventLogEntries: 0,
     };
 
-    const plan = buildIntegrationPatchPlan('.', integration, state);
+    const plan = buildIntegrationPatchPlan('.', integration!, state);
+
     expect(plan.id).toBe('add-integration-better-auth');
     expect(plan.operations.length).toBeGreaterThan(0);
-    expect(plan.dependencyChanges.some((c) => c.name === 'better-auth')).toBe(true);
+    expect(plan.dependencyChanges.some((change) => change.name === 'better-auth')).toBe(true);
   });
 });
