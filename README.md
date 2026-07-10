@@ -25,7 +25,7 @@
   <a href="https://github.com/Ashish6298/Structify"><strong>⭐ GitHub Repository</strong></a> •
   <a href="#-quick-start"><strong>🚀 Quick Start</strong></a>
 </p>
-=======
+
 <div align="center">
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,40:2563EB,100:60A5FA&height=220&section=header&text=Structify&fontSize=68&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Build%20Faster.%20Structure%20Smarter.&descAlignY=60&descSize=22"/>
@@ -34,7 +34,7 @@
 <table align="center" width="100%">
 <tr>
 <td>
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
+
 
 <h2>
 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Blue%20book/3D/blue_book_3d.png" width="34" align="center">
@@ -59,7 +59,7 @@ Structify Tool emphasizes:
 - 🔍 Built-in verification & diagnostics
 - 🤖 AI-ready tooling
 - 📦 Modular & extensible design
-=======
+
 **Structify** is an enterprise-grade, open-source project scaffolding platform that empowers developers to generate **production-ready application architectures** through an intelligent, interactive command-line interface (CLI).
 
 Rather than spending hours configuring project structures, TypeScript, package managers, linters, formatters, databases, ORMs, Docker, CI/CD pipelines, testing frameworks, and boilerplate files, Structify automates the entire setup process while following modern engineering best practices.
@@ -67,7 +67,7 @@ Rather than spending hours configuring project structures, TypeScript, package m
 Built around a modular generation engine, Structify combines **interactive project creation**, **enterprise templates**, **blueprint-driven architecture**, **intelligent validation**, **rollback protection**, and **AI-ready workflows** into a single developer experience. Every generated project is deterministic, reproducible, configurable, and designed to scale from personal applications to enterprise-grade systems.
 
 Whether you're building a **frontend application**, **REST API**, **full-stack platform**, **microservice**, **CLI tool**, or **AI-powered application**, Structify provides a consistent, maintainable, and production-ready foundation—allowing you to focus on building features instead of configuring infrastructure.
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
+
 
 </td>
 </tr>
@@ -130,7 +130,7 @@ Structify Tool eliminates these repetitive tasks by generating a complete produc
 
 
 <b>Latest Version</b>
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
+
 
 
 <img src="https://img.shields.io/npm/v/structify-tool?style=flat-square&logo=npm&logoColor=white"/>
