@@ -1,0 +1,41 @@
+================================================================================
+Structify Admin Dashboard Template Layout Fix Verification Report
+================================================================================
+Generated At: 2026-07-10T05:32:00.000Z
+Verdict: PASS
+
+--------------------------------------------------------------------------------
+1. Root Cause Analysis
+--------------------------------------------------------------------------------
+The Admin Dashboard template's broken layout was caused by siblings (Sidebar, Topbar, KpiGrid, AnalyticsPanel, DataTable, and ProjectStatus) being output directly as child nodes of the DashboardShell flex/grid container. This forced all elements to render as horizontal columns side-by-side on desktop, compressing content into extremely narrow vertical strips. Furthermore, excessive double paddings and absolute layouts made widgets collapse, stretch, or overflow.
+
+--------------------------------------------------------------------------------
+2. Files Modified
+--------------------------------------------------------------------------------
+- packages/core/src/templates/predefined/shared-utils.ts
+  - Modified getTailwindShell, getMuiShell, and getNoneShell to detect "dashboard" kind templates.
+  - Dynamically split children arrays: isolated Sidebar and Topbar from main children nodes.
+  - Formatted the root layout with Sidebar on the left (desktop sticky/fixed) and wrapped the rest of the children (Topbar and content widgets) in a column wrapper.
+- packages/core/src/templates/predefined/frontend/admin-dashboard.ts
+  - Tailwind: Updated Sidebar classes to "w-full md:w-64 md:h-screen md:sticky md:top-0", and grid components to correct columns ("grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" and "lg:grid-cols-3").
+  - Tailwind: Wrapped Table inside an "overflow-x-auto w-full" container with a "min-w-[500px]" constraint to enable side-scrolling instead of compression.
+  - MUI: Updated Sidebar to support responsive drawers/sticky placement. Wrapped Table inside a Box with "overflowX: 'auto'" and Table minWidth to prevent vertical compression.
+  - MUI: Removed double padding and grid-compression classes.
+- packages/core/src/templates/predefined/predefined-registry.spec.ts
+  - Added test cases verifying shell layout structure generation for both Tailwind and MUI variants.
+
+--------------------------------------------------------------------------------
+3. Responsive & Layout Decisions
+--------------------------------------------------------------------------------
+- Desktop Layout: Sticky/fixed left-hand sidebar with a width of 64 (Tailwind) / 240px (MUI). The main viewport area fills the remaining horizontal space with a flex layout and limits max-width to 1600px for optimal screen readability.
+- Mobile/Tablet Layout: Sidebar gracefully stacks on top of the Topbar and main widgets flow vertically. Grid columns collapse from 4-column (KPIs) and 3-column (Analytics) to 1-column layouts naturally.
+- Table scrolling: Ensured horizontal overflow scrolling for accounts data grids on small viewports.
+
+--------------------------------------------------------------------------------
+4. Test and Compilation Results
+--------------------------------------------------------------------------------
+- Unit tests: npm test (PASS - 155 tests in core, 64 tests in CLI)
+- Scaffolding E2E: node scripts/verify-predefined-rich-templates.js (PASS - deep Next.js builds compiled without lint or type errors)
+- Generated Tailwind Project Build/Lint: PASS
+- Generated MUI Project Build/Lint: PASS
+- Project Verification: structify verify-project --strict --build (PASS - overall status: HEALTHY)

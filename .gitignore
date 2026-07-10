@@ -15,9 +15,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+.npm/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
 .eslintcache
 .node_repl_history
 .vitest/
+.cache/
 
 # IDEs and Editors
 .vscode/
@@ -29,6 +35,10 @@ pnpm-debug.log*
 *.sw?
 .DS_Store
 Thumbs.db
+*.tmp
+*.temp
+*.bak
+*.orig
 
 # Backups and temporary files
 .structify-backups/
@@ -45,14 +55,32 @@ structify-v1-final-release-audit.txt
 structify-roadmap-implementation-audit.txt
 structify-remaining-roadmap-analysis.txt
 
-# Local Environment Variables
+# Local Environment Variables and Secrets
 .env
 .env.local
 .env.*.local
 *.env
+!.env.example
+!.env.sample
+.npmrc
+.npmrc.local
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+secrets/
+*.secret
+*.secrets
+credentials.json
+service-account*.json
 
 # Testing and Coverage
 coverage/
 html/
 .nyc_output/
-

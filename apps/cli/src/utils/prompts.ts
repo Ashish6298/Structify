@@ -865,6 +865,128 @@ export class InteractivePromptEngine {
   }
 }
 
+export async function promptProjectNameInput(
+  defaultName: string = 'my-structify-app',
+): Promise<string> {
+  let asking = true;
+  let resultName = '';
+  while (asking) {
+    const rawAnswer = await askTypedLine(`\nEnter project name [Default: ${defaultName}]: `);
+    const finalValue = rawAnswer === '' ? defaultName : rawAnswer;
+    const normalized = normalizeProjectNameInput(finalValue);
+    if (!normalized.valid) {
+      console.log(`\x1b[31mError: ${normalized.errors[0]}\x1b[0m`);
+      continue;
+    }
+    if (normalized.changed) {
+      const accepted = await promptBooleanConfirmation(
+        `Project name "${finalValue}" will be normalized to "${normalized.normalized}". Use this name?`,
+        true,
+      );
+      if (!accepted) {
+        continue;
+      }
+    }
+    resultName = normalized.normalized;
+    asking = false;
+  }
+  return resultName;
+}
+
+export async function promptKeyboardChoiceWithFallback(
+  message: string,
+  choices: PromptChoice[],
+  defaultValue: string | boolean | undefined,
+  options: KeyboardPromptOptions = {},
+): Promise<string> {
+  if (supportsKeyboardNavigation(options)) {
+    return promptKeyboardChoice(message, choices, defaultValue, options);
+  }
+  let promptText = `\n${message}\n`;
+  choices.forEach((choice, idx) => {
+    promptText += `  ${idx + 1}. ${choice.label} (${choice.value})\n`;
+  });
+  promptText += `Enter choice/number [Default: ${defaultValue}]: `;
+  const ans = await askTypedLine(promptText);
+  const resolved = resolveSelectInput(ans, choices, defaultValue);
+  if (!resolved) {
+    console.log(`Invalid choice. Defaulting to ${defaultValue}`);
+    return String(defaultValue);
+  }
+  return resolved;
+}
+
+export async function promptSetupTypeSelection(): Promise<'predefined' | 'custom'> {
+  const choices = [
+    { value: 'predefined', label: 'Use a Predefined Template' },
+    { value: 'custom', label: 'Build a Custom Project' },
+  ];
+  const ans = await promptKeyboardChoiceWithFallback(
+    'What type of setup do you want to create?',
+    choices,
+    'predefined',
+  );
+  return ans as 'predefined' | 'custom';
+}
+
+export async function promptTemplateCategory(): Promise<'frontend' | 'backend' | 'fullstack'> {
+  const choices = [
+    { value: 'frontend', label: 'Frontend' },
+    { value: 'backend', label: 'Backend (Coming Soon)' },
+    { value: 'fullstack', label: 'Fullstack (Coming Soon)' },
+  ];
+  const ans = await promptKeyboardChoiceWithFallback(
+    'Select a template category',
+    choices,
+    'frontend',
+  );
+  return ans as 'frontend' | 'backend' | 'fullstack';
+}
+
+export async function promptTemplateSelection(): Promise<string> {
+  const choices = [
+    {
+      value: 'portfolio-website',
+      label:
+        'Portfolio Website - Personal developer/designer portfolio with hero, projects, skills, experience, and contact sections',
+    },
+    {
+      value: 'saas-landing',
+      label:
+        'SaaS Landing Page - SaaS landing page with hero, features, pricing, testimonials, FAQ, and CTA sections',
+    },
+    {
+      value: 'admin-dashboard',
+      label:
+        'Admin Dashboard - Sidebar layout, stat cards, tables, charts placeholder, settings page, and responsive layout',
+    },
+    {
+      value: 'agency-business',
+      label: 'Agency / Business Website - Services, about, testimonials, contact, and CTA sections',
+    },
+    {
+      value: 'blog-content',
+      label:
+        'Blog / Content Website - Article listing, featured post, category layout, and blog detail-ready structure',
+    },
+  ];
+  return promptKeyboardChoiceWithFallback(
+    'Select a predefined template',
+    choices,
+    'portfolio-website',
+  );
+}
+
+export async function promptStylingSelection(): Promise<'tailwind' | 'mui' | 'none'> {
+  const choices = [
+    { value: 'tailwind', label: 'Tailwind CSS' },
+    { value: 'mui', label: 'Material UI (MUI)' },
+    { value: 'none', label: 'None' },
+  ];
+  const ans = await promptKeyboardChoiceWithFallback('Select styling system', choices, 'tailwind');
+  return ans as 'tailwind' | 'mui' | 'none';
+}
+
 function getQuestionDisplayLabel(key: string): string {
   const labels: Record<string, string> = {
     projectName: 'Project Name',

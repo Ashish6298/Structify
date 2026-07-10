@@ -1,0 +1,19 @@
+{
+  "projectName": "dashboard-tailwind",
+  "version": "1.0",
+  "mode": "frontend-only",
+  "templateId": "admin-dashboard",
+  "stack": {
+    "frontend": "next",
+    "styling": "tailwind",
+    "backend": "none",
+    "database": "none",
+    "orm": "none",
+    "packageManager": "npm"
+  },
+  "tools": {
+    "docker": false,
+    "eslint": true,
+    "prettier": true
+  }
+}

@@ -96,6 +96,7 @@ export function normalizeConfig(input: ProjectConfig): {
       lintStaged: input.tools?.lintStaged ?? false,
       commitlint: input.tools?.commitlint ?? false,
     },
+    templateId: input.templateId,
   };
 
   return {

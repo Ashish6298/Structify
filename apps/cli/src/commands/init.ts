@@ -4,7 +4,16 @@ import { createHash } from 'crypto';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
 import { StructifyCLIError } from '../utils/error.js';
-import { InteractivePromptEngine, promptBooleanConfirmation } from '../utils/prompts.js';
+import {
+  InteractivePromptEngine,
+  promptBooleanConfirmation,
+  promptProjectNameInput,
+  promptSetupTypeSelection,
+  promptTemplateCategory,
+  promptTemplateSelection,
+  promptStylingSelection,
+  promptKeyboardChoiceWithFallback,
+} from '../utils/prompts.js';
 import { ConfigurationLoaderManager } from '../utils/loader.js';
 import {
   validateStack,
@@ -21,6 +30,7 @@ import {
   validateGeneratedProject,
   PresetManager,
   PresetManifestMetadata,
+  PREDEFINED_TEMPLATES,
 } from '@structify/core';
 
 export interface InitOptions {
@@ -140,8 +150,65 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
 
   let promptConfig: Partial<ProjectConfig> = {};
   if (!options.config && !options.preset && !options.presetFile && !options.yes) {
-    const promptEngine = new InteractivePromptEngine();
-    promptConfig = await promptEngine.run({ projectName: options.projectName });
+    const setupType = await promptSetupTypeSelection();
+    if (setupType === 'custom') {
+      const promptEngine = new InteractivePromptEngine();
+      promptConfig = await promptEngine.run({ projectName: options.projectName });
+    } else {
+      const projectName = await promptProjectNameInput(options.projectName || 'my-structify-app');
+
+      let category: 'frontend' | 'backend' | 'fullstack' = 'frontend';
+      let choosingCategory = true;
+      while (choosingCategory) {
+        category = await promptTemplateCategory();
+        if (category === 'backend' || category === 'fullstack') {
+          console.log(
+            `\nComing Soon: Predefined ${category === 'backend' ? 'Backend' : 'Fullstack'} templates are not yet available.`,
+          );
+          const action = await promptKeyboardChoiceWithFallback(
+            'What would you like to do?',
+            [
+              { value: 'category', label: 'Back to Category Selection' },
+              { value: 'setup', label: 'Back to Setup Type Choice' },
+            ],
+            'category',
+          );
+          if (action === 'setup') {
+            return handleInit(options, context);
+          }
+        } else {
+          choosingCategory = false;
+        }
+      }
+
+      const templateId = await promptTemplateSelection();
+      const styling = await promptStylingSelection();
+
+      promptConfig = {
+        projectName,
+        mode: 'frontend-only',
+        templateId,
+        stack: {
+          frontend: 'next',
+          styling,
+          backend: 'none',
+          database: 'none',
+          orm: 'none',
+          packageManager: 'npm',
+        },
+        tools: {
+          docker: false,
+          eslint: true,
+          prettier: true,
+          githubActions: false,
+          git: true,
+          editorconfig: true,
+          husky: false,
+          lintStaged: false,
+          commitlint: false,
+        },
+      };
+    }
   } else if (options.yes) {
     promptConfig = {
       projectName: options.projectName || (options.config ? undefined : 'my-structify-project'),
@@ -211,7 +278,21 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
   const projectName = selectedConfig.projectName || options.projectName || 'structify-app';
   const targetDir = path.resolve(context.cwd, options.output || projectName);
   const install = options.install === true && options.skipInstall !== true;
-  const projectSummary = formatProjectSummary(normalized, targetDir, install);
+  let projectSummary: string[];
+  if (normalized.templateId) {
+    const template = PREDEFINED_TEMPLATES.find((t) => t.id === normalized.templateId);
+    const templateName = template?.name || normalized.templateId;
+    const sections = getTemplateSections(normalized.templateId);
+    projectSummary = formatTemplateProjectSummary(
+      normalized,
+      targetDir,
+      install,
+      templateName,
+      sections,
+    );
+  } else {
+    projectSummary = formatProjectSummary(normalized, targetDir, install);
+  }
 
   // Build Execution Plan
   const plan = createProjectPlan(projectName, normalized);
@@ -407,12 +488,26 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     }
   }
   output.info('');
-  formatSuccessSummary(
-    normalized,
-    targetDir,
-    result.generatedFiles.length,
-    result.durationMs,
-  ).forEach((line) => output.info(line));
+  if (normalized.templateId) {
+    const template = PREDEFINED_TEMPLATES.find((t) => t.id === normalized.templateId);
+    const templateName = template?.name || normalized.templateId;
+    const sections = getTemplateSections(normalized.templateId);
+    formatTemplateSuccessSummary(
+      normalized,
+      targetDir,
+      result.generatedFiles.length,
+      result.durationMs,
+      templateName,
+      sections,
+    ).forEach((line) => output.info(line));
+  } else {
+    formatSuccessSummary(
+      normalized,
+      targetDir,
+      result.generatedFiles.length,
+      result.durationMs,
+    ).forEach((line) => output.info(line));
+  }
 
   output.showFooter('init');
 }
@@ -586,4 +681,121 @@ function classifyGenerationFailure(errors: string[]): {
     message,
     suggestion: 'Scaffolding execution failed. Workspace rolled back.',
   };
+}
+
+export function getTemplateSections(templateId: string): string[] {
+  switch (templateId) {
+    case 'portfolio-website':
+      return [
+        'Hero section',
+        'Projects section',
+        'Skills section',
+        'Experience section',
+        'Contact section',
+      ];
+    case 'saas-landing':
+      return [
+        'Hero section',
+        'Features section',
+        'Pricing section',
+        'Testimonials section',
+        'FAQ section',
+        'CTA section',
+      ];
+    case 'admin-dashboard':
+      return [
+        'Sidebar layout',
+        'Stat cards',
+        'Tables',
+        'Charts placeholder',
+        'Settings page',
+        'Responsive layout',
+      ];
+    case 'agency-business':
+      return [
+        'Services section',
+        'About section',
+        'Testimonials section',
+        'Contact section',
+        'CTA section',
+      ];
+    case 'blog-content':
+      return ['Article listing', 'Featured post', 'Category layout', 'Blog detail structure'];
+    default:
+      return ['Default page skeleton'];
+  }
+}
+
+export function formatTemplateProjectSummary(
+  config: NormalizedProjectConfig,
+  targetDir: string,
+  install: boolean,
+  templateName: string,
+  sections: string[],
+): string[] {
+  return [
+    'Template Review',
+    '',
+    'Project',
+    formatReviewRow('Name', config.projectName),
+    formatReviewRow('Location', path.resolve(targetDir)),
+    formatReviewRow('Setup Type', 'Predefined Template'),
+    formatReviewRow('Category', 'Frontend'),
+    formatReviewRow('Template', templateName),
+    '',
+    'Stack',
+    formatReviewRow('Frontend', formatValue(config.stack.frontend)),
+    formatReviewRow('Styling', formatValue(config.stack.styling)),
+    formatReviewRow('Package Manager', config.stack.packageManager),
+    '',
+    'Tooling',
+    formatReviewRow('Docker', formatBoolean(config.tools.docker)),
+    formatReviewRow('ESLint', formatBoolean(config.tools.eslint)),
+    formatReviewRow('Prettier', formatBoolean(config.tools.prettier)),
+    formatReviewRow('Install Deps', formatBoolean(install)),
+    '',
+    'Generated Sections',
+    ...sections.map((s) => `  - ${s}`),
+  ];
+}
+
+export function formatTemplateSuccessSummary(
+  config: NormalizedProjectConfig,
+  targetDir: string,
+  generatedFileCount: number,
+  durationMs: number,
+  templateName: string,
+  sections: string[],
+): string[] {
+  const packageJsonPath = path.join(targetDir, 'package.json');
+  const scripts = readPackageScripts(packageJsonPath);
+  const lines = [
+    `Project Created Successfully (Template: ${templateName})`,
+    '',
+    'Location',
+    `  ${path.resolve(targetDir)}`,
+    '',
+    'Stack',
+    `  ${formatStack(config)}`,
+    '',
+    'Generated Sections',
+    ...sections.map((s) => `  - ${s}`),
+    '',
+    'Generated',
+    formatReviewRow('Files', String(generatedFileCount)),
+    formatReviewRow('Duration', formatDuration(durationMs)),
+    '',
+    'Enabled Tools',
+    `  ${formatEnabledTools(config)}`,
+    '',
+    'Next Steps',
+    `  cd ${targetDir}`,
+    '  npm install',
+  ];
+
+  if (scripts.dev) {
+    lines.push('  npm run dev');
+  }
+
+  return lines;
 }

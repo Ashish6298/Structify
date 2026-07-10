@@ -34,6 +34,7 @@ export interface ProjectConfig {
   };
   tools?: Partial<ToolingOptions>;
   preset?: PresetManifestMetadata;
+  templateId?: string;
 }
 
 export interface PresetManifestMetadata {
@@ -61,6 +62,7 @@ export interface NormalizedProjectConfig {
   };
   tools: ToolingOptions;
   preset?: PresetManifestMetadata;
+  templateId?: string;
 }
 
 export interface ValidationError {

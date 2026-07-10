@@ -1,0 +1,33 @@
+{
+  "projectName": "structify-app",
+  "version": "1.0",
+  "mode": "frontend-only",
+  "language": "typescript",
+  "stack": {
+    "frontend": "next",
+    "backend": "none",
+    "styling": "tailwind",
+    "database": "none",
+    "orm": "none",
+    "packageManager": "npm"
+  },
+  "tools": {
+    "docker": false,
+    "eslint": true,
+    "prettier": true,
+    "githubActions": false,
+    "git": false,
+    "editorconfig": false,
+    "husky": false,
+    "lintStaged": false,
+    "commitlint": false
+  },
+  "templateId": "admin-dashboard",
+  "structify": {
+    "version": "1.0.0",
+    "generatedBy": "structify",
+    "manifestPath": "structify.manifest.json",
+    "projectGraphPath": "structify.project-graph.json",
+    "packageManager": "npm"
+  }
+}

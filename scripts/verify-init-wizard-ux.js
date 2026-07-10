@@ -77,6 +77,7 @@ async function main() {
     const postgres = await runStructify(
       ['init'],
       [
+        'custom',
         'my app',
         'y',
         'fullstack',
@@ -132,7 +133,18 @@ async function main() {
 
     const mongo = await runStructify(
       ['init', '--dry-run'],
-      ['mongo-app', 'backend-only', 'express', 'mongodb', 'mongoose', 'npm', 'n', 'y', 'y'],
+      [
+        'custom',
+        'mongo-app',
+        'backend-only',
+        'express',
+        'mongodb',
+        'mongoose',
+        'npm',
+        'n',
+        'y',
+        'y',
+      ],
       tmp,
     );
     assert(mongo.status === 0, 'MongoDB dry-run wizard should succeed', mongo.stderr);
@@ -149,7 +161,7 @@ async function main() {
 
     const none = await runStructify(
       ['init', '--dry-run'],
-      ['none-app', 'frontend-only', 'next', 'tailwind', 'none', 'npm', 'n', 'y', 'y'],
+      ['custom', 'none-app', 'frontend-only', 'next', 'tailwind', 'none', 'npm', 'n', 'y', 'y'],
       tmp,
     );
     assert(none.status === 0, 'No-database dry-run wizard should succeed', none.stderr);

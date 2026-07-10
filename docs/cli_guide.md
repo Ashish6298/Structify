@@ -48,6 +48,14 @@ The following flags can be passed to the root program or any subcommand:
   - `--output <path>`: Chooses the target project directory.
   - `--verify`: Runs offline structural validation after generation.
 
+Interactive `init` can generate predefined frontend templates for Portfolio Website, SaaS Landing Page, Admin Dashboard, Agency / Business Website, and Blog / Content Website. Backend and fullstack predefined template categories remain Coming Soon. The frontend templates generate rich starter UIs with reusable section components, UI primitives, layout wrappers, and data files:
+
+- Next.js: `app/page.tsx`, `app/globals.css`, `components/sections/*`, `components/ui/*`, `components/layout/*`, and `data/template-data.ts`.
+- Vite React: `src/App.tsx`, `src/index.css`, `src/components/sections/*`, `src/components/ui/*`, `src/components/layout/*`, and `src/data/template-data.ts`.
+- Tailwind CSS templates include Tailwind directives and visible utility-class styling.
+- Material UI templates use MUI components from `@mui/material`.
+- None styling templates use semantic React markup with a small generated stylesheet.
+
 ### 2. `structify generate`
 
 - **Description**: Compatibility alias for `init`. Runs the exact same scaffolding engine and accepts all `init` options.

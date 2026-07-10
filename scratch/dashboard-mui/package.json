@@ -1,0 +1,30 @@
+{
+  "name": "structify-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint \"app/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"app/**/*.{ts,tsx,css,html,json}\""
+  },
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@mui/material": "^6.0.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "prettier": "^3.2.0"
+  }
+}

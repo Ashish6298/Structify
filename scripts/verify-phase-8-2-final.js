@@ -156,6 +156,7 @@ function repositoryConsistencyChecks() {
     'docs/verification_reports.md',
     'packages/core/src/adapters/package-manager.ts',
     'packages/core/src/adapters/index.spec.ts',
+    'packages/core/src/execution/executor.ts',
     'scripts/verify-phase-8-2.js',
     'scripts/verify-phase-8-2-final.js',
     'docs/phase_9_12_enterprise_generation_platform.md',
@@ -167,6 +168,7 @@ function repositoryConsistencyChecks() {
     'structify-roadmap-implementation-audit.txt',
     'structify-v1-final-release-audit.txt',
     'structify-v1-release-blocker-fix-report.txt',
+    'predefined-frontend-rich-templates-verification-report.txt',
   ].map((file) => path.normalize(path.join(root, file)));
   const staleReportFiles = files.filter(
     (file) =>

@@ -1,0 +1,270 @@
+{
+  "version": "1.0.0",
+  "projectName": "structify-app",
+  "stackHash": "216a4318795b58f9d72ffedf5df3368a239279bb8dd6180b9783dc0292ac5836",
+  "nodes": [
+    {
+      "id": "app:root",
+      "type": "app",
+      "name": "structify-app",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:.editorconfig",
+      "type": "config-file",
+      "name": ".editorconfig",
+      "path": ".editorconfig",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:.env.example",
+      "type": "config-file",
+      "name": ".env.example",
+      "path": ".env.example",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:.eslintrc.json",
+      "type": "config-file",
+      "name": ".eslintrc.json",
+      "path": ".eslintrc.json",
+      "sourceGenerator": "gen-eslint"
+    },
+    {
+      "id": "file:.gitignore",
+      "type": "config-file",
+      "name": ".gitignore",
+      "path": ".gitignore",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:.prettierrc",
+      "type": "config-file",
+      "name": ".prettierrc",
+      "path": ".prettierrc",
+      "sourceGenerator": "gen-prettier"
+    },
+    {
+      "id": "file:app/globals.css",
+      "type": "component",
+      "name": "app/globals.css",
+      "path": "app/globals.css",
+      "sourceGenerator": "gen-next"
+    },
+    {
+      "id": "file:app/layout.tsx",
+      "type": "layout",
+      "name": "app/layout.tsx",
+      "path": "app/layout.tsx",
+      "sourceGenerator": "gen-next"
+    },
+    {
+      "id": "file:app/page.tsx",
+      "type": "page",
+      "name": "app/page.tsx",
+      "path": "app/page.tsx",
+      "sourceGenerator": "gen-next"
+    },
+    {
+      "id": "file:app/providers.tsx",
+      "type": "component",
+      "name": "app/providers.tsx",
+      "path": "app/providers.tsx",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:components/layout/DashboardShell.tsx",
+      "type": "component",
+      "name": "components/layout/DashboardShell.tsx",
+      "path": "components/layout/DashboardShell.tsx",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:components/sections/DashboardSections.tsx",
+      "type": "component",
+      "name": "components/sections/DashboardSections.tsx",
+      "path": "components/sections/DashboardSections.tsx",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:components/ui/DashboardCard.tsx",
+      "type": "component",
+      "name": "components/ui/DashboardCard.tsx",
+      "path": "components/ui/DashboardCard.tsx",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:data/template-data.ts",
+      "type": "config-file",
+      "name": "data/template-data.ts",
+      "path": "data/template-data.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:next.config.ts",
+      "type": "config-file",
+      "name": "next.config.ts",
+      "path": "next.config.ts",
+      "sourceGenerator": "gen-next"
+    },
+    {
+      "id": "file:package.json",
+      "type": "package",
+      "name": "package.json",
+      "path": "package.json",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:README.md",
+      "type": "component",
+      "name": "README.md",
+      "path": "README.md",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/theme.ts",
+      "type": "config-file",
+      "name": "src/theme.ts",
+      "path": "src/theme.ts",
+      "sourceGenerator": "gen-mui"
+    },
+    {
+      "id": "file:structify.config.json",
+      "type": "config-file",
+      "name": "structify.config.json",
+      "path": "structify.config.json",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:structify.manifest.json",
+      "type": "config-file",
+      "name": "structify.manifest.json",
+      "path": "structify.manifest.json",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:tsconfig.json",
+      "type": "config-file",
+      "name": "tsconfig.json",
+      "path": "tsconfig.json",
+      "sourceGenerator": "gen-base-typescript"
+    }
+  ],
+  "edges": [
+    {
+      "from": "app:root",
+      "to": "file:.editorconfig",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.env.example",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.eslintrc.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.gitignore",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.prettierrc",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:app/globals.css",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:app/layout.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:app/page.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:app/providers.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:components/layout/DashboardShell.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:components/sections/DashboardSections.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:components/ui/DashboardCard.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:data/template-data.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:next.config.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:package.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:README.md",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/theme.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:structify.config.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:structify.manifest.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:tsconfig.json",
+      "relation": "contains"
+    }
+  ],
+  "summary": {
+    "app": 1,
+    "package": 1,
+    "route": 0,
+    "page": 1,
+    "api-endpoint": 0,
+    "component": 6,
+    "layout": 1,
+    "service": 0,
+    "database-client": 0,
+    "model": 0,
+    "config-file": 11,
+    "script": 0,
+    "tooling": 0
+  }
+}

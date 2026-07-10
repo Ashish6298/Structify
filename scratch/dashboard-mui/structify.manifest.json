@@ -1,0 +1,74 @@
+{
+  "manifestVersion": "1.0.0",
+  "structifyVersion": "1.0.0",
+  "projectId": "proj-e291ffb211e2",
+  "generatedAt": "2026-07-10T05:28:03.921Z",
+  "templateVersion": "1.0.0",
+  "generatorVersions": {
+    "gen-base-typescript": "1.0.0",
+    "gen-frontend": "1.0.0",
+    "gen-next": "1.0.0",
+    "gen-mui": "1.0.0",
+    "gen-eslint": "1.0.0",
+    "gen-prettier": "1.0.0"
+  },
+  "pluginVersions": {
+    "structify-builtins": "1.0.0"
+  },
+  "stackHash": "216a4318795b58f9d72ffedf5df3368a239279bb8dd6180b9783dc0292ac5836",
+  "templateHash": "26ca8d103050a1ea3539ed4d4c67b9cc05ea638b374214b24eafe11ec3feed9e",
+  "platform": {
+    "os": "win32",
+    "arch": "x64",
+    "node": "v24.1.0"
+  },
+  "packageManager": "npm",
+  "config": {
+    "projectName": "structify-app",
+    "version": "1.0",
+    "mode": "frontend-only",
+    "language": "typescript",
+    "stack": {
+      "frontend": "next",
+      "backend": "none",
+      "styling": "mui",
+      "database": "none",
+      "orm": "none",
+      "packageManager": "npm"
+    },
+    "tools": {
+      "docker": false,
+      "eslint": true,
+      "prettier": true,
+      "githubActions": false,
+      "git": false,
+      "editorconfig": false,
+      "husky": false,
+      "lintStaged": false,
+      "commitlint": false
+    },
+    "templateId": "admin-dashboard"
+  },
+  "projectGraphPath": "structify.project-graph.json",
+  "projectGraphSummary": {
+    "app": 1,
+    "package": 1,
+    "route": 0,
+    "page": 1,
+    "api-endpoint": 0,
+    "component": 6,
+    "layout": 1,
+    "service": 0,
+    "database-client": 0,
+    "model": 0,
+    "config-file": 11,
+    "script": 0,
+    "tooling": 0
+  },
+  "dependencyDiagnostics": [],
+  "analytics": {
+    "fileCount": 21,
+    "generatorCount": 6,
+    "dependencyCount": 13
+  }
+}
