@@ -1,36 +1,32 @@
 # 🚀 Structify Tool
 
 <p align="center">
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,40:2563EB,100:60A5FA&height=220&section=header&text=Structify%20Tool&fontSize=68&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=One%20CLI.%20Endless%20Possibilities.&descAlignY=60&descSize=22"/>
+
+</div>
   <a href="https://github.com/Ashish6298/Structify">
     <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=1000&color=3B82F6&center=true&vCenter=true&width=900&lines=Professional+Project+Scaffolding+Platform;Generate+Production-Ready+Applications;Interactive+CLI+%7C+Enterprise+Architecture;Validation+%7C+Rollback+Safety+%7C+AI+Ready" alt="Typing SVG" />
   </a>
 </p>
 
 <p align="center">
-  Generate production-ready applications with an interactive CLI, enterprise-grade architecture, validation, rollback safety, and AI-ready tooling.
-</p>
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/structify-tool">
-    <img src="https://img.shields.io/npm/v/structify-tool?style=for-the-badge" alt="npm Version"/>
-  </a>
-  <img src="https://img.shields.io/npm/dm/structify-tool?style=for-the-badge" alt="Downloads"/>
-  <img src="https://img.shields.io/github/license/Ashish6298/Structify?style=for-the-badge" alt="License"/>
-  <img src="https://img.shields.io/badge/Node-%3E%3D18-green?style=for-the-badge" alt="Node"/>
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-orange?style=for-the-badge" alt="Platform"/>
-</p>
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/structify-tool"><strong>📦 npm Package</strong></a> •
-  <a href="https://github.com/Ashish6298/Structify"><strong>⭐ GitHub Repository</strong></a> •
-  <a href="#-quick-start"><strong>🚀 Quick Start</strong></a>
+  Generate production-ready applications with an interactive CLI, enterprise-grade architecture, validation, rollback safety and AI-ready tooling.
 </p>
 
 <div align="center">
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,40:2563EB,100:60A5FA&height=220&section=header&text=Structify&fontSize=68&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Build%20Faster.%20Structure%20Smarter.&descAlignY=60&descSize=22"/>
-
+  <table width="100%">
+    <tr>
+      <td align="center" width="25%">⚡<br><b>Interactive CLI</b><br><sub>Guided setup, zero config headaches</sub></td>
+      <td align="center" width="25%">🏗️<br><b>Enterprise Architecture</b><br><sub>Battle-tested project structures</sub></td>
+      <td align="center" width="25%">🛡️<br><b>Validation & Rollback</b><br><sub>Safe by default, undo anytime</sub></td>
+      <td align="center" width="25%">🤖<br><b>AI-Ready</b><br><sub>Structured for AI-assisted dev</sub></td>
+    </tr>
+  </table>
 </div>
+<br>
 <table align="center" width="100%">
 <tr>
 <td>
@@ -44,7 +40,7 @@ Overview
 
 **Structify Tool** is a professional, open-source project scaffolding platform and command-line interface (CLI) that automates the creation of production-ready software architectures.
 
-Instead of manually creating folders, installing packages, configuring TypeScript, ESLint, Prettier, databases, ORMs, Docker, CI/CD pipelines, and project structures, Structify Tool generates everything through a modern interactive CLI.
+Instead of manually creating folders, installing packages, configuring TypeScript, ESLint, Prettier, databases, ORMs, Docker, CI/CD pipelines and project structures, Structify Tool generates everything through a modern interactive CLI.
 
 The goal is simple:
 
@@ -61,11 +57,11 @@ Structify Tool emphasizes:
 
 **Structify** is an enterprise-grade, open-source project scaffolding platform that empowers developers to generate **production-ready application architectures** through an intelligent, interactive command-line interface (CLI).
 
-Rather than spending hours configuring project structures, TypeScript, package managers, linters, formatters, databases, ORMs, Docker, CI/CD pipelines, testing frameworks, and boilerplate files, Structify automates the entire setup process while following modern engineering best practices.
+Rather than spending hours configuring project structures, TypeScript, package managers, linters, formatters, databases, ORMs, Docker, CI/CD pipelines, testing frameworks and boilerplate files, Structify automates the entire setup process while following modern engineering best practices.
 
-Built around a modular generation engine, Structify combines **interactive project creation**, **enterprise templates**, **blueprint-driven architecture**, **intelligent validation**, **rollback protection**, and **AI-ready workflows** into a single developer experience. Every generated project is deterministic, reproducible, configurable, and designed to scale from personal applications to enterprise-grade systems.
+Built around a modular generation engine, Structify combines **interactive project creation**, **enterprise templates**, **blueprint-driven architecture**, **intelligent validation**, **rollback protection** and **AI-ready workflows** into a single developer experience. Every generated project is deterministic, reproducible, configurable and designed to scale from personal applications to enterprise-grade systems.
 
-Whether you're building a **frontend application**, **REST API**, **full-stack platform**, **microservice**, **CLI tool**, or **AI-powered application**, Structify provides a consistent, maintainable, and production-ready foundation—allowing you to focus on building features instead of configuring infrastructure.
+Whether you're building a **frontend application**, **REST API**, **full-stack platform**, **microservice**, **CLI tool**, or **AI-powered application**, Structify provides a consistent, maintainable and production-ready foundation—allowing you to focus on building features instead of configuring infrastructure.
 
 </td>
 </tr>
@@ -176,9 +172,9 @@ What is Structify?
 
 **Structify** is an enterprise-grade, open-source **project scaffolding platform** and **developer productivity CLI** designed to help developers build modern applications faster by eliminating repetitive project setup.
 
-Instead of manually creating folder structures, installing dependencies, configuring TypeScript, ESLint, Prettier, Docker, databases, ORMs, testing frameworks, CI/CD pipelines, and countless boilerplate files, Structify automates the entire initialization process through a single, intelligent command.
+Instead of manually creating folder structures, installing dependencies, configuring TypeScript, ESLint, Prettier, Docker, databases, ORMs, testing frameworks, CI/CD pipelines and countless boilerplate files, Structify automates the entire initialization process through a single, intelligent command.
 
-Powered by a modular generation engine, Structify combines **interactive project creation**, **enterprise-ready templates**, **blueprint-driven architecture**, **intelligent validation**, **rollback protection**, and **AI-ready workflows** to generate production-quality project foundations that are scalable, maintainable, and consistent across teams.
+Powered by a modular generation engine, Structify combines **interactive project creation**, **enterprise-ready templates**, **blueprint-driven architecture**, **intelligent validation**, **rollback protection** and **AI-ready workflows** to generate production-quality project foundations that are scalable, maintainable and consistent across teams.
 
 Whether you're building a **frontend application**, **backend API**, **full-stack platform**, **microservice**, **CLI utility**, or an **AI-powered solution**, Structify provides a reliable starting point—allowing developers to spend less time configuring infrastructure and more time building great software.
 
@@ -190,9 +186,9 @@ Whether you're building a **frontend application**, **backend API**, **full-stac
 | 🏗️ Enterprise-grade project architecture                      |
 | 🛡️ Deterministic execution with automatic rollback protection |
 | 📋 Interactive CLI with intelligent validation                |
-| 🧩 Modular, extensible, and blueprint-driven architecture     |
+| 🧩 Modular, extensible and blueprint-driven architecture     |
 | 🤖 Built-in AI & Model Context Protocol (MCP) support         |
-| 🌍 Cross-platform support for Windows, Linux, and macOS       |
+| 🌍 Cross-platform support for Windows, Linux and macOS       |
 
 </td>
 </tr>
@@ -211,7 +207,7 @@ The Problem
 
 Every new project should begin with building great software—not spending hours repeating the same setup tasks.
 
-Yet, developers often lose valuable time manually configuring development environments before writing a single line of business logic. From creating directory structures to configuring tooling, the initial setup process is repetitive, error-prone, and inconsistent across projects and teams.
+Yet, developers often lose valuable time manually configuring development environments before writing a single line of business logic. From creating directory structures to configuring tooling, the initial setup process is repetitive, error-prone and inconsistent across projects and teams.
 
 <br/>
 
@@ -219,9 +215,9 @@ Yet, developers often lose valuable time manually configuring development enviro
 | :-------------------------------------------------------- |
 | 📁 Manually creating project folders and architecture     |
 | 📦 Installing and managing dependencies                   |
-| ⚙️ Configuring TypeScript, ESLint, and Prettier           |
+| ⚙️ Configuring TypeScript, ESLint and Prettier           |
 | 🐳 Creating Docker and container configurations           |
-| 🗄️ Setting up databases, ORMs, and environment variables  |
+| 🗄️ Setting up databases, ORMs and environment variables  |
 | 🧪 Configuring testing frameworks and code quality tools  |
 | 🚀 Creating CI/CD pipelines and GitHub Actions            |
 | 📄 Writing repetitive boilerplate files and configuration |
@@ -229,9 +225,9 @@ Yet, developers often lose valuable time manually configuring development enviro
 
 <br/>
 
-Most existing scaffolding tools generate only a basic template or focus on a single framework. Developers are still left configuring authentication, databases, Docker, testing, linting, formatting, CI/CD, project architecture, and other production essentials manually.
+Most existing scaffolding tools generate only a basic template or focus on a single framework. Developers are still left configuring authentication, databases, Docker, testing, linting, formatting, CI/CD, project architecture and other production essentials manually.
 
-The result is **hours of repetitive work, inconsistent project structures, configuration drift, and slower development cycles** before meaningful feature development can even begin.
+The result is **hours of repetitive work, inconsistent project structures, configuration drift and slower development cycles** before meaningful feature development can even begin.
 
 </td>
 </tr>
@@ -248,11 +244,11 @@ The result is **hours of repetitive work, inconsistent project structures, confi
 The Solution
 </h2>
 
-Structify transforms project initialization from a repetitive, time-consuming process into a fast, intelligent, and fully automated developer experience.
+Structify transforms project initialization from a repetitive, time-consuming process into a fast, intelligent and fully automated developer experience.
 
-Instead of piecing together folders, dependencies, configuration files, development tools, and infrastructure manually, Structify generates a **production-ready foundation** using proven architectural patterns and industry best practices—all through a single interactive command.
+Instead of piecing together folders, dependencies, configuration files, development tools and infrastructure manually, Structify generates a **production-ready foundation** using proven architectural patterns and industry best practices—all through a single interactive command.
 
-Every project is generated through a deterministic execution engine that validates every operation before making changes, ensuring reliable, reproducible, and enterprise-grade results without sacrificing flexibility or developer control.
+Every project is generated through a deterministic execution engine that validates every operation before making changes, ensuring reliable, reproducible and enterprise-grade results without sacrificing flexibility or developer control.
 
 <br/>
 
@@ -261,13 +257,13 @@ Every project is generated through a deterministic execution engine that validat
 | 🔍 **Transparent** — Preview every operation through a deterministic execution plan before any files are generated.                                                |
 | 🎯 **Predictable** — Execute dry runs with reproducible results, making every generation process reliable and consistent.                                          |
 | 🛡️ **Rollback Safe** — Transactional file operations automatically restore your project if an error occurs during generation.                                      |
-| 🏗️ **Framework Agnostic** — Generate projects across multiple frameworks, architectures, and technology stacks using a unified generation engine.                  |
-| 🧩 **Extensible** — Built around modular generators, templates, blueprints, plugins, and registries for maximum flexibility.                                       |
-| 🤖 **AI Ready** — Includes a built-in **Model Context Protocol (MCP)** server, enabling AI assistants to understand, inspect, and generate projects intelligently. |
+| 🏗️ **Framework Agnostic** — Generate projects across multiple frameworks, architectures and technology stacks using a unified generation engine.                  |
+| 🧩 **Extensible** — Built around modular generators, templates, blueprints, plugins and registries for maximum flexibility.                                       |
+| 🤖 **AI Ready** — Includes a built-in **Model Context Protocol (MCP)** server, enabling AI assistants to understand, inspect and generate projects intelligently. |
 
 <br/>
 
-Whether you're starting a personal side project, building an enterprise application, or creating a reusable project template for your team, Structify provides a **consistent**, **maintainable**, **scalable**, and **production-ready** foundation—so you can spend less time configuring infrastructure and more time delivering software.
+Whether you're starting a personal side project, building an enterprise application, or creating a reusable project template for your team, Structify provides a **consistent**, **maintainable**, **scalable** and **production-ready** foundation—so you can spend less time configuring infrastructure and more time delivering software.
 
 </td>
 </tr>
@@ -283,7 +279,7 @@ Whether you're starting a personal side project, building an enterprise applicat
 Core Features
 </h2>
 
-Structify is more than a project generator—it's a complete **developer productivity platform** that streamlines project initialization, validation, architecture planning, diagnostics, and AI-assisted development into a single unified experience.
+Structify is more than a project generator—it's a complete **developer productivity platform** that streamlines project initialization, validation, architecture planning, diagnostics and AI-assisted development into a single unified experience.
 
 <br/>
 
@@ -411,7 +407,7 @@ Structify is built for the next generation of AI-assisted software development.
 Project Structure
 </h2>
 
-Structify follows a clean, modular **monorepo architecture** designed for scalability, maintainability, and extensibility. Each workspace has a clearly defined responsibility, allowing new generators, templates, plugins, and developer tooling to be added without affecting the core platform.
+Structify follows a clean, modular **monorepo architecture** designed for scalability, maintainability and extensibility. Each workspace has a clearly defined responsibility, allowing new generators, templates, plugins and developer tooling to be added without affecting the core platform.
 
 <br/>
 
@@ -437,16 +433,16 @@ Structify
 
 | Directory             | Purpose                                                                                                                                             |
 | :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`apps/cli`**        | Interactive CLI responsible for project generation, validation, inspection, and diagnostics.                                                        |
+| **`apps/cli`**        | Interactive CLI responsible for project generation, validation, inspection and diagnostics.                                                        |
 | **`apps/mcp-server`** | Provides AI integration through the **Model Context Protocol (MCP)** for intelligent project understanding and automation.                          |
-| **`packages/core`**   | Contains Structify's core generation engine, template system, planning engine, blueprint architecture, validation pipeline, and rollback mechanism. |
+| **`packages/core`**   | Contains Structify's core generation engine, template system, planning engine, blueprint architecture, validation pipeline and rollback mechanism. |
 | **`packages/logger`** | Shared logging utilities used consistently across the entire platform.                                                                              |
-| **`docs`**            | Houses architecture documentation, CLI guides, specifications, roadmaps, and technical references.                                                  |
-| **`scripts`**         | Automation scripts for development, testing, packaging, releases, and maintenance tasks.                                                            |
+| **`docs`**            | Houses architecture documentation, CLI guides, specifications, roadmaps and technical references.                                                  |
+| **`scripts`**         | Automation scripts for development, testing, packaging, releases and maintenance tasks.                                                            |
 
 <br/>
 
-The modular workspace architecture ensures that each component remains **independent**, **reusable**, and **easy to extend**, making Structify suitable for both individual developers and enterprise-scale teams.
+The modular workspace architecture ensures that each component remains **independent**, **reusable** and **easy to extend**, making Structify suitable for both individual developers and enterprise-scale teams.
 
 </td>
 </tr>
@@ -521,7 +517,7 @@ Start Building 🚀
 
 <br/>
 
-Structify automatically handles project scaffolding, dependency management, configuration generation, validation, and project initialization allowing you to move from **idea to development in minutes**.
+Structify automatically handles project scaffolding, dependency management, configuration generation, validation and project initialization allowing you to move from **idea to development in minutes**.
 
 </td>
 </tr>
@@ -538,7 +534,7 @@ Structify automatically handles project scaffolding, dependency management, conf
 Design Principles
 </h2>
 
-Structify is built around a set of core engineering principles that prioritize **developer productivity**, **software quality**, **predictability**, and **long-term maintainability**. Every feature and architectural decision follows these foundational values.
+Structify is built around a set of core engineering principles that prioritize **developer productivity**, **software quality**, **predictability** and **long-term maintainability**. Every feature and architectural decision follows these foundational values.
 
 <br/>
 
@@ -559,9 +555,9 @@ Structify automates repetitive setup tasks and generates production-ready founda
 
 ### 🛡️ Deterministic & Reliable
 
-Every operation should be transparent, predictable, and safe.
+Every operation should be transparent, predictable and safe.
 
-Structify validates every step before execution, supports dry-run planning, and protects your workspace through transactional operations with automatic rollback.
+Structify validates every step before execution, supports dry-run planning and protects your workspace through transactional operations with automatic rollback.
 
 </td>
 
@@ -571,7 +567,7 @@ Structify validates every step before execution, supports dry-run planning, and 
 
 Strong defaults without limiting flexibility.
 
-Enterprise-ready templates, blueprints, plugins, and modular generators provide excellent out-of-the-box experiences while remaining fully customizable for different workflows and technology stacks.
+Enterprise-ready templates, blueprints, plugins and modular generators provide excellent out-of-the-box experiences while remaining fully customizable for different workflows and technology stacks.
 
 </td>
 
@@ -585,9 +581,9 @@ Enterprise-ready templates, blueprints, plugins, and modular generators provide 
 | ⚡ Productivity First | Eliminate repetitive project setup and boilerplate.                                                   |
 | 🛡️ Reliability        | Deterministic execution with validation and rollback protection.                                      |
 | 🏗️ Scalability        | Designed for projects ranging from personal apps to enterprise platforms.                             |
-| 🧩 Extensibility      | Modular architecture with templates, blueprints, and plugins.                                         |
+| 🧩 Extensibility      | Modular architecture with templates, blueprints and plugins.                                         |
 | 🤖 AI Ready           | Built with native support for AI-assisted development through MCP.                                    |
-| 🌍 Consistency        | Generate predictable, maintainable, and production-ready project structures across every environment. |
+| 🌍 Consistency        | Generate predictable, maintainable and production-ready project structures across every environment. |
 
 </td>
 </tr>
@@ -602,7 +598,7 @@ Enterprise-ready templates, blueprints, plugins, and modular generators provide 
 Documentation
 </h2>
 
-Structify includes comprehensive documentation covering every aspect of the platform—from architecture and project generation to CLI usage, validation, AI integration, and future roadmap planning. Whether you're a first-time user, contributor, or enterprise team, the documentation is designed to help you get productive quickly.
+Structify includes comprehensive documentation covering every aspect of the platform—from architecture and project generation to CLI usage, validation, AI integration and future roadmap planning. Whether you're a first-time user, contributor, or enterprise team, the documentation is designed to help you get productive quickly.
 
 <table width="100%">
 <tr>
@@ -679,7 +675,7 @@ Contributing
 
 Structify is an open-source project built for developers, by developers. Whether you're fixing bugs, improving documentation, proposing new features, optimizing performance, or contributing new templates and blueprints, every contribution helps make Structify better for the entire community.
 
-We welcome **bug reports**, **feature requests**, **documentation improvements**, **code contributions**, and **architectural discussions**. Before opening a Pull Request, please review the contribution guidelines and ensure your changes align with the project's coding standards and design principles.
+We welcome **bug reports**, **feature requests**, **documentation improvements**, **code contributions** and **architectural discussions**. Before opening a Pull Request, please review the contribution guidelines and ensure your changes align with the project's coding standards and design principles.
 
 ### 🚀 Ways to Contribute
 
@@ -687,7 +683,7 @@ We welcome **bug reports**, **feature requests**, **documentation improvements**
 - 💡 Suggest new features and enhancements
 - 📖 Improve documentation and examples
 - 🛠️ Submit bug fixes and performance improvements
-- 🧩 Create templates, blueprints, and plugins
+- 🧩 Create templates, blueprints and plugins
 - 🤝 Review Pull Requests and help other contributors
 
 > **Every contribution—big or small—helps make Structify better for developers around the world. ❤️**
@@ -707,7 +703,7 @@ We welcome **bug reports**, **feature requests**, **documentation improvements**
 License
 </h2>
 
-Structify is released under the **MIT License**, giving you the freedom to use, modify, distribute, and build upon the project for both personal and commercial purposes while preserving the original license.
+Structify is released under the **MIT License**, giving you the freedom to use, modify, distribute and build upon the project for both personal and commercial purposes while preserving the original license.
 
 For complete license information, see the **LICENSE** file included in this repository.
 
@@ -723,7 +719,7 @@ For complete license information, see the **LICENSE** file included in this repo
 
 > _"Great software begins with great foundations."_
 
-Structify exists to eliminate repetitive project setup, automate modern development workflows, and help developers spend **less time configuring projects** and **more time building exceptional software.**
+Structify exists to eliminate repetitive project setup, automate modern development workflows and help developers spend **less time configuring projects** and **more time building exceptional software.**
 
 ### ⭐ If Structify helped you, consider supporting the project!
 
