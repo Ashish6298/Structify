@@ -15,6 +15,8 @@ export * from './hooks/index.js';
 export * from './extensions/index.js';
 export * from './manifest/index.js';
 export * from './platform/index.js';
+export * from './intelligence/index.js';
+export * from './architecture/index.js';
 export * from './generation/composable.js';
 export * from './generation/enterprise.js';
 export * from './generation/enterprise-platform.js';
