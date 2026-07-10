@@ -30,11 +30,7 @@ import {
   validateGeneratedProject,
   PresetManager,
   PresetManifestMetadata,
-<<<<<<< HEAD
-  PREDEFINED_TEMPLATES,
-=======
   appendHistoryEntry,
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 } from '@structify/core';
 
 export interface InitOptions {

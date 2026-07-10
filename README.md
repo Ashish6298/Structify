@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🚀 Structify Tool
 
 <p align="center">
@@ -42,7 +41,6 @@
 Overview
 </h2>
 
-<<<<<<< HEAD
 # ✨ What is Structify Tool?
 
 **Structify Tool** is a professional, open-source project scaffolding platform and command-line interface (CLI) that automates the creation of production-ready software architectures.
@@ -75,7 +73,7 @@ Whether you're building a **frontend application**, **REST API**, **full-stack p
 </tr>
 </table>
 
-<<<<<<< HEAD
+
 # 🎯 Why Structify Tool?
 
 Every new project usually requires developers to:
@@ -92,7 +90,7 @@ Every new project usually requires developers to:
 - Write boilerplate code
 
 Structify Tool eliminates these repetitive tasks by generating a complete production-ready foundation in seconds.
-=======
+
 <br/>
 <table align="center">
   <tr>
@@ -137,22 +135,6 @@ Structify Tool eliminates these repetitive tasks by generating a complete produc
 
 <img src="https://img.shields.io/npm/v/structify-tool?style=flat-square&logo=npm&logoColor=white"/>
 
-<<<<<<< HEAD
-## 🎨 Interactive Project Architect
-
-Structify Tool includes a fully interactive setup wizard.
-
-### Features
-
-- Modern keyboard-first experience
-- Arrow-key navigation
-- Enter-to-select workflow
-- Automatic project name normalization
-- Smart compatibility validation
-- Interactive project review
-- Rich project summary
-- Cross-platform terminal support
-=======
 </td>
 
 
@@ -169,217 +151,9 @@ Structify Tool includes a fully interactive setup wizard.
 </td>
 
 <td align="center" width="160">
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 <img width="42" src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Shield/3D/shield_3d.png"/>
 
-<<<<<<< HEAD
-## 🏗 Project Generation
-
-Generate production-ready applications with support for:
-
-- Frontend Projects
-- Backend Projects
-- Fullstack Projects
-- Deterministic generation
-- Rollback-safe execution
-- Dry-run support
-- Preset-based generation
-- Intelligent validation
-
----
-
-## 🛠 Supported Technologies
-
-### Frontend
-
-- Next.js
-- React (Vite)
-
-### Backend
-
-- Express
-- NestJS
-
-### Styling
-
-- Tailwind CSS
-- Material UI
-
-### Database
-
-- PostgreSQL
-- MongoDB
-
-### ORM
-
-- Prisma
-- Mongoose
-
-### Package Manager
-
-- npm
-
----
-
-## 🔍 Project Health
-
-Built-in project diagnostics include:
-
-- Project Verification
-- Strict Verification
-- Doctor
-- Inspect
-- Repair
-- Drift Detection
-- Upgrade Planning
-
----
-
-## 🏢 Enterprise Platform
-
-- Blueprint Engine
-- Registry Architecture
-- Template Engine
-- Workspace Generator
-- Variable Resolution Engine
-- Merge Engine
-- Planning Engine
-- Diagnostics Framework
-
----
-
-## 🤖 AI Integration
-
-- Built-in MCP Server
-- AI-compatible Project Inspection
-- AI-compatible Diagnostics
-- AI-compatible Generation Planning
-
----
-
-# 📦 Installation
-
-Install globally (recommended):
-
-```bash
-npm install -g structify-tool
-```
-
-Or install locally in your project:
-
-```bash
-npm install structify-tool
-```
-
-You can also run it without installing:
-
-```bash
-npx structify-tool
-```
-
-Verify the installation:
-
-```bash
-structify --version
-```
-
----
-
-# 🚀 Quick Start
-
-Initialize a new project:
-
-```bash
-structify init
-```
-
-or
-
-```bash
-structify generate
-```
-
-When you start the interactive wizard, you will be prompted to choose a setup type:
-
-1. **Use a Predefined Template** (New! Beginner-friendly, fast setup):
-   - Choose a template category: **Frontend** (fully supported), **Backend** (Coming Soon), or **Fullstack** (Coming Soon).
-   - Select from 5 polished, practical frontend templates:
-     - **Portfolio Website**: Dark developer portfolio with social links, skills, timeline, selected work, and contact CTA.
-     - **SaaS Landing Page**: Product landing page with navigation, glowing hero, preview panel, features, pricing, proof, FAQ, and CTA.
-     - **Admin Dashboard**: Responsive workspace with topbar, KPI cards, chart placeholder, activity feed, data table, and project status widgets.
-     - **Agency / Business Website**: Premium business site with client logos, services, process, case studies, stats, testimonials, and conversion CTA.
-     - **Blog / Content Website**: Editorial site with hero, featured post, article grid, categories, tags, editor card, and newsletter signup.
-   - Choose styling system: **Tailwind CSS**, **Material UI (MUI)**, or **None**.
-   - Generated frontend templates include reusable section components, UI primitives, layout wrappers, and a `data/template-data.ts` file so starter content is easy to replace.
-   - Next.js templates generate `app/page.tsx`, `app/globals.css`, `components/sections/*`, `components/ui/*`, `components/layout/*`, and `data/template-data.ts`.
-   - Vite React templates generate `src/App.tsx`, `src/index.css`, `src/components/sections/*`, `src/components/ui/*`, `src/components/layout/*`, and `src/data/template-data.ts`.
-
-2. **Build a Custom Project** (The classic granular workflow):
-   - Project Name
-   - Project Mode
-   - Frontend Framework
-   - Backend Framework
-   - Styling Library
-   - Database
-   - ORM
-   - Docker
-   - ESLint
-   - Prettier
-
-Before generation, you will review the summary review card and then confirm the generation.
-
----
-
-# 🔍 Verify a Project
-
-```bash
-structify verify-project --strict --build
-```
-
-This validates:
-
-- Project structure
-- Generated files
-- Build output
-- Scripts
-- Dependencies
-- Configuration consistency
-
----
-
-# 🩺 Doctor
-
-```bash
-structify doctor
-```
-
-Audit your environment and project health.
-
----
-
-# 🔎 Inspect
-
-```bash
-structify inspect
-```
-
-Inspect the technologies used in an existing project.
-
----
-
-# 🔧 Repair
-
-```bash
-structify repair --dry-run
-```
-
-Preview fixes before applying them.
-
----
-
-# 📂 Repository Structure
-=======
 
 
 <b>MIT License</b>
@@ -656,7 +430,6 @@ Project Structure
 Structify follows a clean, modular **monorepo architecture** designed for scalability, maintainability, and extensibility. Each workspace has a clearly defined responsibility, allowing new generators, templates, plugins, and developer tooling to be added without affecting the core platform.
 
 <br/>
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 ```text
 Structify
@@ -671,20 +444,11 @@ Structify
 │
 ├── docs/                       # Documentation, specifications & guides
 │
-<<<<<<< HEAD
-├── scripts
-│
-└── package.json
-=======
 └── scripts/                    # Build, release & automation scripts
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 ```
 
 <br/>
 
-<<<<<<< HEAD
-# 🏗 Design Principles
-=======
 ### 📂 Workspace Overview
 
 | Directory | Purpose |
@@ -718,29 +482,16 @@ Installation & Quick Start
 Getting started with Structify takes only a few seconds. Install it globally to use the CLI anywhere on your system, or run it instantly with **npx** without installing anything.
 
 ### 📦 Install Globally
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 ## 🚀 Minimal Effort, Premium Output
 
-<<<<<<< HEAD
-Generate enterprise-grade projects within seconds.
-=======
 ### ⚡ Run Without Installation
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 ## 🔒 Deterministic & Safe
 
-<<<<<<< HEAD
-Every generation is reproducible, transactional, and rollback-safe.
-
-## ⚙ Opinionated but Extensible
-
-Excellent defaults while remaining modular and extensible.
-=======
 ### 🚀 Create Your First Project
 
 Generate a brand-new production-ready project using the interactive CLI.
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 ## 🧩 Modular Architecture
 
@@ -748,9 +499,6 @@ Every generation engine is isolated, making future frameworks and generators eas
 
 ## 🤖 AI Ready
 
-<<<<<<< HEAD
-Native support for the Model Context Protocol (MCP) enables AI assistants to inspect, understand, and interact with Structify Tool projects.
-=======
 <br/>
 
 ### 🛠 Common CLI Commands
@@ -830,82 +578,26 @@ Structify automates repetitive setup tasks and generates production-ready founda
 Every operation should be transparent, predictable, and safe.
 
 Structify validates every step before execution, supports dry-run planning, and protects your workspace through transactional operations with automatic rollback.
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 </td>
 
 <td width="33%" valign="top">
 
-<<<<<<< HEAD
-The `docs/` directory contains detailed documentation including:
-=======
 ### 🧩 Opinionated, Yet Extensible
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 Strong defaults without limiting flexibility.
 
 Enterprise-ready templates, blueprints, plugins, and modular generators provide excellent out-of-the-box experiences while remaining fully customizable for different workflows and technology stacks.
 
-<<<<<<< HEAD
-# ✅ Included in v1.0.1
-
-- Interactive Project Architect
-- Arrow-key Navigation
-- Keyboard-first CLI
-- Automatic Project Name Normalization
-- Smart Compatibility Validation
-- Project Review Screen
-- Success Summary
-- Frontend Generation
-- Backend Generation
-- Fullstack Generation
-- Strict Project Verification
-- Doctor
-- Inspect
-- Repair
-- Upgrade Planning
-- Enterprise Blueprint Platform
-- Registry Architecture
-- Rollback Engine
-- Planning Engine
-- MCP Server
-- JSON Output
-- Cross-platform Support
-- Automatic CLI Version Detection
-=======
 </td>
 
 </tr>
 </table>
 
 
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 ### 🌟 Core Philosophy
 
-<<<<<<< HEAD
-# 🚀 Roadmap (v1.1)
-
-Planned improvements include:
-
-- Angular Support
-- Vue Support
-- Svelte Support
-- Fastify
-- Hono
-- MySQL
-- SQLite
-- Microsoft SQL Server
-- Drizzle ORM
-- TypeORM
-- Authentication Providers
-- Docker Compose Templates
-- GitHub Actions Generator
-- Testing Framework Selection
-- Plugin Marketplace
-- Rich Terminal UI
-- AI-assisted Project Planning
-=======
 | Principle | Commitment |
 | :-------- | :--------- |
 | ⚡ Productivity First | Eliminate repetitive project setup and boilerplate. |
@@ -923,7 +615,6 @@ Planned improvements include:
 <table align="center" width="100%">
 <tr>
 <td>
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 <h2>
 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Blue%20book/3D/blue_book_3d.png" width="34">
@@ -932,45 +623,22 @@ Documentation
 
 Structify includes comprehensive documentation covering every aspect of the platform—from architecture and project generation to CLI usage, validation, AI integration, and future roadmap planning. Whether you're a first-time user, contributor, or enterprise team, the documentation is designed to help you get productive quickly.
 
-<<<<<<< HEAD
-Contributions, feature requests, bug reports, and suggestions are always welcome.
-
-Feel free to open an issue or submit a pull request.
-=======
 
 <table width="100%">
 <tr>
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 <td width="50%" valign="top">
 
 ### 📚 Getting Started
 
-<<<<<<< HEAD
-This project is licensed under the **MIT License**.
-
----
-
-# 🌟 Support
-
-If you find Structify Tool useful, consider giving the repository a ⭐ on GitHub.
-
-It helps others discover the project and supports future development.
-=======
 - 🚀 Installation Guide
 - 💻 CLI Guide
 - ⚡ Quick Start
 - 📖 CLI Commands
 - 🔧 Configuration Reference
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
 
 </td>
 
-<<<<<<< HEAD
-<p align="center">
-  Built with ❤️ to help developers spend less time configuring projects and more time building amazing software.
-</p>
-=======
 <td width="50%" valign="top">
 
 ### 🏗️ Architecture
@@ -1092,4 +760,3 @@ Give the repository a ⭐, share it with fellow developers, or contribute to mak
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:2563EB,50:3B82F6,100:60A5FA&height=120&section=footer&animation=fadeIn"/>
 
 </div>
->>>>>>> 7b1ffec91673ac496d34a9165f30dbcddc71e7c1
