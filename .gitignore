@@ -84,3 +84,7 @@ service-account*.json
 coverage/
 html/
 .nyc_output/
+
+# Structify runtime state
+.structify/
+

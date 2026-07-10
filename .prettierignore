@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+.turbo/
+.next/
+.structify/
+.structify-backups/
+coverage/
+pnpm-lock.yaml
+package-lock.json
+*.tgz
