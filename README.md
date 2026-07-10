@@ -186,9 +186,9 @@ Whether you're building a **frontend application**, **backend API**, **full-stac
 | 🏗️ Enterprise-grade project architecture                      |
 | 🛡️ Deterministic execution with automatic rollback protection |
 | 📋 Interactive CLI with intelligent validation                |
-| 🧩 Modular, extensible and blueprint-driven architecture     |
+| 🧩 Modular, extensible and blueprint-driven architecture      |
 | 🤖 Built-in AI & Model Context Protocol (MCP) support         |
-| 🌍 Cross-platform support for Windows, Linux and macOS       |
+| 🌍 Cross-platform support for Windows, Linux and macOS        |
 
 </td>
 </tr>
@@ -215,9 +215,9 @@ Yet, developers often lose valuable time manually configuring development enviro
 | :-------------------------------------------------------- |
 | 📁 Manually creating project folders and architecture     |
 | 📦 Installing and managing dependencies                   |
-| ⚙️ Configuring TypeScript, ESLint and Prettier           |
+| ⚙️ Configuring TypeScript, ESLint and Prettier            |
 | 🐳 Creating Docker and container configurations           |
-| 🗄️ Setting up databases, ORMs and environment variables  |
+| 🗄️ Setting up databases, ORMs and environment variables   |
 | 🧪 Configuring testing frameworks and code quality tools  |
 | 🚀 Creating CI/CD pipelines and GitHub Actions            |
 | 📄 Writing repetitive boilerplate files and configuration |
@@ -252,11 +252,11 @@ Every project is generated through a deterministic execution engine that validat
 
 <br/>
 
-| 🚀 What Makes Structify Different                                                                                                                                  |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🔍 **Transparent** — Preview every operation through a deterministic execution plan before any files are generated.                                                |
-| 🎯 **Predictable** — Execute dry runs with reproducible results, making every generation process reliable and consistent.                                          |
-| 🛡️ **Rollback Safe** — Transactional file operations automatically restore your project if an error occurs during generation.                                      |
+| 🚀 What Makes Structify Different                                                                                                                                 |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🔍 **Transparent** — Preview every operation through a deterministic execution plan before any files are generated.                                               |
+| 🎯 **Predictable** — Execute dry runs with reproducible results, making every generation process reliable and consistent.                                         |
+| 🛡️ **Rollback Safe** — Transactional file operations automatically restore your project if an error occurs during generation.                                     |
 | 🏗️ **Framework Agnostic** — Generate projects across multiple frameworks, architectures and technology stacks using a unified generation engine.                  |
 | 🧩 **Extensible** — Built around modular generators, templates, blueprints, plugins and registries for maximum flexibility.                                       |
 | 🤖 **AI Ready** — Includes a built-in **Model Context Protocol (MCP)** server, enabling AI assistants to understand, inspect and generate projects intelligently. |
@@ -431,12 +431,12 @@ Structify
 
 ### 📂 Workspace Overview
 
-| Directory             | Purpose                                                                                                                                             |
-| :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Directory             | Purpose                                                                                                                                            |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`apps/cli`**        | Interactive CLI responsible for project generation, validation, inspection and diagnostics.                                                        |
-| **`apps/mcp-server`** | Provides AI integration through the **Model Context Protocol (MCP)** for intelligent project understanding and automation.                          |
+| **`apps/mcp-server`** | Provides AI integration through the **Model Context Protocol (MCP)** for intelligent project understanding and automation.                         |
 | **`packages/core`**   | Contains Structify's core generation engine, template system, planning engine, blueprint architecture, validation pipeline and rollback mechanism. |
-| **`packages/logger`** | Shared logging utilities used consistently across the entire platform.                                                                              |
+| **`packages/logger`** | Shared logging utilities used consistently across the entire platform.                                                                             |
 | **`docs`**            | Houses architecture documentation, CLI guides, specifications, roadmaps and technical references.                                                  |
 | **`scripts`**         | Automation scripts for development, testing, packaging, releases and maintenance tasks.                                                            |
 
@@ -576,13 +576,13 @@ Enterprise-ready templates, blueprints, plugins and modular generators provide e
 
 ### 🌟 Core Philosophy
 
-| Principle             | Commitment                                                                                            |
-| :-------------------- | :---------------------------------------------------------------------------------------------------- |
-| ⚡ Productivity First | Eliminate repetitive project setup and boilerplate.                                                   |
-| 🛡️ Reliability        | Deterministic execution with validation and rollback protection.                                      |
-| 🏗️ Scalability        | Designed for projects ranging from personal apps to enterprise platforms.                             |
+| Principle             | Commitment                                                                                           |
+| :-------------------- | :--------------------------------------------------------------------------------------------------- |
+| ⚡ Productivity First | Eliminate repetitive project setup and boilerplate.                                                  |
+| 🛡️ Reliability        | Deterministic execution with validation and rollback protection.                                     |
+| 🏗️ Scalability        | Designed for projects ranging from personal apps to enterprise platforms.                            |
 | 🧩 Extensibility      | Modular architecture with templates, blueprints and plugins.                                         |
-| 🤖 AI Ready           | Built with native support for AI-assisted development through MCP.                                    |
+| 🤖 AI Ready           | Built with native support for AI-assisted development through MCP.                                   |
 | 🌍 Consistency        | Generate predictable, maintainable and production-ready project structures across every environment. |
 
 </td>
