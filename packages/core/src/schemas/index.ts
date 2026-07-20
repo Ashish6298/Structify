@@ -1,7 +1,14 @@
 import { z } from 'zod';
 
 export const FrontendOptionSchema = z.enum(['next', 'vite-react', 'none']);
-export const BackendOptionSchema = z.enum(['express', 'nest', 'none']);
+export const BackendOptionSchema = z.enum([
+  'express',
+  'nest',
+  'fastify',
+  'hono',
+  'node-auth',
+  'none',
+]);
 export const StylingOptionSchema = z.enum(['tailwind', 'mui', 'none']);
 export const DatabaseOptionSchema = z.enum(['postgres', 'mongodb', 'none']);
 export const OrmOptionSchema = z.enum(['prisma', 'mongoose', 'none']);

@@ -932,7 +932,7 @@ export async function promptSetupTypeSelection(): Promise<'predefined' | 'custom
 export async function promptTemplateCategory(): Promise<'frontend' | 'backend' | 'fullstack'> {
   const choices = [
     { value: 'frontend', label: 'Frontend' },
-    { value: 'backend', label: 'Backend (Coming Soon)' },
+    { value: 'backend', label: 'Backend' },
     { value: 'fullstack', label: 'Fullstack (Coming Soon)' },
   ];
   const ans = await promptKeyboardChoiceWithFallback(
@@ -943,8 +943,10 @@ export async function promptTemplateCategory(): Promise<'frontend' | 'backend' |
   return ans as 'frontend' | 'backend' | 'fullstack';
 }
 
-export async function promptTemplateSelection(): Promise<string> {
-  const choices = [
+export async function promptTemplateSelection(
+  category: 'frontend' | 'backend' = 'frontend',
+): Promise<string> {
+  const frontendChoices = [
     {
       value: 'portfolio-website',
       label:
@@ -970,10 +972,38 @@ export async function promptTemplateSelection(): Promise<string> {
         'Blog / Content Website - Article listing, featured post, category layout, and blog detail-ready structure',
     },
   ];
+  const backendChoices = [
+    {
+      value: 'express-rest-api',
+      label:
+        'Express REST API - Modular Express API with controllers, routes, services, middleware, config, health checks, and TypeScript tooling',
+    },
+    {
+      value: 'nestjs-rest-api',
+      label:
+        'NestJS REST API - Official NestJS-style modules, controllers, services, DTOs, pipes, filters, guards, and health endpoint',
+    },
+    {
+      value: 'fastify-api',
+      label:
+        'Fastify API - High-performance API with plugins, schemas, route modules, validation, logger integration, and centralized errors',
+    },
+    {
+      value: 'hono-api',
+      label:
+        'Hono API - Lightweight modern API with route modules, middleware, validation utilities, config layer, and health endpoint',
+    },
+    {
+      value: 'node-auth-api',
+      label:
+        'Node.js Authentication API - Express JWT auth starter with register/login, password hashing, refresh token mock flow, and protected routes',
+    },
+  ];
+  const choices = category === 'backend' ? backendChoices : frontendChoices;
   return promptKeyboardChoiceWithFallback(
     'Select a predefined template',
     choices,
-    'portfolio-website',
+    category === 'backend' ? 'express-rest-api' : 'portfolio-website',
   );
 }
 

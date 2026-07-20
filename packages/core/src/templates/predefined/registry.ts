@@ -66,7 +66,16 @@ export function getPredefinedTemplateFiles(
   styling: string,
   projectName: string,
 ): { path: string; content: string }[] {
-  const definition = registry.getTemplate(templateId)?.visualDefinition;
+  const template = registry.getTemplate(templateId);
+  if (!template) {
+    return [];
+  }
+
+  if (template.backendDefinition) {
+    return template.backendDefinition.files({ projectName });
+  }
+
+  const definition = template.visualDefinition;
   if (!definition) {
     return [];
   }

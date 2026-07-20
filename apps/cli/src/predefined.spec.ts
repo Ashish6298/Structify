@@ -20,15 +20,18 @@ vi.mock('./utils/prompts.js', async (importOriginal) => {
 
 describe('Predefined Templates Flow', () => {
   it('should expose five predefined templates with correct metadata', () => {
-    expect(PREDEFINED_TEMPLATES).toHaveLength(5);
-    const ids = PREDEFINED_TEMPLATES.map((t) => t.id);
+    const frontendTemplates = PREDEFINED_TEMPLATES.filter(
+      (template) => template.category === 'frontend',
+    );
+    expect(frontendTemplates).toHaveLength(5);
+    const ids = frontendTemplates.map((t) => t.id);
     expect(ids).toContain('portfolio-website');
     expect(ids).toContain('saas-landing');
     expect(ids).toContain('admin-dashboard');
     expect(ids).toContain('agency-business');
     expect(ids).toContain('blog-content');
 
-    for (const t of PREDEFINED_TEMPLATES) {
+    for (const t of frontendTemplates) {
       expect(t.category).toBe('frontend');
       expect(t.description).toBeDefined();
       expect(t.supportedFrameworks).toContain('next');
@@ -41,7 +44,7 @@ describe('Predefined Templates Flow', () => {
   });
 
   it('should generate professional folder structure for each Next template', () => {
-    for (const t of PREDEFINED_TEMPLATES) {
+    for (const t of PREDEFINED_TEMPLATES.filter((template) => template.category === 'frontend')) {
       const files = getPredefinedTemplateFiles(t.id, 'next', 'tailwind', 'test-app');
       expect(files.length).toBeGreaterThan(1);
       const paths = files.map((f) => f.path);
@@ -56,7 +59,7 @@ describe('Predefined Templates Flow', () => {
   });
 
   it('should generate professional folder structure for each Vite template', () => {
-    for (const t of PREDEFINED_TEMPLATES) {
+    for (const t of PREDEFINED_TEMPLATES.filter((template) => template.category === 'frontend')) {
       const files = getPredefinedTemplateFiles(t.id, 'vite-react', 'tailwind', 'test-app');
       const paths = files.map((f) => f.path);
 
@@ -92,7 +95,7 @@ describe('Predefined Templates Flow', () => {
   });
 
   it('should wire Tailwind styling so predefined templates are not plain HTML', () => {
-    for (const t of PREDEFINED_TEMPLATES) {
+    for (const t of PREDEFINED_TEMPLATES.filter((template) => template.category === 'frontend')) {
       const files = getPredefinedTemplateFiles(t.id, 'next', 'tailwind', 'styled-app');
       const css = files.find((f) => f.path === 'app/globals.css')?.content || '';
       const config = files.find((f) => f.path === 'tailwind.config.js')?.content || '';
@@ -110,7 +113,7 @@ describe('Predefined Templates Flow', () => {
   });
 
   it('should generate MUI components for Material UI styling', () => {
-    for (const t of PREDEFINED_TEMPLATES) {
+    for (const t of PREDEFINED_TEMPLATES.filter((template) => template.category === 'frontend')) {
       const files = getPredefinedTemplateFiles(t.id, 'next', 'mui', 'mui-app');
       const card = files.find((f) => f.path.includes('/ui/'))?.content || '';
       const sections = files.find((f) => f.path.includes('/sections/'))?.content || '';
@@ -122,7 +125,7 @@ describe('Predefined Templates Flow', () => {
   });
 
   it('should generate clean CSS-backed layouts when styling is None', () => {
-    for (const t of PREDEFINED_TEMPLATES) {
+    for (const t of PREDEFINED_TEMPLATES.filter((template) => template.category === 'frontend')) {
       const files = getPredefinedTemplateFiles(t.id, 'next', 'none', 'plain-app');
       const css = files.find((f) => f.path === 'app/globals.css')?.content || '';
       const card = files.find((f) => f.path.includes('/ui/'))?.content || '';
@@ -134,7 +137,7 @@ describe('Predefined Templates Flow', () => {
   });
 
   it('should produce valid project configs', () => {
-    for (const t of PREDEFINED_TEMPLATES) {
+    for (const t of PREDEFINED_TEMPLATES.filter((template) => template.category === 'frontend')) {
       const config = {
         projectName: 'test-app',
         version: '1.0',
@@ -158,6 +161,33 @@ describe('Predefined Templates Flow', () => {
       const val = validateStack(config);
       expect(val.valid).toBe(true);
       expect(val.normalizedConfig?.templateId).toBe(t.id);
+    }
+  });
+
+  it('should expose backend templates with generation-ready metadata', () => {
+    const backendTemplates = PREDEFINED_TEMPLATES.filter(
+      (template) => template.category === 'backend',
+    );
+    expect(backendTemplates).toHaveLength(5);
+    expect(backendTemplates.map((template) => template.id)).toEqual([
+      'express-rest-api',
+      'nestjs-rest-api',
+      'fastify-api',
+      'hono-api',
+      'node-auth-api',
+    ]);
+
+    for (const template of backendTemplates) {
+      const files = getPredefinedTemplateFiles(
+        template.id,
+        template.defaultFramework,
+        'none',
+        'backend-api',
+      );
+      expect(files.map((file) => file.path)).toContain('package.json');
+      expect(files.map((file) => file.path)).toContain('src/index.ts');
+      expect(template.supportedStyling).toEqual(['none']);
+      expect(template.sections?.length).toBeGreaterThan(0);
     }
   });
 

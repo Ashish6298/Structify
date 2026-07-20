@@ -1,5 +1,5 @@
 export type FrontendOption = 'next' | 'vite-react' | 'none';
-export type BackendOption = 'express' | 'nest' | 'none';
+export type BackendOption = 'express' | 'nest' | 'fastify' | 'hono' | 'node-auth' | 'none';
 export type StylingOption = 'tailwind' | 'mui' | 'none';
 export type DatabaseOption = 'postgres' | 'mongodb' | 'none';
 export type OrmOption = 'prisma' | 'mongoose' | 'none';

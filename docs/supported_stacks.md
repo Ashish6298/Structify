@@ -4,16 +4,16 @@ This document defines the supported technologies for Structify Version 1.0 and o
 
 ## Stack Options (Parameter Values)
 
-| Category                | Supported Options (Internal Value)           | Display Name                    |
-| :---------------------- | :------------------------------------------- | :------------------------------ |
-| **Frontend Frameworks** | `next`, `vite-react`, `none`                 | Next.js, React (Vite)           |
-| **Backend Frameworks**  | `express`, `nest`, `none`                    | Express, NestJS                 |
-| **Styling Libraries**   | `tailwind`, `mui`, `none`                    | Tailwind CSS, Material UI (MUI) |
-| **Databases**           | `postgres`, `mongodb`, `none`                | PostgreSQL, MongoDB             |
-| **ORMs / Drivers**      | `prisma`, `mongoose`, `none`                 | Prisma, Mongoose                |
-| **Package Managers**    | `npm`                                        | npm                             |
-| **Project Modes**       | `frontend-only`, `backend-only`, `fullstack` | Client, API Server, or both     |
-| **Languages**           | `typescript`                                 | TypeScript                      |
+| Category                | Supported Options (Internal Value)                        | Display Name                                     |
+| :---------------------- | :-------------------------------------------------------- | :----------------------------------------------- |
+| **Frontend Frameworks** | `next`, `vite-react`, `none`                              | Next.js, React (Vite)                            |
+| **Backend Frameworks**  | `express`, `nest`, `fastify`, `hono`, `node-auth`, `none` | Express, NestJS, Fastify, Hono, Node.js Auth API |
+| **Styling Libraries**   | `tailwind`, `mui`, `none`                                 | Tailwind CSS, Material UI (MUI)                  |
+| **Databases**           | `postgres`, `mongodb`, `none`                             | PostgreSQL, MongoDB                              |
+| **ORMs / Drivers**      | `prisma`, `mongoose`, `none`                              | Prisma, Mongoose                                 |
+| **Package Managers**    | `npm`                                                     | npm                                              |
+| **Project Modes**       | `frontend-only`, `backend-only`, `fullstack`              | Client, API Server, or both                      |
+| **Languages**           | `typescript`                                              | TypeScript                                       |
 
 ---
 

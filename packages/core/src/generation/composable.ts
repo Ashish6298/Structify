@@ -131,6 +131,24 @@ function selectGenerators(config: NormalizedProjectConfig): ComposableGeneratorC
     if (config.stack.backend === 'nest') {
       generators.push(createGenerator('gen-nest', ['nest', 'api'], ['backend'], ['src/main.ts']));
     }
+    if (config.stack.backend === 'fastify') {
+      generators.push(
+        createGenerator('gen-fastify', ['fastify', 'api'], ['backend'], ['src/server.ts']),
+      );
+    }
+    if (config.stack.backend === 'hono') {
+      generators.push(createGenerator('gen-hono', ['hono', 'api'], ['backend'], ['src/app.ts']));
+    }
+    if (config.stack.backend === 'node-auth') {
+      generators.push(
+        createGenerator(
+          'gen-node-auth',
+          ['express', 'authentication', 'api'],
+          ['backend'],
+          ['src/auth', 'src/routes/auth.routes.ts'],
+        ),
+      );
+    }
   }
   if (config.stack.styling === 'tailwind') {
     generators.push(
@@ -242,6 +260,11 @@ function sourceForPackage(name: string, generators: ComposableGeneratorContribut
     ['react', 'gen-vite-react'],
     ['express', 'gen-express'],
     ['@nestjs', 'gen-nest'],
+    ['fastify', 'gen-fastify'],
+    ['hono', 'gen-hono'],
+    ['@hono', 'gen-hono'],
+    ['jsonwebtoken', 'gen-node-auth'],
+    ['bcryptjs', 'gen-node-auth'],
     ['tailwind', 'gen-tailwind'],
     ['@mui', 'gen-mui'],
     ['@emotion', 'gen-mui'],

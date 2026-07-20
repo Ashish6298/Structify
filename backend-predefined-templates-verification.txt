@@ -1,0 +1,438 @@
+Structify Backend Predefined Templates Verification
+====================================================
+Generated At: 2026-07-20T06:12:18.284Z
+Verdict: PASS
+
+Implementation Summary
+- Added backend predefined templates as first-class registry entries alongside frontend templates.
+- Kept frontend templates and custom project wizard behavior intact.
+- Implemented one module per backend template under packages/core/src/templates/predefined/backend/.
+- Backend generation is data-driven through registry metadata and backendDefinition file providers.
+
+Generated Backend Templates
+- express-rest-api (express)
+- nestjs-rest-api (nest)
+- fastify-api (fastify)
+- hono-api (hono)
+- node-auth-api (node-auth)
+
+Architecture Decisions
+- Shared backend helper utilities generate common TypeScript, ESLint, Prettier, README, and environment files.
+- Framework-specific source files live in dedicated template modules.
+- Fullstack predefined templates remain Coming Soon.
+
+Verification Results
+- express-rest-api: generation PASS, npm install PASS, build PASS, lint PASS, strict verify PASS, runtime PASS
+- nestjs-rest-api: generation PASS, npm install PASS, build PASS, lint PASS, strict verify PASS, runtime PASS
+- fastify-api: generation PASS, npm install PASS, build PASS, lint PASS, strict verify PASS, runtime PASS
+- hono-api: generation PASS, npm install PASS, build PASS, lint PASS, strict verify PASS, runtime PASS
+- node-auth-api: generation PASS, npm install PASS, build PASS, lint PASS, strict verify PASS, runtime PASS
+
+Command Outputs
+## express-rest-api
+[1m[36m=== Structify Scaffolding Initialization ===[0m
+Merged configuration overrides from file: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\express-rest-api.json
+
+Template Review
+
+Project
+  Name             structify-app
+  Location         C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\express-rest-api
+  Setup Type       Predefined Template
+  Category         Backend
+  Template         Express REST API
+
+Stack
+  Backend          Express
+  Package Manager  npm
+
+Tooling
+  Docker           Disabled
+  ESLint           Enabled
+  Prettier         Enabled
+  Install Deps     Disabled
+
+Generated Sections
+  - Health endpoint
+  - User routes
+  - Controllers
+  - Services
+  - Middleware
+
+Executing project scaffolding...
+
+Project Created Successfully (Template: Express REST API)
+
+Location
+  C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\express-rest-api
+
+Stack
+  Express
+
+Generated Sections
+  - Health endpoint
+  - User routes
+  - Controllers
+  - Services
+  - Middleware
+
+Generated
+  Files            30
+  Duration         107ms
+
+Enabled Tools
+  ESLint, Prettier
+
+Next Steps
+  cd C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\express-rest-api
+  npm install
+  npm run dev
+[90m------------------------------------------------[0m
+[32mCommand "init" completed successfully in 137.57ms.[0m
+> structify-app@1.0.0 build
+> tsc
+> structify-app@1.0.0 lint
+> eslint "src/**/*.ts"
+[1m[36m=== Structify Project Verification ===[0m
+Project: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\express-rest-api
+Strict Mode: yes
+Overall Health Status: HEALTHY
+Checked Files: 30
+Checked Scripts: 5
+Checked Graph Nodes: 30
+Dependency Checks: 13
+Build Passed: yes
+Drift Errors: 0
+Drift Warnings: 0
+Health: 0 errors / 0 warnings / 0 fixable
+[32m[PASS] Structural validation passed.[0m
+[90m------------------------------------------------[0m
+[32mCommand "verify-project" completed successfully in 1790.79ms.[0m
+## nestjs-rest-api
+[1m[36m=== Structify Scaffolding Initialization ===[0m
+Merged configuration overrides from file: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\nestjs-rest-api.json
+
+Template Review
+
+Project
+  Name             structify-app
+  Location         C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\nestjs-rest-api
+  Setup Type       Predefined Template
+  Category         Backend
+  Template         NestJS REST API
+
+Stack
+  Backend          NestJS
+  Package Manager  npm
+
+Tooling
+  Docker           Disabled
+  ESLint           Enabled
+  Prettier         Enabled
+  Install Deps     Disabled
+
+Generated Sections
+  - App module
+  - Health module
+  - Users module
+  - DTOs
+  - Guards
+  - Filters
+
+Executing project scaffolding...
+
+Project Created Successfully (Template: NestJS REST API)
+
+Location
+  C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\nestjs-rest-api
+
+Stack
+  NestJS
+
+Generated Sections
+  - App module
+  - Health module
+  - Users module
+  - DTOs
+  - Guards
+  - Filters
+
+Generated
+  Files            31
+  Duration         90ms
+
+Enabled Tools
+  ESLint, Prettier
+
+Next Steps
+  cd C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\nestjs-rest-api
+  npm install
+  npm run dev
+[90m------------------------------------------------[0m
+[32mCommand "init" completed successfully in 128.79ms.[0m
+> structify-app@1.0.0 build
+> tsc
+> structify-app@1.0.0 lint
+> eslint "src/**/*.ts"
+[1m[36m=== Structify Project Verification ===[0m
+Project: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\nestjs-rest-api
+Strict Mode: yes
+Overall Health Status: HEALTHY
+Checked Files: 31
+Checked Scripts: 5
+Checked Graph Nodes: 31
+Dependency Checks: 13
+Build Passed: yes
+Drift Errors: 0
+Drift Warnings: 0
+Health: 0 errors / 0 warnings / 0 fixable
+[32m[PASS] Structural validation passed.[0m
+[90m------------------------------------------------[0m
+[32mCommand "verify-project" completed successfully in 2424.19ms.[0m
+## fastify-api
+[1m[36m=== Structify Scaffolding Initialization ===[0m
+Merged configuration overrides from file: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\fastify-api.json
+
+Template Review
+
+Project
+  Name             structify-app
+  Location         C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\fastify-api
+  Setup Type       Predefined Template
+  Category         Backend
+  Template         Fastify API
+
+Stack
+  Backend          Fastify
+  Package Manager  npm
+
+Tooling
+  Docker           Disabled
+  ESLint           Enabled
+  Prettier         Enabled
+  Install Deps     Disabled
+
+Generated Sections
+  - Plugins
+  - Schemas
+  - Routes
+  - Controllers
+  - Error handler
+
+Executing project scaffolding...
+
+Project Created Successfully (Template: Fastify API)
+
+Location
+  C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\fastify-api
+
+Stack
+  Fastify
+
+Generated Sections
+  - Plugins
+  - Schemas
+  - Routes
+  - Controllers
+  - Error handler
+
+Generated
+  Files            25
+  Duration         275ms
+
+Enabled Tools
+  ESLint, Prettier
+
+Next Steps
+  cd C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\fastify-api
+  npm install
+  npm run dev
+[90m------------------------------------------------[0m
+[32mCommand "init" completed successfully in 291.02ms.[0m
+> structify-app@1.0.0 build
+> tsc
+> structify-app@1.0.0 lint
+> eslint "src/**/*.ts"
+[1m[36m=== Structify Project Verification ===[0m
+Project: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\fastify-api
+Strict Mode: yes
+Overall Health Status: HEALTHY
+Checked Files: 25
+Checked Scripts: 5
+Checked Graph Nodes: 25
+Dependency Checks: 9
+Build Passed: yes
+Drift Errors: 0
+Drift Warnings: 0
+Health: 0 errors / 0 warnings / 0 fixable
+[32m[PASS] Structural validation passed.[0m
+[90m------------------------------------------------[0m
+[32mCommand "verify-project" completed successfully in 1992.17ms.[0m
+## hono-api
+[1m[36m=== Structify Scaffolding Initialization ===[0m
+Merged configuration overrides from file: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\hono-api.json
+
+Template Review
+
+Project
+  Name             structify-app
+  Location         C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\hono-api
+  Setup Type       Predefined Template
+  Category         Backend
+  Template         Hono API
+
+Stack
+  Backend          Hono
+  Package Manager  npm
+
+Tooling
+  Docker           Disabled
+  ESLint           Enabled
+  Prettier         Enabled
+  Install Deps     Disabled
+
+Generated Sections
+  - Route modules
+  - Middleware
+  - Validation utilities
+  - Config
+  - Health endpoint
+
+Executing project scaffolding...
+
+Project Created Successfully (Template: Hono API)
+
+Location
+  C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\hono-api
+
+Stack
+  Hono
+
+Generated Sections
+  - Route modules
+  - Middleware
+  - Validation utilities
+  - Config
+  - Health endpoint
+
+Generated
+  Files            23
+  Duration         48ms
+
+Enabled Tools
+  ESLint, Prettier
+
+Next Steps
+  cd C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\hono-api
+  npm install
+  npm run dev
+[90m------------------------------------------------[0m
+[32mCommand "init" completed successfully in 61.08ms.[0m
+> structify-app@1.0.0 build
+> tsc
+> structify-app@1.0.0 lint
+> eslint "src/**/*.ts"
+[1m[36m=== Structify Project Verification ===[0m
+Project: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\hono-api
+Strict Mode: yes
+Overall Health Status: HEALTHY
+Checked Files: 23
+Checked Scripts: 5
+Checked Graph Nodes: 23
+Dependency Checks: 10
+Build Passed: yes
+Drift Errors: 0
+Drift Warnings: 0
+Health: 0 errors / 0 warnings / 0 fixable
+[32m[PASS] Structural validation passed.[0m
+[90m------------------------------------------------[0m
+[32mCommand "verify-project" completed successfully in 2460.16ms.[0m
+## node-auth-api
+[1m[36m=== Structify Scaffolding Initialization ===[0m
+Merged configuration overrides from file: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\node-auth-api.json
+
+Template Review
+
+Project
+  Name             structify-app
+  Location         C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\node-auth-api
+  Setup Type       Predefined Template
+  Category         Backend
+  Template         Node.js Authentication API
+
+Stack
+  Backend          Node.js Auth API
+  Package Manager  npm
+
+Tooling
+  Docker           Disabled
+  ESLint           Enabled
+  Prettier         Enabled
+  Install Deps     Disabled
+
+Generated Sections
+  - Register endpoint
+  - Login endpoint
+  - Refresh token flow
+  - JWT middleware
+  - Protected route
+
+Executing project scaffolding...
+
+Project Created Successfully (Template: Node.js Authentication API)
+
+Location
+  C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\node-auth-api
+
+Stack
+  Node.js Auth API
+
+Generated Sections
+  - Register endpoint
+  - Login endpoint
+  - Refresh token flow
+  - JWT middleware
+  - Protected route
+
+Generated
+  Files            31
+  Duration         267ms
+
+Enabled Tools
+  ESLint, Prettier
+
+Next Steps
+  cd C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\node-auth-api
+  npm install
+  npm run dev
+[90m------------------------------------------------[0m
+[32mCommand "init" completed successfully in 285.50ms.[0m
+> structify-app@1.0.0 build
+> tsc
+> structify-app@1.0.0 lint
+> eslint "src/**/*.ts"
+[1m[36m=== Structify Project Verification ===[0m
+Project: C:\Users\ASHISH~1\AppData\Local\Temp\structify-backend-verify-NSawVN\node-auth-api
+Strict Mode: yes
+Overall Health Status: HEALTHY
+Checked Files: 31
+Checked Scripts: 5
+Checked Graph Nodes: 31
+Dependency Checks: 17
+Build Passed: yes
+Drift Errors: 0
+Drift Warnings: 0
+Health: 0 errors / 0 warnings / 0 fixable
+[32m[PASS] Structural validation passed.[0m
+[90m------------------------------------------------[0m
+[32mCommand "verify-project" completed successfully in 2188.30ms.[0m
+
+Regression Checks
+- Frontend predefined template tests and verification scripts continue to target the frontend category.
+- Template registry exposes frontend, backend, and fullstack categories without hardcoded backend switch routing.
+
+Known Limitations
+- Authentication refresh token storage is intentionally in-memory demo storage.
+- Generated starters do not include databases, secrets, production credentials, or deployment-specific values.
+
+PASS

@@ -195,3 +195,46 @@ This is the first stable release of **Structify**, a professional project scaffo
 - Full build verification
 - Manual CLI validation
 - Generated project validation
+
+
+
+# [1.2.0] - 2026-07-20
+
+## 🚀 Major Release
+
+### ✨ Added
+
+- Backend Predefined Templates
+- Express REST API Template
+- NestJS REST API Template
+- Fastify API Template
+- Hono API Template
+- Node.js Authentication API Template
+- Backend template registry
+- Backend template verification pipeline
+- Backend template generation engine
+- Runtime smoke testing
+- Backend verification report generation
+
+### 🎨 Improved
+
+- CLI predefined template selection
+- Review summary for backend templates
+- Success summary after generation
+- Template registry scalability
+- Shared backend generation utilities
+
+### 🛠 Verification
+
+- Added backend template verification script
+- Runtime validation for all backend templates
+- Build validation
+- Lint validation
+- Strict project verification
+- Health endpoint testing
+
+### ✅ Quality
+
+- All backend templates successfully verified
+- Cross-platform generation maintained
+- No regression to frontend templates

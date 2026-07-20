@@ -496,6 +496,8 @@ Every generation engine is isolated, making future frameworks and generators eas
 | `structify inspect`             | Inspect project architecture and metadata            |
 | `structify repair --dry-run`    | Preview automatic repairs without modifying files    |
 
+Predefined Templates are available from `structify init` for frontend starters and backend starters. Backend options include Express REST API, NestJS REST API, Fastify API, Hono API, and Node.js Authentication API; Fullstack predefined templates remain Coming Soon.
+
 <br/>
 
 ### 💡 Typical Workflow

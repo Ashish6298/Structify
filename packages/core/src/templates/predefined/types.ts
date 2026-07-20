@@ -22,6 +22,19 @@ export interface PredefinedTemplate {
 
 export type TemplateKind = 'portfolio' | 'saas' | 'dashboard' | 'agency' | 'blog';
 
+export interface PredefinedTemplateFile {
+  path: string;
+  content: string;
+}
+
+export interface BackendTemplateRenderContext {
+  projectName: string;
+}
+
+export interface BackendTemplateDefinition {
+  files: (context: BackendTemplateRenderContext) => PredefinedTemplateFile[];
+}
+
 export interface VisualTemplateDefinition {
   kind: TemplateKind;
   shellName: string;
@@ -54,5 +67,6 @@ export interface VisualTemplateDefinition {
 
 export interface PredefinedTemplateDefinition {
   metadata: PredefinedTemplate;
-  visualDefinition: VisualTemplateDefinition;
+  visualDefinition?: VisualTemplateDefinition;
+  backendDefinition?: BackendTemplateDefinition;
 }

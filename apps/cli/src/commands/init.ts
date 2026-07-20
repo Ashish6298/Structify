@@ -162,10 +162,8 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
       let choosingCategory = true;
       while (choosingCategory) {
         category = await promptTemplateCategory();
-        if (category === 'backend' || category === 'fullstack') {
-          console.log(
-            `\nComing Soon: Predefined ${category === 'backend' ? 'Backend' : 'Fullstack'} templates are not yet available.`,
-          );
+        if (category === 'fullstack') {
+          console.log(`\nComing Soon: Predefined Fullstack templates are not yet available.`);
           const action = await promptKeyboardChoiceWithFallback(
             'What would you like to do?',
             [
@@ -182,17 +180,23 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
         }
       }
 
-      const templateId = await promptTemplateSelection();
-      const styling = await promptStylingSelection();
+      const templateCategory = category as 'frontend' | 'backend';
+      const templateId = await promptTemplateSelection(templateCategory);
+      const template = PREDEFINED_TEMPLATES.find((item) => item.id === templateId);
+      const styling = templateCategory === 'frontend' ? await promptStylingSelection() : 'none';
+      const backend = template?.defaultFramework || 'express';
 
       promptConfig = {
         projectName,
-        mode: 'frontend-only',
+        mode: templateCategory === 'backend' ? 'backend-only' : 'frontend-only',
         templateId,
         stack: {
-          frontend: 'next',
+          frontend: templateCategory === 'backend' ? 'none' : 'next',
           styling,
-          backend: 'none',
+          backend:
+            templateCategory === 'backend'
+              ? (backend as ProjectConfig['stack']['backend'])
+              : 'none',
           database: 'none',
           orm: 'none',
           packageManager: 'npm',
@@ -657,6 +661,11 @@ function formatValue(value: string): string {
     'vite-react': 'React (Vite)',
     express: 'Express',
     nest: 'NestJS',
+    fastify: 'Fastify',
+    hono: 'Hono',
+    'node-auth': 'Node.js Auth API',
+    frontend: 'Frontend',
+    backend: 'Backend',
     tailwind: 'Tailwind CSS',
     mui: 'Material UI',
     postgres: 'PostgreSQL',
@@ -700,46 +709,11 @@ function classifyGenerationFailure(errors: string[]): {
 }
 
 export function getTemplateSections(templateId: string): string[] {
-  switch (templateId) {
-    case 'portfolio-website':
-      return [
-        'Hero section',
-        'Projects section',
-        'Skills section',
-        'Experience section',
-        'Contact section',
-      ];
-    case 'saas-landing':
-      return [
-        'Hero section',
-        'Features section',
-        'Pricing section',
-        'Testimonials section',
-        'FAQ section',
-        'CTA section',
-      ];
-    case 'admin-dashboard':
-      return [
-        'Sidebar layout',
-        'Stat cards',
-        'Tables',
-        'Charts placeholder',
-        'Settings page',
-        'Responsive layout',
-      ];
-    case 'agency-business':
-      return [
-        'Services section',
-        'About section',
-        'Testimonials section',
-        'Contact section',
-        'CTA section',
-      ];
-    case 'blog-content':
-      return ['Article listing', 'Featured post', 'Category layout', 'Blog detail structure'];
-    default:
-      return ['Default page skeleton'];
-  }
+  return (
+    PREDEFINED_TEMPLATES.find((template) => template.id === templateId)?.sections || [
+      'Default page skeleton',
+    ]
+  );
 }
 
 export function formatTemplateProjectSummary(
@@ -756,12 +730,19 @@ export function formatTemplateProjectSummary(
     formatReviewRow('Name', config.projectName),
     formatReviewRow('Location', path.resolve(targetDir)),
     formatReviewRow('Setup Type', 'Predefined Template'),
-    formatReviewRow('Category', 'Frontend'),
+    formatReviewRow(
+      'Category',
+      formatValue(config.mode === 'backend-only' ? 'backend' : 'frontend'),
+    ),
     formatReviewRow('Template', templateName),
     '',
     'Stack',
-    formatReviewRow('Frontend', formatValue(config.stack.frontend)),
-    formatReviewRow('Styling', formatValue(config.stack.styling)),
+    ...(config.mode === 'backend-only'
+      ? [formatReviewRow('Backend', formatValue(config.stack.backend))]
+      : [
+          formatReviewRow('Frontend', formatValue(config.stack.frontend)),
+          formatReviewRow('Styling', formatValue(config.stack.styling)),
+        ]),
     formatReviewRow('Package Manager', config.stack.packageManager),
     '',
     'Tooling',

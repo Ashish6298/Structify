@@ -31,7 +31,8 @@
     "verify:phase-8-2-final": "node scripts/verify-phase-8-2-final.js",
     "verify:phase-9": "node scripts/verify-phase-9.js",
     "verify:phase-9-12": "node scripts/verify-phase-9-12.js",
-    "verify:init-wizard-ux": "node scripts/verify-init-wizard-ux.js"
+    "verify:init-wizard-ux": "node scripts/verify-init-wizard-ux.js",
+    "verify:backend-predefined": "node scripts/verify-backend-predefined-templates.js"
   },
   "devDependencies": {
     "@eslint/js": "^8.57.0",

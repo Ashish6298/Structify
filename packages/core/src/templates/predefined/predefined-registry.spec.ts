@@ -5,8 +5,11 @@ import path from 'path';
 
 describe('Predefined Templates Modular Registry', () => {
   it('should register all 5 frontend templates', () => {
-    expect(PREDEFINED_TEMPLATES).toHaveLength(5);
-    const ids = PREDEFINED_TEMPLATES.map((t) => t.id);
+    const frontendTemplates = PREDEFINED_TEMPLATES.filter(
+      (template) => template.category === 'frontend',
+    );
+    expect(frontendTemplates).toHaveLength(5);
+    const ids = frontendTemplates.map((t) => t.id);
     expect(ids).toContain('portfolio-website');
     expect(ids).toContain('saas-landing');
     expect(ids).toContain('admin-dashboard');
@@ -18,7 +21,7 @@ describe('Predefined Templates Modular Registry', () => {
     const portfolio = registry.getTemplate('portfolio-website');
     expect(portfolio).toBeDefined();
     expect(portfolio?.metadata.name).toBe('Portfolio Website');
-    expect(portfolio?.visualDefinition.kind).toBe('portfolio');
+    expect(portfolio?.visualDefinition?.kind).toBe('portfolio');
   });
 
   it('should filter templates by category', () => {
@@ -26,10 +29,40 @@ describe('Predefined Templates Modular Registry', () => {
     expect(frontends).toHaveLength(5);
 
     const backends = registry.filterTemplates({ category: 'backend' });
-    expect(backends).toHaveLength(0);
+    expect(backends).toHaveLength(5);
 
     const fullstacks = registry.filterTemplates({ category: 'fullstack' });
     expect(fullstacks).toHaveLength(0);
+  });
+
+  it('should generate backend template files from dedicated modules', () => {
+    const backendTemplates = registry.filterTemplates({ category: 'backend' });
+    const ids = backendTemplates.map((template) => template.id);
+    expect(ids).toEqual([
+      'express-rest-api',
+      'nestjs-rest-api',
+      'fastify-api',
+      'hono-api',
+      'node-auth-api',
+    ]);
+
+    for (const template of backendTemplates) {
+      const files = getPredefinedTemplateFiles(
+        template.id,
+        template.defaultFramework,
+        'none',
+        'api-starter',
+      );
+      const paths = files.map((file) => file.path);
+      expect(paths).toContain('package.json');
+      expect(paths).toContain('tsconfig.json');
+      expect(paths).toContain('.eslintrc.json');
+      expect(paths).toContain('.prettierrc');
+      expect(paths).toContain('.env.example');
+      expect(paths).toContain('src/index.ts');
+      expect(paths.some((pathName) => pathName.startsWith('src/routes/'))).toBe(true);
+      expect(paths.some((pathName) => pathName.startsWith('src/services/'))).toBe(true);
+    }
   });
 
   it('should handle invalid or missing template IDs safely', () => {
