@@ -196,8 +196,6 @@ This is the first stable release of **Structify**, a professional project scaffo
 - Manual CLI validation
 - Generated project validation
 
-
-
 # [1.2.0] - 2026-07-20
 
 ## 🚀 Major Release
