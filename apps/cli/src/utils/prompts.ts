@@ -1,4 +1,5 @@
 import readline from 'readline';
+import path from 'path';
 import {
   ProjectConfig,
   validateProjectName,
@@ -6,8 +7,21 @@ import {
   ProjectMode,
   DatabaseOption,
   OrmOption,
+  PREDEFINED_TEMPLATES,
 } from '@structify/core';
 import { StructifyCLIError } from './error.js';
+import { CLIContext } from '../context.js';
+import {
+  renderWelcomeSection,
+  renderSetupPanel,
+  getTheme,
+  renderProjectNamePanel,
+  renderCategoryPanel,
+  renderTemplatePanel,
+  renderStylingPanel,
+  renderReviewPanel,
+  renderReadyToGeneratePanel,
+} from './ui.js';
 
 export interface QuestionMetadata {
   key: string;
@@ -916,17 +930,127 @@ export async function promptKeyboardChoiceWithFallback(
   return resolved;
 }
 
-export async function promptSetupTypeSelection(): Promise<'predefined' | 'custom'> {
+export async function promptSetupTypeSelection(
+  context?: CLIContext,
+): Promise<'predefined' | 'custom'> {
   const choices = [
     { value: 'predefined', label: 'Use a Predefined Template' },
     { value: 'custom', label: 'Build a Custom Project' },
   ];
-  const ans = await promptKeyboardChoiceWithFallback(
-    'What type of setup do you want to create?',
-    choices,
-    'predefined',
-  );
-  return ans as 'predefined' | 'custom';
+  const noColor = context
+    ? context.noColor
+    : process.env.NO_COLOR === 'true' || process.argv.includes('--no-color');
+
+  if (!supportsKeyboardNavigation()) {
+    const welcome = renderWelcomeSection(noColor);
+    const panel = renderSetupPanel(0, noColor, true);
+    console.log(welcome.join('\n'));
+    console.log(panel.join('\n'));
+
+    let promptText = `\nWhat type of setup do you want to create?\n`;
+    choices.forEach((choice, idx) => {
+      promptText += `  ${idx + 1}. ${choice.label} (${choice.value})\n`;
+    });
+    promptText += `Enter choice/number [Default: predefined]: `;
+    const ans = await askTypedLine(promptText);
+    const resolved = resolveSelectInput(ans, choices, 'predefined');
+    if (!resolved) {
+      console.log(`Invalid choice. Defaulting to predefined`);
+      return 'predefined';
+    }
+    return resolved as 'predefined' | 'custom';
+  }
+
+  runCentralizedCleanup();
+
+  const input = process.stdin;
+  const output = process.stdout;
+  let selectedIndex = 0;
+  const wasRaw = input.isRaw === true;
+  let settled = false;
+  let renderedLines = 0;
+  const theme = getTheme(noColor);
+
+  const render = () => {
+    if (renderedLines > 0) {
+      readline.moveCursor(output, 0, -renderedLines);
+      readline.clearScreenDown(output);
+    }
+    const welcome = renderWelcomeSection(noColor);
+    const panel = renderSetupPanel(selectedIndex, noColor, false);
+    const lines = [...welcome, ...panel];
+    output.write(`${lines.join('\n')}\n`);
+    renderedLines = lines.length;
+  };
+
+  const confirm = (choice: { value: string; label: string }) => {
+    if (renderedLines > 0) {
+      readline.moveCursor(output, 0, -renderedLines);
+      readline.clearScreenDown(output);
+    }
+    output.write(`${formatAlignedRow('Setup Type', choice.label)}\n`);
+  };
+
+  readline.emitKeypressEvents(input);
+  try {
+    input.setRawMode?.(true);
+  } catch (e) {}
+  try {
+    input.resume();
+  } catch (e) {}
+  if (output.isTTY) {
+    output.write('\x1b[?25l');
+  }
+
+  return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      if (settled) return;
+      settled = true;
+      unregister();
+      input.off('keypress', onKeypress);
+      try {
+        input.setRawMode?.(wasRaw);
+      } catch (e) {}
+      try {
+        input.pause();
+      } catch (e) {}
+      if (output.isTTY) {
+        output.write('\x1b[?25h');
+      }
+    };
+
+    const unregister = registerPromptCleanup(cleanup);
+
+    const onKeypress = (str: string, key: readline.Key) => {
+      if (key.ctrl && key.name === 'c') {
+        cleanup();
+        output.write('\n');
+        reject(new StructifyCLIError('USAGE_ERROR', 'User cancelled scaffolding execution.'));
+        return;
+      }
+
+      if (key.name === 'up' || key.name === 'down') {
+        selectedIndex = moveSelection(selectedIndex, key.name, choices.length);
+        render();
+        return;
+      }
+
+      if (key.name === 'return' || key.name === 'enter') {
+        cleanup();
+        const choice = choices[selectedIndex];
+        confirm(choice);
+        resolve(choice.value as 'predefined' | 'custom');
+        return;
+      }
+
+      if (str && str >= ' ' && str !== '\x7f') {
+        output.write('\x07');
+      }
+    };
+
+    input.on('keypress', onKeypress);
+    render();
+  });
 }
 
 export async function promptTemplateCategory(): Promise<'frontend' | 'backend' | 'fullstack'> {
@@ -1032,4 +1156,593 @@ function getQuestionDisplayLabel(key: string): string {
     prettier: 'Prettier',
   };
   return labels[key] || key;
+}
+
+export interface WizardResult {
+  setupType: 'predefined' | 'custom';
+  projectName: string;
+  category?: 'frontend' | 'backend' | 'fullstack';
+  templateId?: string;
+  styling?: 'tailwind' | 'mui' | 'none';
+  confirmed?: boolean;
+}
+
+export async function runInitWizardStateController(
+  defaultName: string = 'my-structify-app',
+  context?: CLIContext,
+): Promise<WizardResult> {
+  const noColor = context
+    ? context.noColor
+    : process.env.NO_COLOR === 'true' || process.argv.includes('--no-color');
+  const theme = getTheme(noColor);
+
+  if (!supportsKeyboardNavigation()) {
+    const setupType = await promptSetupTypeSelection(context);
+    const projectName = await promptProjectNameInput(defaultName);
+    if (setupType === 'custom') {
+      return { setupType, projectName };
+    }
+    let category: 'frontend' | 'backend' | 'fullstack' = 'frontend';
+    let choosingCategory = true;
+    while (choosingCategory) {
+      category = await promptTemplateCategory();
+      if (category === 'fullstack') {
+        console.log(`\nComing Soon: Predefined Fullstack templates are not yet available.`);
+        const action = await promptKeyboardChoiceWithFallback(
+          'What would you like to do?',
+          [
+            { value: 'category', label: 'Back to Category Selection' },
+            { value: 'setup', label: 'Back to Setup Type Choice' },
+          ],
+          'category',
+        );
+        if (action === 'setup') {
+          return runInitWizardStateController(defaultName, context);
+        }
+      } else {
+        choosingCategory = false;
+      }
+    }
+    const templateId = await promptTemplateSelection(category as 'frontend' | 'backend');
+    const styling = category === 'frontend' ? await promptStylingSelection() : 'none';
+    return { setupType, projectName, category, templateId, styling, confirmed: true };
+  }
+
+  runCentralizedCleanup();
+
+  const input = process.stdin;
+  const output = process.stdout;
+  const wasRaw = input.isRaw === true;
+
+  let currentStep: 'setup' | 'details' | 'category' | 'template' | 'styling' | 'review' = 'setup';
+  let selectedSetupIndex = 0; // 0 for predefined, 1 for custom
+  let selectedCategoryIndex = 0; // 0 for frontend, 1 for backend, 2 for fullstack
+  let selectedTemplateIndex = 0; // 0 to 4
+  let selectedStylingIndex = 0; // 0 to 2
+  let selectedConfirmIndex = 0; // 0 for generate, 1 for cancel
+  let typedProjectName = '';
+  let errorMsg = '';
+  let settled = false;
+
+  readline.emitKeypressEvents(input);
+  try {
+    input.setRawMode?.(true);
+  } catch (e) {}
+  try {
+    input.resume();
+  } catch (e) {}
+
+  let renderedLines = 0;
+
+  const render = () => {
+    if (renderedLines > 0) {
+      readline.moveCursor(output, 0, -renderedLines);
+      readline.clearScreenDown(output);
+    }
+
+    let lines: string[] = [];
+    if (currentStep === 'setup') {
+      const welcome = renderWelcomeSection(noColor);
+      const panel = renderSetupPanel(selectedSetupIndex, noColor, false);
+      lines = [...welcome, ...panel];
+      if (output.isTTY) {
+        output.write('\x1b[?25l');
+      }
+    } else if (currentStep === 'details') {
+      const setupTypeStr = selectedSetupIndex === 0 ? 'predefined' : 'custom';
+      lines = renderProjectNamePanel(typedProjectName, setupTypeStr, noColor, defaultName);
+      if (errorMsg) {
+        lines.push(theme.red(`  Error: ${errorMsg}`));
+        lines.push('');
+      }
+      if (output.isTTY) {
+        output.write('\x1b[?25h');
+      }
+    } else if (currentStep === 'category') {
+      lines = renderCategoryPanel(
+        selectedCategoryIndex,
+        typedProjectName || defaultName,
+        noColor,
+        false,
+      );
+      if (output.isTTY) {
+        output.write('\x1b[?25l');
+      }
+    } else if (currentStep === 'template') {
+      const catStr = selectedCategoryIndex === 0 ? 'frontend' : 'backend';
+      lines = renderTemplatePanel(
+        selectedTemplateIndex,
+        typedProjectName || defaultName,
+        catStr,
+        noColor,
+        false,
+      );
+      if (output.isTTY) {
+        output.write('\x1b[?25l');
+      }
+    } else if (currentStep === 'styling') {
+      const catStr = selectedCategoryIndex === 0 ? 'frontend' : 'backend';
+      const templateLabel =
+        catStr === 'frontend'
+          ? [
+              'Portfolio Website',
+              'SaaS Landing Page',
+              'Admin Dashboard',
+              'Agency / Business Website',
+              'Blog / Content Website',
+            ][selectedTemplateIndex]
+          : [
+              'Express REST API',
+              'NestJS REST API',
+              'Fastify API',
+              'Hono API',
+              'Node.js Authentication API',
+            ][selectedTemplateIndex];
+      lines = renderStylingPanel(
+        selectedStylingIndex,
+        typedProjectName || defaultName,
+        catStr,
+        templateLabel,
+        noColor,
+        false,
+      );
+      if (output.isTTY) {
+        output.write('\x1b[?25l');
+      }
+    } else if (currentStep === 'review') {
+      const catStr = selectedCategoryIndex === 0 ? 'frontend' : 'backend';
+      const finalCategoryLabel = catStr === 'frontend' ? 'Frontend' : 'Backend';
+      const templateLabel =
+        catStr === 'frontend'
+          ? [
+              'Portfolio Website',
+              'SaaS Landing Page',
+              'Admin Dashboard',
+              'Agency / Business Website',
+              'Blog / Content Website',
+            ][selectedTemplateIndex]
+          : [
+              'Express REST API',
+              'NestJS REST API',
+              'Fastify API',
+              'Hono API',
+              'Node.js Authentication API',
+            ][selectedTemplateIndex];
+      const templateId =
+        catStr === 'frontend'
+          ? [
+              'portfolio-website',
+              'saas-landing',
+              'admin-dashboard',
+              'agency-business',
+              'blog-content',
+            ][selectedTemplateIndex]
+          : ['express-rest-api', 'nestjs-rest-api', 'fastify-api', 'hono-api', 'node-auth-api'][
+              selectedTemplateIndex
+            ];
+      const stylingLabel =
+        catStr === 'frontend'
+          ? ['Tailwind CSS', 'Material UI (MUI)', 'None'][selectedStylingIndex]
+          : 'None';
+      const sections = PREDEFINED_TEMPLATES.find((t) => t.id === templateId)?.sections || [
+        'Default page skeleton',
+      ];
+      const targetDir = path.resolve(typedProjectName || defaultName);
+
+      const reviewLines = renderReviewPanel(
+        typedProjectName || defaultName,
+        targetDir,
+        'Predefined Template',
+        finalCategoryLabel,
+        templateLabel,
+        stylingLabel,
+        true,
+        sections,
+        noColor,
+      );
+      const confirmLines = renderReadyToGeneratePanel(selectedConfirmIndex, noColor, false);
+      lines = [
+        `  ${theme.cyan('Step 6 of 6')} ${theme.gray('• Review & Generate')} ${theme.gray('(Setup ➔ Details ➔ Category ➔ Template ➔ Styling ➔ Summary)')}`,
+        '',
+        `  ${theme.gray('Selected Setup:')} ${theme.cyan('Use a Predefined Template')}`,
+        `  ${theme.gray('Project Name:')}   ${theme.cyan(typedProjectName || defaultName)}`,
+        `  ${theme.gray('Category:')}       ${theme.cyan(finalCategoryLabel)}`,
+        `  ${theme.gray('Template:')}       ${theme.cyan(templateLabel)}`,
+        ...(catStr === 'frontend'
+          ? [`  ${theme.gray('Styling:')}        ${theme.cyan(stylingLabel)}`]
+          : []),
+        '',
+        ...reviewLines,
+        '',
+        ...confirmLines,
+        '',
+        `  ${theme.cyan('↑ ↓')} Navigate ${theme.gray('•')} ${theme.cyan('Enter')} Continue ${theme.gray('•')} ${theme.cyan('Esc')} Back ${theme.gray('•')} ${theme.cyan('Ctrl+C')} Exit`,
+      ];
+      if (output.isTTY) {
+        output.write('\x1b[?25l');
+      }
+    }
+
+    output.write(`${lines.join('\n')}\n`);
+    renderedLines = lines.length;
+  };
+
+  return new Promise<WizardResult>((resolve, reject) => {
+    const cleanup = () => {
+      if (settled) return;
+      settled = true;
+      input.off('keypress', onKeypress);
+      try {
+        input.setRawMode?.(wasRaw);
+      } catch (e) {}
+      try {
+        input.pause();
+      } catch (e) {}
+      if (output.isTTY) {
+        output.write('\x1b[?25h');
+      }
+    };
+
+    const onKeypress = async (str: string, key: readline.Key) => {
+      if (key.ctrl && key.name === 'c') {
+        cleanup();
+        output.write('\n');
+        reject(new StructifyCLIError('USAGE_ERROR', 'User cancelled scaffolding execution.'));
+        return;
+      }
+
+      if (currentStep === 'setup') {
+        if (key.name === 'up' || key.name === 'down') {
+          selectedSetupIndex = selectedSetupIndex === 0 ? 1 : 0;
+          render();
+          return;
+        }
+
+        if (key.name === 'return' || key.name === 'enter') {
+          currentStep = 'details';
+          if (renderedLines > 0) {
+            readline.moveCursor(output, 0, -renderedLines);
+            readline.clearScreenDown(output);
+            renderedLines = 0;
+          }
+          render();
+          return;
+        }
+      } else if (currentStep === 'details') {
+        if (key.name === 'escape') {
+          currentStep = 'setup';
+          errorMsg = '';
+          typedProjectName = '';
+          if (renderedLines > 0) {
+            readline.moveCursor(output, 0, -renderedLines);
+            readline.clearScreenDown(output);
+            renderedLines = 0;
+          }
+          render();
+          return;
+        }
+
+        if (key.name === 'backspace') {
+          typedProjectName = typedProjectName.slice(0, -1);
+          errorMsg = '';
+          render();
+          return;
+        }
+
+        if (key.name === 'return' || key.name === 'enter') {
+          const finalValue = typedProjectName.trim() === '' ? defaultName : typedProjectName.trim();
+          const normalized = normalizeProjectNameInput(finalValue);
+          if (!normalized.valid) {
+            errorMsg = normalized.errors[0] || 'Project name is invalid.';
+            render();
+            return;
+          }
+
+          if (normalized.changed) {
+            input.off('keypress', onKeypress);
+            try {
+              input.setRawMode?.(wasRaw);
+            } catch (e) {}
+            if (output.isTTY) {
+              output.write('\x1b[?25h');
+            }
+
+            if (renderedLines > 0) {
+              readline.moveCursor(output, 0, -renderedLines);
+              readline.clearScreenDown(output);
+              renderedLines = 0;
+            }
+
+            const accepted = await promptBooleanConfirmation(
+              `Project name "${finalValue}" will be normalized to "${normalized.normalized}". Use this name?`,
+              true,
+            );
+
+            if (!accepted) {
+              try {
+                input.setRawMode?.(true);
+              } catch (e) {}
+              try {
+                input.resume();
+              } catch (e) {}
+              input.on('keypress', onKeypress);
+              render();
+              return;
+            }
+
+            if (selectedSetupIndex === 1) {
+              // custom
+              settled = true;
+              try {
+                input.pause();
+              } catch (e) {}
+              output.write(`${formatAlignedRow('Setup Type', 'Build a Custom Project')}\n`);
+              output.write(`${formatAlignedRow('Project Name', normalized.normalized)}\n`);
+              resolve({
+                setupType: 'custom',
+                projectName: normalized.normalized,
+              });
+              return;
+            } else {
+              typedProjectName = normalized.normalized;
+              currentStep = 'category';
+              try {
+                input.setRawMode?.(true);
+              } catch (e) {}
+              try {
+                input.resume();
+              } catch (e) {}
+              input.on('keypress', onKeypress);
+              render();
+              return;
+            }
+          }
+
+          if (selectedSetupIndex === 1) {
+            // custom
+            cleanup();
+            if (renderedLines > 0) {
+              readline.moveCursor(output, 0, -renderedLines);
+              readline.clearScreenDown(output);
+            }
+            output.write(`${formatAlignedRow('Setup Type', 'Build a Custom Project')}\n`);
+            output.write(`${formatAlignedRow('Project Name', normalized.normalized)}\n`);
+            resolve({
+              setupType: 'custom',
+              projectName: normalized.normalized,
+            });
+            return;
+          } else {
+            typedProjectName = normalized.normalized;
+            currentStep = 'category';
+            render();
+            return;
+          }
+        }
+
+        if (str && str.length === 1 && str >= ' ' && str !== '\x7f') {
+          typedProjectName += str;
+          errorMsg = '';
+          render();
+        }
+      } else if (currentStep === 'category') {
+        if (key.name === 'escape') {
+          currentStep = 'details';
+          errorMsg = '';
+          if (renderedLines > 0) {
+            readline.moveCursor(output, 0, -renderedLines);
+            readline.clearScreenDown(output);
+            renderedLines = 0;
+          }
+          render();
+          return;
+        }
+
+        if (key.name === 'up' || key.name === 'down') {
+          selectedCategoryIndex = moveSelection(selectedCategoryIndex, key.name, 3);
+          render();
+          return;
+        }
+
+        if (key.name === 'return' || key.name === 'enter') {
+          if (selectedCategoryIndex === 2) {
+            input.off('keypress', onKeypress);
+            try {
+              input.setRawMode?.(wasRaw);
+            } catch (e) {}
+            if (output.isTTY) {
+              output.write('\x1b[?25h');
+            }
+            if (renderedLines > 0) {
+              readline.moveCursor(output, 0, -renderedLines);
+              readline.clearScreenDown(output);
+              renderedLines = 0;
+            }
+
+            console.log(`\nComing Soon: Predefined Fullstack templates are not yet available.`);
+            const action = await promptKeyboardChoiceWithFallback(
+              'What would you like to do?',
+              [
+                { value: 'category', label: 'Back to Category Selection' },
+                { value: 'setup', label: 'Back to Setup Type Choice' },
+              ],
+              'category',
+            );
+
+            try {
+              input.setRawMode?.(true);
+            } catch (e) {}
+            try {
+              input.resume();
+            } catch (e) {}
+            input.on('keypress', onKeypress);
+
+            if (action === 'setup') {
+              currentStep = 'setup';
+              typedProjectName = '';
+            } else {
+              currentStep = 'category';
+            }
+            render();
+            return;
+          }
+
+          currentStep = 'template';
+          selectedTemplateIndex = 0;
+          render();
+          return;
+        }
+      } else if (currentStep === 'template') {
+        if (key.name === 'escape') {
+          currentStep = 'category';
+          if (renderedLines > 0) {
+            readline.moveCursor(output, 0, -renderedLines);
+            readline.clearScreenDown(output);
+            renderedLines = 0;
+          }
+          render();
+          return;
+        }
+
+        if (key.name === 'up' || key.name === 'down') {
+          selectedTemplateIndex = moveSelection(selectedTemplateIndex, key.name, 5);
+          render();
+          return;
+        }
+
+        if (key.name === 'return' || key.name === 'enter') {
+          if (selectedCategoryIndex === 1) {
+            // Backend: no styling, move straight to review
+            currentStep = 'review';
+            selectedConfirmIndex = 0;
+            render();
+            return;
+          }
+
+          // Frontend: move to styling system step
+          currentStep = 'styling';
+          selectedStylingIndex = 0;
+          render();
+          return;
+        }
+      } else if (currentStep === 'styling') {
+        if (key.name === 'escape') {
+          currentStep = 'template';
+          if (renderedLines > 0) {
+            readline.moveCursor(output, 0, -renderedLines);
+            readline.clearScreenDown(output);
+            renderedLines = 0;
+          }
+          render();
+          return;
+        }
+
+        if (key.name === 'up' || key.name === 'down') {
+          selectedStylingIndex = moveSelection(selectedStylingIndex, key.name, 3);
+          render();
+          return;
+        }
+
+        if (key.name === 'return' || key.name === 'enter') {
+          currentStep = 'review';
+          selectedConfirmIndex = 0;
+          render();
+          return;
+        }
+      } else if (currentStep === 'review') {
+        if (key.name === 'escape') {
+          currentStep = selectedCategoryIndex === 0 ? 'styling' : 'template';
+          if (renderedLines > 0) {
+            readline.moveCursor(output, 0, -renderedLines);
+            readline.clearScreenDown(output);
+            renderedLines = 0;
+          }
+          render();
+          return;
+        }
+
+        if (key.name === 'up' || key.name === 'down') {
+          selectedConfirmIndex = selectedConfirmIndex === 0 ? 1 : 0;
+          render();
+          return;
+        }
+
+        if (key.name === 'return' || key.name === 'enter') {
+          cleanup();
+          if (renderedLines > 0) {
+            readline.moveCursor(output, 0, -renderedLines);
+            readline.clearScreenDown(output);
+          }
+
+          if (selectedConfirmIndex === 1) {
+            // Cancel selected
+            resolve({
+              setupType: 'predefined',
+              projectName: typedProjectName,
+              confirmed: false,
+            });
+            return;
+          }
+
+          // Generate selected
+          const finalCategory = selectedCategoryIndex === 0 ? 'frontend' : 'backend';
+          const frontendTemplates = [
+            'portfolio-website',
+            'saas-landing',
+            'admin-dashboard',
+            'agency-business',
+            'blog-content',
+          ];
+          const backendTemplates = [
+            'express-rest-api',
+            'nestjs-rest-api',
+            'fastify-api',
+            'hono-api',
+            'node-auth-api',
+          ];
+          const selectedTemplateVal =
+            finalCategory === 'frontend'
+              ? frontendTemplates[selectedTemplateIndex]
+              : backendTemplates[selectedTemplateIndex];
+          const stylingVal =
+            finalCategory === 'frontend'
+              ? ['tailwind', 'mui', 'none'][selectedStylingIndex]
+              : 'none';
+
+          resolve({
+            setupType: 'predefined',
+            projectName: typedProjectName,
+            category: finalCategory,
+            templateId: selectedTemplateVal,
+            styling: stylingVal,
+            confirmed: true,
+          });
+          return;
+        }
+      }
+    };
+
+    input.on('keypress', onKeypress);
+    render();
+  });
 }

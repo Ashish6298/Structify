@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import readline from 'readline';
 import { createHash } from 'crypto';
 import { CLIContext } from '../context.js';
 import { CLIOutput } from '../utils/output.js';
@@ -13,8 +14,17 @@ import {
   promptTemplateSelection,
   promptStylingSelection,
   promptKeyboardChoiceWithFallback,
+  runInitWizardStateController,
+  supportsKeyboardNavigation,
 } from '../utils/prompts.js';
+import {
+  getTheme,
+  renderGenerationPanel,
+  renderSuccessSummaryPanel,
+  renderNextStepsPanel,
+} from '../utils/ui.js';
 import { ConfigurationLoaderManager } from '../utils/loader.js';
+import { getElapsedMs } from '../utils/middleware.js';
 import {
   validateStack,
   createProjectPlan,
@@ -51,7 +61,9 @@ export interface InitOptions {
 
 export async function handleInit(options: InitOptions, context: CLIContext): Promise<void> {
   const output = new CLIOutput(context);
-  if (!context.json) {
+  const isInteractiveWizard =
+    !options.config && !options.preset && !options.presetFile && !options.yes;
+  if (!context.json && !isInteractiveWizard) {
     output.heading('Structify Scaffolding Initialization');
   }
 
@@ -150,40 +162,21 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
   }
 
   let promptConfig: Partial<ProjectConfig> = {};
+  let wizardConfirmed = true;
   if (!options.config && !options.preset && !options.presetFile && !options.yes) {
-    const setupType = await promptSetupTypeSelection();
+    const { setupType, projectName, category, templateId, styling, confirmed } =
+      await runInitWizardStateController(options.projectName || 'my-structify-app', context);
+    if (setupType === 'predefined') {
+      wizardConfirmed = !!confirmed;
+    }
+
     if (setupType === 'custom') {
       const promptEngine = new InteractivePromptEngine();
-      promptConfig = await promptEngine.run({ projectName: options.projectName });
+      promptConfig = await promptEngine.run({ projectName });
     } else {
-      const projectName = await promptProjectNameInput(options.projectName || 'my-structify-app');
-
-      let category: 'frontend' | 'backend' | 'fullstack' = 'frontend';
-      let choosingCategory = true;
-      while (choosingCategory) {
-        category = await promptTemplateCategory();
-        if (category === 'fullstack') {
-          console.log(`\nComing Soon: Predefined Fullstack templates are not yet available.`);
-          const action = await promptKeyboardChoiceWithFallback(
-            'What would you like to do?',
-            [
-              { value: 'category', label: 'Back to Category Selection' },
-              { value: 'setup', label: 'Back to Setup Type Choice' },
-            ],
-            'category',
-          );
-          if (action === 'setup') {
-            return handleInit(options, context);
-          }
-        } else {
-          choosingCategory = false;
-        }
-      }
-
       const templateCategory = category as 'frontend' | 'backend';
-      const templateId = await promptTemplateSelection(templateCategory);
       const template = PREDEFINED_TEMPLATES.find((item) => item.id === templateId);
-      const styling = templateCategory === 'frontend' ? await promptStylingSelection() : 'none';
+      const stylingVal = styling || 'none';
       const backend = template?.defaultFramework || 'express';
 
       promptConfig = {
@@ -192,7 +185,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
         templateId,
         stack: {
           frontend: templateCategory === 'backend' ? 'none' : 'next',
-          styling,
+          styling: stylingVal,
           backend:
             templateCategory === 'backend'
               ? (backend as ProjectConfig['stack']['backend'])
@@ -398,34 +391,152 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     return;
   }
 
-  if (!context.json) {
+  if (!context.json && !selectedConfig.templateId) {
     output.info('');
     projectSummary.forEach((line) => output.info(line));
   }
 
   // Confirmation Wizard
   if (!options.yes && !options.config && !options.preset && !options.presetFile) {
-    const confirmed = await promptBooleanConfirmation(
-      '\nGenerate this project and write files to disk?',
-      true,
-      undefined,
-      { confirmationLabel: 'Generate Project' },
-    );
-    if (!confirmed) {
-      output.info('Scaffolding execution aborted by user.');
-      return;
+    if (selectedConfig.templateId) {
+      if (!wizardConfirmed) {
+        output.info('Scaffolding execution aborted by user.');
+        return;
+      }
+    } else {
+      const confirmed = await promptBooleanConfirmation(
+        '\nGenerate this project and write files to disk?',
+        true,
+        undefined,
+        { confirmationLabel: 'Generate Project' },
+      );
+      if (!confirmed) {
+        output.info('Scaffolding execution aborted by user.');
+        return;
+      }
     }
   }
 
-  // Real Scaffolding Execution
-  if (!context.json) {
-    output.info('\nExecuting project scaffolding...');
-  }
+  const isInteractiveTTY =
+    !context.json &&
+    !options.yes &&
+    !options.config &&
+    !options.preset &&
+    !options.presetFile &&
+    selectedConfig.templateId &&
+    supportsKeyboardNavigation();
 
-  const result = await GenerationEngine.execute(session, {
-    install,
-    force: options.force,
-  });
+  let result;
+
+  if (isInteractiveTTY) {
+    const templateCategory = normalized.mode === 'backend-only' ? 'backend' : 'frontend';
+    const finalCategoryLabel = templateCategory === 'backend' ? 'Backend' : 'Frontend';
+    const template = PREDEFINED_TEMPLATES.find((item) => item.id === normalized.templateId);
+    const templateLabel = template?.name || normalized.templateId || '';
+    const stylingLabel =
+      templateCategory === 'backend'
+        ? 'None'
+        : normalized.stack?.styling === 'tailwind'
+          ? 'Tailwind CSS'
+          : normalized.stack?.styling === 'mui'
+            ? 'Material UI (MUI)'
+            : 'None';
+
+    const stages = [
+      { id: 'validate', name: 'Validating configuration', status: 'running' as const },
+      { id: 'plan', name: 'Planning project generation', status: 'pending' as const },
+      { id: 'template', name: 'Copying template files', status: 'pending' as const },
+      { id: 'render', name: 'Applying configuration', status: 'pending' as const },
+      ...(install
+        ? [{ id: 'deps', name: 'Installing dependencies', status: 'pending' as const }]
+        : []),
+      { id: 'finalize', name: 'Completing generation', status: 'pending' as const },
+    ];
+
+    let lastRenderedLines = 0;
+    const renderProgress = () => {
+      if (lastRenderedLines > 0) {
+        readline.moveCursor(process.stdout, 0, -lastRenderedLines);
+        readline.clearScreenDown(process.stdout);
+      }
+      const lines = renderGenerationPanel(
+        normalized.projectName,
+        templateLabel,
+        finalCategoryLabel,
+        stylingLabel,
+        path.resolve(targetDir),
+        stages,
+        context.noColor,
+      );
+      process.stdout.write(lines.join('\n') + '\n');
+      lastRenderedLines = lines.length;
+    };
+
+    renderProgress();
+
+    const unsubscribe = session.eventBus.subscribeAll((event) => {
+      let changed = false;
+      const setStage = (id: string, status: 'running' | 'done') => {
+        const stage = stages.find((s) => s.id === id);
+        if (stage && stage.status !== status) {
+          stage.status = status;
+          changed = true;
+        }
+      };
+
+      if (event.name === 'GenerationStarted') {
+        setStage('validate', 'done');
+        setStage('plan', 'running');
+      } else if (event.name === 'PlanningFinished') {
+        setStage('plan', 'done');
+        setStage('template', 'running');
+      } else if (event.name === 'TemplateRenderStarted') {
+        setStage('template', 'done');
+        setStage('render', 'running');
+      } else if (event.name === 'DependencyResolutionStarted') {
+        setStage('render', 'done');
+        if (install) {
+          setStage('deps', 'running');
+        }
+      } else if (event.name === 'DependencyResolved') {
+        if (install) {
+          setStage('deps', 'done');
+        }
+        setStage('finalize', 'running');
+      }
+
+      if (changed) {
+        renderProgress();
+      }
+    });
+
+    try {
+      result = await GenerationEngine.execute(session, {
+        install,
+        force: options.force,
+      });
+      unsubscribe();
+      stages.forEach((s) => (s.status = 'done'));
+      renderProgress();
+      if (lastRenderedLines > 0) {
+        readline.moveCursor(process.stdout, 0, -lastRenderedLines);
+        readline.clearScreenDown(process.stdout);
+      }
+    } catch (err) {
+      unsubscribe();
+      throw err;
+    }
+  } else {
+    // Real Scaffolding Execution
+    if (!context.json) {
+      output.info('\nExecuting project scaffolding...');
+    }
+
+    result = await GenerationEngine.execute(session, {
+      install,
+      force: options.force,
+    });
+  }
 
   appendHistoryEntry(
     targetDir,
@@ -507,29 +618,81 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
       output.success('Structural validation passed.');
     }
   }
-  output.info('');
-  if (normalized.templateId) {
-    const template = PREDEFINED_TEMPLATES.find((t) => t.id === normalized.templateId);
-    const templateName = template?.name || normalized.templateId;
-    const sections = getTemplateSections(normalized.templateId);
-    formatTemplateSuccessSummary(
-      normalized,
-      targetDir,
-      result.generatedFiles.length,
-      result.durationMs,
-      templateName,
-      sections,
-    ).forEach((line) => output.info(line));
-  } else {
-    formatSuccessSummary(
-      normalized,
-      targetDir,
-      result.generatedFiles.length,
-      result.durationMs,
-    ).forEach((line) => output.info(line));
-  }
+  if (isInteractiveTTY) {
+    const templateCategory = normalized.mode === 'backend-only' ? 'backend' : 'frontend';
+    const finalCategoryLabel = templateCategory === 'backend' ? 'Backend' : 'Frontend';
+    const template = PREDEFINED_TEMPLATES.find((item) => item.id === normalized.templateId);
+    const templateLabel = template?.name || normalized.templateId || '';
+    const stylingLabel =
+      templateCategory === 'backend'
+        ? 'None'
+        : normalized.stack?.styling === 'tailwind'
+          ? 'Tailwind CSS'
+          : normalized.stack?.styling === 'mui'
+            ? 'Material UI (MUI)'
+            : 'None';
 
-  output.showFooter('init');
+    const theme = getTheme(context.noColor);
+    const successLines: string[] = [];
+
+    // Branded success header
+    successLines.push(`  ${theme.bold(theme.green('Project Generated Successfully'))}`);
+    successLines.push('');
+
+    // Summary panel
+    const summaryLines = renderSuccessSummaryPanel(
+      normalized.projectName,
+      path.resolve(targetDir),
+      templateLabel,
+      finalCategoryLabel,
+      stylingLabel,
+      result.generatedFiles.length,
+      result.durationMs,
+      context.noColor,
+    );
+    successLines.push(...summaryLines);
+    successLines.push('');
+
+    // Next steps panel
+    const nextStepsLines = renderNextStepsPanel(nextSteps, context.noColor);
+    successLines.push(...nextStepsLines);
+    successLines.push('');
+
+    // Concise completion message and styled command timing
+    const elapsed = getElapsedMs(context.startTime);
+    successLines.push(`  ${theme.gray('Structify initialization wizard completed successfully.')}`);
+    successLines.push(`  ${theme.gray('Terminal session is returning to normal.')}`);
+    successLines.push(
+      `  ${theme.green(`Command "init" completed successfully in ${elapsed.toFixed(2)}ms.`)}`,
+    );
+    successLines.push('');
+
+    successLines.forEach((line) => output.info(line));
+  } else {
+    output.info('');
+    if (normalized.templateId) {
+      const template = PREDEFINED_TEMPLATES.find((t) => t.id === normalized.templateId);
+      const templateName = template?.name || normalized.templateId;
+      const sections = getTemplateSections(normalized.templateId);
+      formatTemplateSuccessSummary(
+        normalized,
+        targetDir,
+        result.generatedFiles.length,
+        result.durationMs,
+        templateName,
+        sections,
+      ).forEach((line) => output.info(line));
+    } else {
+      formatSuccessSummary(
+        normalized,
+        targetDir,
+        result.generatedFiles.length,
+        result.durationMs,
+      ).forEach((line) => output.info(line));
+    }
+
+    output.showFooter('init');
+  }
 }
 
 export function formatProjectSummary(

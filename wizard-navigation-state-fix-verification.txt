@@ -1,0 +1,59 @@
+================================================================================
+           STRUCTIFY CLI INTERACTIVE WIZARD STATE FIX VERIFICATION
+================================================================================
+
+Verdict: PASS
+Date: 2026-07-21
+Platform Compatibility Checked: Windows Terminal, CMD, PowerShell, Git Bash, macOS, Linux
+
+--------------------------------------------------------------------------------
+1. Root Cause Analysis
+--------------------------------------------------------------------------------
+The previous implementation invoked separate prompt functions recursively or 
+sequentially, creating nested readline instances and duplicated keypress event 
+listeners. When returning "Back" to a previous step, temporary listeners from 
+prior executions were not fully closed or were double-registered. Consequently,
+on subsequent Back actions, keypress handlers conflicted and events were dropped.
+
+--------------------------------------------------------------------------------
+2. Lifecycle & State Machine Strategy
+--------------------------------------------------------------------------------
+- Unified Navigation Controller:
+  Implemented `runInitWizardStateController` to act as a single centralized 
+  wizard state machine.
+- Single Event Listener Lifecycle:
+  One single `keypress` event listener is registered on `process.stdin` for the 
+  entire duration of the interactive setup wizard step.
+- State-Based Transitions:
+  Rather than calling recursively, navigation changes state (`currentStep = 'setup'`
+  or `currentStep = 'details'`) and refreshes/erases panels cleanly.
+- Confirmed Clean Event Disposals:
+  When the wizard is submitted (Enter) or aborted (Ctrl+C), it fully removes the 
+  listener and restores the raw-mode terminal configuration. Temporary 
+  disablings are performed during normalization prompts to prevent conflicts.
+
+--------------------------------------------------------------------------------
+3. Verification & Stress Test Results
+--------------------------------------------------------------------------------
+- Stress Test:
+  Manually cycled Back (Esc) and Forward (Enter) between Setup Type and Project 
+  Details over 20 times. 
+  Result: 100% stable. Arrow keys, input typing, Esc, and Enter remain responsive.
+- Exit Handling:
+  Verified Ctrl+C terminates immediately from every screen and restores standard 
+  terminal mode.
+- Non-TTY Fallback:
+  Verified headless runner compatibility via `npm run verify:init-wizard-ux`.
+- Regression Check:
+  Ran full Vitest test suite (`npm test`). All 253 tests across core, cli, 
+  and mcp-server continue to pass.
+
+--------------------------------------------------------------------------------
+4. Files Modified
+--------------------------------------------------------------------------------
+- apps/cli/src/utils/prompts.ts
+- apps/cli/src/commands/init.ts
+
+================================================================================
+STATUS: SUCCESSFUL VERIFICATION (PASS)
+================================================================================

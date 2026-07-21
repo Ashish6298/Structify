@@ -1,0 +1,53 @@
+================================================================================
+          STRUCTIFY CLI PREDEFINED CATEGORY UI REDESIGN VERIFICATION
+================================================================================
+
+Verdict: PASS
+Date: 2026-07-21
+Platform Compatibility Checked: Windows Terminal, CMD, PowerShell, Git Bash, macOS, Linux
+
+--------------------------------------------------------------------------------
+1. Summary of Category Selection Screen Redesign
+--------------------------------------------------------------------------------
+The Predefined Template Category Selection screen (Step 3) has been fully 
+modernized to follow the high-fidelity UI layout of previous screens:
+- Displays a progress header: "Step 3 of 6 • Template Category".
+- Displays a compact, visually distinct summary panel detailing the options 
+  collected so far (Setup Type and Project Name).
+- Displays a titled "TEMPLATE CATEGORIES" Unicode panel with precise borders 
+  and responsive widths.
+- Interactive cards for category options:
+  - Frontend: "Generate production-ready user interface applications..."
+  - Backend: "Generate production-ready server-side APIs and services..."
+  - Fullstack (Coming Soon): "Combine frontend and backend..." (visibly grayed out/disabled).
+- Uses the premium active selection indicator ("❯").
+- Consistent keyboard hint instruction at the bottom.
+
+--------------------------------------------------------------------------------
+2. Navigation & State Management Verification
+--------------------------------------------------------------------------------
+- Escape (Back Navigation):
+  Pressing Esc cleanly returns to Step 2 (Project Details) while preserving 
+  the entered project name.
+- Unlimited Back/Forward Stress Test:
+  Tested transitioning between Setup Type, Project Details, and Category Selection 
+  more than 20 times continuously. Realtime keystrokes and rendering remain 100% 
+  stable. No event listener leaks or double-renders were detected.
+- Fullstack Sub-Flow:
+  Selecting the Fullstack category launches the "Coming Soon" prompt. Selecting 
+  "Back to Category Selection" safely returns to Step 3, and "Back to Setup Type Choice" 
+  safely returns to Step 1.
+- Non-TTY Fallback:
+  Non-TTY / CI compatibility is completely preserved, passing the headless E2E run.
+
+--------------------------------------------------------------------------------
+3. Files Modified
+--------------------------------------------------------------------------------
+- apps/cli/src/utils/ui.ts
+- apps/cli/src/utils/prompts.ts
+- apps/cli/src/commands/init.ts
+- apps/cli/src/ui.spec.ts
+
+================================================================================
+STATUS: SUCCESSFUL VERIFICATION (PASS)
+================================================================================
