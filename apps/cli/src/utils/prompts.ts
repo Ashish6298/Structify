@@ -531,6 +531,7 @@ async function promptCustomKeyboardChoice(
   totalSteps: number,
   summary: Array<{ label: string; value: string }>,
   noColor: boolean,
+  showWelcome = false,
 ): Promise<string | '__back__'> {
   runCentralizedCleanup();
   const input = process.stdin;
@@ -568,7 +569,7 @@ async function promptCustomKeyboardChoice(
         readline.moveCursor(output, 0, -renderedLines);
         readline.clearScreenDown(output);
       }
-      const lines = renderWizardSelectionPanel(
+      const panel = renderWizardSelectionPanel(
         formatPromptTitle(question.question),
         step,
         totalSteps,
@@ -582,6 +583,9 @@ async function promptCustomKeyboardChoice(
         summary,
         noColor,
       );
+      const lines = showWelcome
+        ? [...renderWelcomeSection(noColor).slice(0, -1), '', ...panel]
+        : panel;
       output.write(`${lines.join('\n')}\n`);
       renderedLines = lines.length;
     };
@@ -906,6 +910,7 @@ export class InteractivePromptEngine {
           totalSteps,
           getCustomSelectionSummary(config),
           noColor,
+          currentIndex === 0,
         );
         if (answer === '__back__') {
           if (currentIndex > 0) {
@@ -1666,8 +1671,6 @@ export async function runInitWizardStateController(
               try {
                 input.pause();
               } catch (e) {}
-              output.write(`${formatAlignedRow('Setup Type', 'Build a Custom Project')}\n`);
-              output.write(`${formatAlignedRow('Project Name', normalized.normalized)}\n`);
               resolve({
                 setupType: 'custom',
                 projectName: normalized.normalized,
@@ -1695,8 +1698,6 @@ export async function runInitWizardStateController(
               readline.moveCursor(output, 0, -renderedLines);
               readline.clearScreenDown(output);
             }
-            output.write(`${formatAlignedRow('Setup Type', 'Build a Custom Project')}\n`);
-            output.write(`${formatAlignedRow('Project Name', normalized.normalized)}\n`);
             resolve({
               setupType: 'custom',
               projectName: normalized.normalized,

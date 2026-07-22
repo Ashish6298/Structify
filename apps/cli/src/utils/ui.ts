@@ -100,9 +100,13 @@ export function renderWizardSelectionPanel(
     ),
     row(`  ${theme.cyan(`Step ${step} of ${totalSteps}`)} ${theme.gray(`\u2022 ${title}`)}`),
   );
-  summary.forEach(({ label, value }) =>
-    lines.push(row(`  ${theme.gray(`${label}`.padEnd(16))} ${theme.cyan(value)}`)),
-  );
+  summary.forEach(({ label, value }) => {
+    const isConfigurationIdentity = label === 'Setup Type' || label === 'Project Name';
+    const labelText = isConfigurationIdentity
+      ? theme.bold(theme.gray(label.padEnd(16)))
+      : theme.gray(label.padEnd(16));
+    lines.push(row(`  ${labelText} ${theme.cyan(value)}`));
+  });
   lines.push(row(''));
   choices.forEach((choice, index) => {
     const active = index === selectedIndex;
