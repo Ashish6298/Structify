@@ -557,10 +557,14 @@ async function promptCustomKeyboardChoice(
       input.off('keypress', onKeypress);
       try {
         input.setRawMode?.(wasRaw);
-      } catch {}
+      } catch {
+        // Intentionally ignored during terminal cleanup.
+      }
       try {
         input.pause();
-      } catch {}
+      } catch {
+        // Intentionally ignored during terminal cleanup.
+      }
       if (output.isTTY) output.write('\x1b[?25h');
     };
     const unregister = registerPromptCleanup(cleanup);
@@ -1153,10 +1157,14 @@ export async function promptSetupTypeSelection(
   readline.emitKeypressEvents(input);
   try {
     input.setRawMode?.(true);
-  } catch (e) {}
+  } catch (e) {
+    // Intentionally ignored during terminal setup.
+  }
   try {
     input.resume();
-  } catch (e) {}
+  } catch (e) {
+    // Intentionally ignored during terminal setup.
+  }
   if (output.isTTY) {
     output.write('\x1b[?25l');
   }
@@ -1169,10 +1177,14 @@ export async function promptSetupTypeSelection(
       input.off('keypress', onKeypress);
       try {
         input.setRawMode?.(wasRaw);
-      } catch (e) {}
+      } catch (e) {
+        // Intentionally ignored during terminal cleanup.
+      }
       try {
         input.pause();
-      } catch (e) {}
+      } catch (e) {
+        // Intentionally ignored during terminal cleanup.
+      }
       if (output.isTTY) {
         output.write('\x1b[?25h');
       }
@@ -1402,10 +1414,14 @@ export async function runInitWizardStateController(
   readline.emitKeypressEvents(input);
   try {
     input.setRawMode?.(true);
-  } catch (e) {}
+  } catch (e) {
+    // Intentionally ignored during terminal setup.
+  }
   try {
     input.resume();
-  } catch (e) {}
+  } catch (e) {
+    // Intentionally ignored during terminal setup.
+  }
 
   let renderedLines = 0;
 
@@ -1569,10 +1585,14 @@ export async function runInitWizardStateController(
       input.off('keypress', onKeypress);
       try {
         input.setRawMode?.(wasRaw);
-      } catch (e) {}
+      } catch (e) {
+        // Intentionally ignored during terminal cleanup.
+      }
       try {
         input.pause();
-      } catch (e) {}
+      } catch (e) {
+        // Intentionally ignored during terminal cleanup.
+      }
       if (output.isTTY) {
         output.write('\x1b[?25h');
       }
@@ -1637,7 +1657,9 @@ export async function runInitWizardStateController(
             input.off('keypress', onKeypress);
             try {
               input.setRawMode?.(wasRaw);
-            } catch (e) {}
+            } catch (e) {
+              // Intentionally ignored during terminal cleanup.
+            }
             if (output.isTTY) {
               output.write('\x1b[?25h');
             }
@@ -1656,10 +1678,14 @@ export async function runInitWizardStateController(
             if (!accepted) {
               try {
                 input.setRawMode?.(true);
-              } catch (e) {}
+              } catch (e) {
+                // Intentionally ignored during terminal setup.
+              }
               try {
                 input.resume();
-              } catch (e) {}
+              } catch (e) {
+                // Intentionally ignored during terminal setup.
+              }
               input.on('keypress', onKeypress);
               render();
               return;
@@ -1670,7 +1696,9 @@ export async function runInitWizardStateController(
               settled = true;
               try {
                 input.pause();
-              } catch (e) {}
+              } catch (e) {
+                // Intentionally ignored during terminal cleanup.
+              }
               resolve({
                 setupType: 'custom',
                 projectName: normalized.normalized,
@@ -1681,10 +1709,14 @@ export async function runInitWizardStateController(
               currentStep = 'category';
               try {
                 input.setRawMode?.(true);
-              } catch (e) {}
+              } catch (e) {
+                // Intentionally ignored during terminal setup.
+              }
               try {
                 input.resume();
-              } catch (e) {}
+              } catch (e) {
+                // Intentionally ignored during terminal setup.
+              }
               input.on('keypress', onKeypress);
               render();
               return;
@@ -1740,7 +1772,9 @@ export async function runInitWizardStateController(
             input.off('keypress', onKeypress);
             try {
               input.setRawMode?.(wasRaw);
-            } catch (e) {}
+            } catch (e) {
+              // Intentionally ignored during terminal cleanup.
+            }
             if (output.isTTY) {
               output.write('\x1b[?25h');
             }
@@ -1762,10 +1796,14 @@ export async function runInitWizardStateController(
 
             try {
               input.setRawMode?.(true);
-            } catch (e) {}
+            } catch (e) {
+              // Intentionally ignored during terminal setup.
+            }
             try {
               input.resume();
-            } catch (e) {}
+            } catch (e) {
+              // Intentionally ignored during terminal setup.
+            }
             input.on('keypress', onKeypress);
 
             if (action === 'setup') {
