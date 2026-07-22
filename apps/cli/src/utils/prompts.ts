@@ -21,6 +21,7 @@ import {
   renderStylingPanel,
   renderReviewPanel,
   renderReadyToGeneratePanel,
+  renderWizardSelectionPanel,
 } from './ui.js';
 
 export interface QuestionMetadata {
@@ -61,6 +62,52 @@ interface PromptChoice {
   value: string;
   label: string;
 }
+
+const CUSTOM_CHOICE_DESCRIPTIONS: Record<string, Record<string, string>> = {
+  mode: {
+    'frontend-only': 'Generate a frontend application without a backend service.',
+    'backend-only': 'Generate a backend service without a frontend application.',
+    fullstack: 'Generate frontend and backend applications together.',
+  },
+  frontend: {
+    next: 'Generate the existing Next.js frontend structure.',
+    'vite-react': 'Generate the existing React and Vite frontend structure.',
+    none: 'Do not include a frontend framework.',
+  },
+  backend: {
+    express: 'Generate the existing Express backend structure.',
+    nest: 'Generate the existing NestJS backend structure.',
+    none: 'Do not include a backend framework.',
+  },
+  styling: {
+    tailwind: 'Include the existing Tailwind CSS configuration.',
+    mui: 'Include the existing Material UI configuration.',
+    none: 'Do not include a styling system.',
+  },
+  database: {
+    postgres: 'Configure the existing PostgreSQL database option.',
+    mongodb: 'Configure the existing MongoDB database option.',
+    none: 'Do not configure a database.',
+  },
+  orm: {
+    prisma: 'Use the existing Prisma configuration for PostgreSQL.',
+    mongoose: 'Use the existing Mongoose configuration for MongoDB.',
+    none: 'Do not configure a data mapper.',
+  },
+  packageManager: { npm: 'Use npm for generated project commands.' },
+  docker: {
+    true: 'Include the existing Docker configuration files.',
+    false: 'Do not include Docker configuration files.',
+  },
+  eslint: {
+    true: 'Include the existing ESLint configuration files.',
+    false: 'Do not include ESLint configuration files.',
+  },
+  prettier: {
+    true: 'Include the existing Prettier configuration files.',
+    false: 'Do not include Prettier configuration files.',
+  },
+};
 
 const WINDOWS_RESERVED_NAMES = new Set([
   'con',
@@ -232,13 +279,20 @@ class StablePromptRenderer {
       readline.clearScreenDown(this.output);
     }
 
-    const lines = [
-      ...this.createHeaderBlock(),
-      '',
-      'Use Up/Down to navigate  Enter to select',
-      '',
-      ...this.createOptionBlock(selectedIndex),
-    ];
+    const lines =
+      this.confirmationLabel === 'Generate Project'
+        ? renderReadyToGeneratePanel(
+            selectedIndex,
+            process.env.NO_COLOR === 'true' || process.argv.includes('--no-color'),
+            false,
+          )
+        : [
+            ...this.createHeaderBlock(),
+            '',
+            'Use Up/Down to navigate  Enter to select',
+            '',
+            ...this.createOptionBlock(selectedIndex),
+          ];
     this.output.write(`${lines.join('\n')}\n`);
     this.renderedLines = lines.length;
   }
@@ -459,6 +513,101 @@ export async function promptKeyboardChoice(
       }
     };
 
+    input.on('keypress', onKeypress);
+    render();
+  });
+}
+
+/**
+ * The custom branch uses the same panel primitive as the predefined branch.
+ * It deliberately owns one keypress handler for its lifetime and resolves a
+ * back action instead of nesting another prompt loop.
+ */
+async function promptCustomKeyboardChoice(
+  question: QuestionMetadata,
+  choices: PromptChoice[],
+  defaultValue: string | boolean | undefined,
+  step: number,
+  totalSteps: number,
+  summary: Array<{ label: string; value: string }>,
+  noColor: boolean,
+): Promise<string | '__back__'> {
+  runCentralizedCleanup();
+  const input = process.stdin;
+  const output = process.stdout;
+  const wasRaw = input.isRaw === true;
+  let selectedIndex = Math.max(
+    0,
+    choices.findIndex((choice) => choice.value === String(defaultValue)),
+  );
+  let renderedLines = 0;
+  let settled = false;
+
+  readline.emitKeypressEvents(input);
+  input.setRawMode?.(true);
+  input.resume();
+  if (output.isTTY) output.write('\x1b[?25l');
+
+  return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      if (settled) return;
+      settled = true;
+      unregister();
+      input.off('keypress', onKeypress);
+      try {
+        input.setRawMode?.(wasRaw);
+      } catch {}
+      try {
+        input.pause();
+      } catch {}
+      if (output.isTTY) output.write('\x1b[?25h');
+    };
+    const unregister = registerPromptCleanup(cleanup);
+    const render = () => {
+      if (renderedLines > 0) {
+        readline.moveCursor(output, 0, -renderedLines);
+        readline.clearScreenDown(output);
+      }
+      const lines = renderWizardSelectionPanel(
+        formatPromptTitle(question.question),
+        step,
+        totalSteps,
+        selectedIndex,
+        choices.map((choice) => ({
+          label: choice.label,
+          description:
+            CUSTOM_CHOICE_DESCRIPTIONS[question.key]?.[choice.value] ||
+            'Select this existing option.',
+        })),
+        summary,
+        noColor,
+      );
+      output.write(`${lines.join('\n')}\n`);
+      renderedLines = lines.length;
+    };
+    const onKeypress = (str: string, key: readline.Key) => {
+      if (key.ctrl && key.name === 'c') {
+        cleanup();
+        output.write('\n');
+        reject(new StructifyCLIError('USAGE_ERROR', 'User cancelled scaffolding execution.'));
+      } else if (key.name === 'escape') {
+        cleanup();
+        resolve('__back__');
+      } else if (
+        key.name === 'up' ||
+        key.name === 'down' ||
+        (isBooleanChoiceSet(choices) && (key.name === 'left' || key.name === 'right'))
+      ) {
+        selectedIndex = moveSelection(selectedIndex, key.name, choices.length);
+        render();
+      } else if (key.name === 'return' || key.name === 'enter') {
+        const value = choices[selectedIndex]?.value || String(defaultValue);
+        cleanup();
+        resolve(value);
+      } else if (str && str >= ' ' && str !== '\x7f') {
+        output.write('\x07');
+      }
+    };
     input.on('keypress', onKeypress);
     render();
   });
@@ -708,10 +857,9 @@ export class InteractivePromptEngine {
 
     let currentIndex = 0;
     let displayedStep = 1;
+    const totalSteps = this.questions.filter((q) => !skippedKeys.has(q.key)).length;
     const keyboardMode = supportsKeyboardNavigation();
-    if (keyboardMode) {
-      process.stdout.write('\nStructify Project Setup\n\n');
-    }
+    const noColor = process.env.NO_COLOR === 'true' || process.argv.includes('--no-color');
 
     let prompting = true;
     while (prompting) {
@@ -745,8 +893,8 @@ export class InteractivePromptEngine {
 
       let rawAnswer: string;
       if (keyboardMode && ((q.type === 'select' && choices) || q.type === 'boolean')) {
-        rawAnswer = await promptKeyboardChoice(
-          promptHeading.trimStart(),
+        const answer = await promptCustomKeyboardChoice(
+          q,
           q.type === 'boolean'
             ? [
                 { value: 'true', label: 'Yes' },
@@ -754,12 +902,19 @@ export class InteractivePromptEngine {
               ]
             : choices || [],
           q.type === 'boolean' ? String(Boolean(resolvedDefault)) : resolvedDefault,
-          {
-            confirmationLabel: getQuestionDisplayLabel(q.key),
-            step: displayedStep,
-            totalSteps: activeQuestions.length,
-          },
+          displayedStep,
+          totalSteps,
+          getCustomSelectionSummary(config),
+          noColor,
         );
+        if (answer === '__back__') {
+          if (currentIndex > 0) {
+            currentIndex--;
+            displayedStep--;
+          }
+          continue;
+        }
+        rawAnswer = answer;
       } else {
         rawAnswer = await askTypedLine(promptText);
       }
@@ -969,7 +1124,6 @@ export async function promptSetupTypeSelection(
   const wasRaw = input.isRaw === true;
   let settled = false;
   let renderedLines = 0;
-  const theme = getTheme(noColor);
 
   const render = () => {
     if (renderedLines > 0) {
@@ -1141,21 +1295,37 @@ export async function promptStylingSelection(): Promise<'tailwind' | 'mui' | 'no
   return ans as 'tailwind' | 'mui' | 'none';
 }
 
-function getQuestionDisplayLabel(key: string): string {
+function getCustomSelectionSummary(config: ProjectConfig): Array<{ label: string; value: string }> {
   const labels: Record<string, string> = {
-    projectName: 'Project Name',
-    mode: 'Project Mode',
-    frontend: 'Frontend Framework',
-    backend: 'Backend Framework',
-    styling: 'Styling',
-    database: 'Database',
-    orm: 'ORM',
-    packageManager: 'Package Manager',
-    docker: 'Docker',
-    eslint: 'ESLint',
-    prettier: 'Prettier',
+    'frontend-only': 'Frontend Only',
+    'backend-only': 'Backend Only',
+    fullstack: 'Fullstack',
+    next: 'Next.js',
+    'vite-react': 'React (Vite)',
+    express: 'Express',
+    nest: 'NestJS',
+    tailwind: 'Tailwind CSS',
+    mui: 'Material UI (MUI)',
+    postgres: 'PostgreSQL',
+    mongodb: 'MongoDB',
+    prisma: 'Prisma',
+    mongoose: 'Mongoose',
+    none: 'None',
   };
-  return labels[key] || key;
+  const selected: Array<[string, string | undefined]> = [
+    ['Setup Type', 'Build a Custom Project'],
+    ['Project Name', config.projectName],
+    ['Mode', config.mode],
+    ['Frontend', config.stack.frontend],
+    ['Backend', config.stack.backend],
+    ['Styling', config.stack.styling],
+    ['Database', config.stack.database],
+    ['ORM', config.stack.orm],
+    ['Package Manager', config.stack.packageManager],
+  ];
+  return selected
+    .filter(([, value]) => value !== undefined)
+    .map(([label, value]) => ({ label, value: labels[value || ''] || value || '' }));
 }
 
 export interface WizardResult {
@@ -1735,9 +1905,9 @@ export async function runInitWizardStateController(
             finalCategory === 'frontend'
               ? frontendTemplates[selectedTemplateIndex]
               : backendTemplates[selectedTemplateIndex];
-          const stylingVal =
+          const stylingVal: 'tailwind' | 'mui' | 'none' =
             finalCategory === 'frontend'
-              ? ['tailwind', 'mui', 'none'][selectedStylingIndex]
+              ? (['tailwind', 'mui', 'none'] as const)[selectedStylingIndex] || 'none'
               : 'none';
 
           resolve({

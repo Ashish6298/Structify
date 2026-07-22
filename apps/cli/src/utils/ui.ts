@@ -7,6 +7,7 @@ export interface UITheme {
   gray: (text: string) => string;
   green: (text: string) => string;
   yellow: (text: string) => string;
+  red: (text: string) => string;
   reset: string;
 }
 
@@ -19,6 +20,7 @@ export function getTheme(noColor: boolean): UITheme {
     gray: c('\x1b[90m'),
     green: c('\x1b[32m'),
     yellow: c('\x1b[33m'),
+    red: c('\x1b[31m'),
     reset: noColor ? '' : '\x1b[0m',
   };
 }
@@ -61,6 +63,187 @@ export function wrapText(text: string, maxLength: number): string[] {
   return lines;
 }
 
+/** A single option row used by both init wizard branches. */
+export interface WizardPanelChoice {
+  label: string;
+  description: string;
+}
+
+/**
+ * Renders the standard selection surface used by the interactive init wizard.
+ * Keeping this primitive here prevents the custom flow from growing a second
+ * prompt design system while allowing its dynamic questions to retain their
+ * existing values and validation rules.
+ */
+export function renderWizardSelectionPanel(
+  title: string,
+  step: number,
+  totalSteps: number,
+  selectedIndex: number,
+  choices: WizardPanelChoice[],
+  summary: Array<{ label: string; value: string }>,
+  noColor: boolean,
+): string[] {
+  const theme = getTheme(noColor);
+  const width = Math.max(50, Math.min(getTerminalWidth(), 80));
+  const innerWidth = width - 2;
+  const row = (content: string) =>
+    theme.gray('\u2502') +
+    content +
+    ' '.repeat(Math.max(0, innerWidth - stripAnsi(content).length)) +
+    theme.gray('\u2502');
+  const lines: string[] = [];
+  const borderTitle = title.toUpperCase();
+  lines.push(
+    theme.gray(
+      `\u250c\u2500\u2500 ${noColor ? borderTitle : theme.bold(borderTitle)} \u2500${'\u2500'.repeat(Math.max(0, width - borderTitle.length - 7))}\u2510`,
+    ),
+    row(`  ${theme.cyan(`Step ${step} of ${totalSteps}`)} ${theme.gray(`\u2022 ${title}`)}`),
+  );
+  summary.forEach(({ label, value }) =>
+    lines.push(row(`  ${theme.gray(`${label}`.padEnd(16))} ${theme.cyan(value)}`)),
+  );
+  lines.push(row(''));
+  choices.forEach((choice, index) => {
+    const active = index === selectedIndex;
+    const marker = active ? theme.cyan('\u276f') : ' ';
+    lines.push(row(`  ${marker}  ${active ? theme.bold(theme.cyan(choice.label)) : choice.label}`));
+    wrapText(choice.description, innerWidth - 6).forEach((description) =>
+      lines.push(row(`      ${theme.gray(description)}`)),
+    );
+    lines.push(row(''));
+  });
+  lines.push(theme.gray(`\u2514${'\u2500'.repeat(innerWidth)}\u2518`));
+  return lines;
+}
+
+/** Renders existing review rows in the same bordered visual language as selections. */
+export function renderWizardReviewPanel(reviewLines: string[], noColor: boolean): string[] {
+  const theme = getTheme(noColor);
+  const width = Math.max(50, Math.min(getTerminalWidth(), 80));
+  const innerWidth = width - 2;
+  const row = (content: string) =>
+    theme.gray('\u2502') +
+    content +
+    ' '.repeat(Math.max(0, innerWidth - stripAnsi(content).length)) +
+    theme.gray('\u2502');
+  const title = 'PROJECT REVIEW';
+  const lines = [
+    `  ${theme.cyan('Review & Generate')}`,
+    '',
+    theme.gray(
+      `\u250c\u2500\u2500 ${noColor ? title : theme.bold(title)} \u2500${'\u2500'.repeat(
+        Math.max(0, width - title.length - 7),
+      )}\u2510`,
+    ),
+    row(''),
+  ];
+  reviewLines.slice(1).forEach((line) => {
+    if (!line) {
+      lines.push(row(''));
+      return;
+    }
+    wrapText(line, innerWidth - 4).forEach((part) => lines.push(row(`  ${part}`)));
+  });
+  lines.push(theme.gray(`\u2514${'\u2500'.repeat(innerWidth)}\u2518`));
+  return lines;
+}
+
+export interface CustomReviewSection {
+  title: string;
+  rows: Array<{ label: string; value: string }>;
+}
+
+/** Shared final-review surface for the custom init branch. */
+export function renderCustomProjectReviewPanel(
+  step: number,
+  totalSteps: number,
+  summary: Array<{ label: string; value: string }>,
+  sections: CustomReviewSection[],
+  noColor: boolean,
+): string[] {
+  const theme = getTheme(noColor);
+  const width = Math.max(50, Math.min(getTerminalWidth(), 80));
+  const innerWidth = width - 2;
+  const row = (content: string) =>
+    theme.gray('\u2502') +
+    content +
+    ' '.repeat(Math.max(0, innerWidth - stripAnsi(content).length)) +
+    theme.gray('\u2502');
+  const lines = [
+    `  ${theme.cyan(`Step ${step} of ${totalSteps}`)} ${theme.gray('\u2022 Review & Generate')}`,
+    '',
+    ...summary.map(
+      ({ label, value }) => `  ${theme.gray(`${label}:`.padEnd(16))} ${theme.cyan(value)}`,
+    ),
+    '',
+  ];
+  const title = 'PROJECT REVIEW';
+  lines.push(
+    theme.gray(
+      `\u250c\u2500\u2500 ${noColor ? title : theme.bold(title)} \u2500${'\u2500'.repeat(Math.max(0, width - title.length - 7))}\u2510`,
+    ),
+    row(''),
+  );
+  sections.forEach((section, sectionIndex) => {
+    lines.push(row(`  ${theme.bold(theme.cyan(section.title))}`));
+    section.rows.forEach(({ label, value }) => {
+      const available = innerWidth - 23;
+      wrapText(value, available).forEach((part, index) =>
+        lines.push(
+          row(
+            index === 0
+              ? `    ${theme.gray('\u2022')} ${label.padEnd(18)} ${part}`
+              : `                         ${part}`,
+          ),
+        ),
+      );
+    });
+    if (sectionIndex < sections.length - 1) lines.push(row(''));
+  });
+  lines.push(row(''), theme.gray(`\u2514${'\u2500'.repeat(innerWidth)}\u2518`));
+  return lines;
+}
+
+export function renderCustomProjectOverviewPanel(
+  sections: CustomReviewSection[],
+  noColor: boolean,
+): string[] {
+  const theme = getTheme(noColor);
+  const width = Math.max(50, Math.min(getTerminalWidth(), 80));
+  const innerWidth = width - 2;
+  const row = (content: string) =>
+    theme.gray('\u2502') +
+    content +
+    ' '.repeat(Math.max(0, innerWidth - stripAnsi(content).length)) +
+    theme.gray('\u2502');
+  const title = 'PROJECT OVERVIEW';
+  const lines = [
+    theme.gray(
+      `\u250c\u2500\u2500 ${noColor ? title : theme.bold(title)} \u2500${'\u2500'.repeat(Math.max(0, width - title.length - 7))}\u2510`,
+    ),
+    row(''),
+  ];
+  sections.forEach((section, sectionIndex) => {
+    lines.push(row(`  ${theme.bold(theme.cyan(section.title))}`));
+    section.rows.forEach(({ label, value }) => {
+      wrapText(value, innerWidth - 23).forEach((part, index) =>
+        lines.push(
+          row(
+            index === 0
+              ? `    ${theme.gray('\u2022')} ${label.padEnd(18)} ${part}`
+              : `                         ${part}`,
+          ),
+        ),
+      );
+    });
+    if (sectionIndex < sections.length - 1)
+      lines.push(row(''), theme.gray(`\u251c${'\u2500'.repeat(innerWidth)}\u2524`), row(''));
+  });
+  lines.push(row(''), theme.gray(`\u2514${'\u2500'.repeat(innerWidth)}\u2518`));
+  return lines;
+}
+
 /**
  * Renders the Structify CLI welcome section.
  */
@@ -79,7 +262,6 @@ export function renderWelcomeSection(noColor: boolean): string[] {
   ];
 
   const version = getCliVersion();
-  const titleText = `Structify CLI v${version} • Tagline: Professional Project Scaffolding Platform`;
   const cleanTitle = `Structify CLI v${version} • Professional Project Scaffolding Platform`;
   const descText =
     'Welcome to the Structify scaffolding wizard. This interactive tool will guide you through configuring and generating a highly structured, production-ready project with your choice of frontend, backend, styling, database, and developer tools.';

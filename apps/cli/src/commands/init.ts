@@ -8,22 +8,19 @@ import { StructifyCLIError } from '../utils/error.js';
 import {
   InteractivePromptEngine,
   promptBooleanConfirmation,
-  promptProjectNameInput,
-  promptSetupTypeSelection,
-  promptTemplateCategory,
-  promptTemplateSelection,
-  promptStylingSelection,
-  promptKeyboardChoiceWithFallback,
   runInitWizardStateController,
   supportsKeyboardNavigation,
 } from '../utils/prompts.js';
 import {
   getTheme,
+  getTerminalWidth,
   renderGenerationPanel,
   renderProjectOverviewPanel,
   renderGeneratedFeaturesPanel,
   renderNextStepsPanel,
   renderQuickTipsPanel,
+  renderCustomProjectReviewPanel,
+  renderCustomProjectOverviewPanel,
 } from '../utils/ui.js';
 import { ConfigurationLoaderManager } from '../utils/loader.js';
 import { getElapsedMs } from '../utils/middleware.js';
@@ -165,6 +162,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
 
   let promptConfig: Partial<ProjectConfig> = {};
   let wizardConfirmed = true;
+  let isCustomWizard = false;
   if (!options.config && !options.preset && !options.presetFile && !options.yes) {
     const { setupType, projectName, category, templateId, styling, confirmed } =
       await runInitWizardStateController(options.projectName || 'my-structify-app', context);
@@ -173,6 +171,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     }
 
     if (setupType === 'custom') {
+      isCustomWizard = true;
       const promptEngine = new InteractivePromptEngine();
       promptConfig = await promptEngine.run({ projectName });
     } else {
@@ -282,7 +281,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
   if (normalized.templateId) {
     const template = PREDEFINED_TEMPLATES.find((t) => t.id === normalized.templateId);
     const templateName = template?.name || normalized.templateId;
-    const sections = getTemplateSections(normalized.templateId);
+    const sections = getTemplateSections(normalized.templateId || '');
     projectSummary = formatTemplateProjectSummary(
       normalized,
       targetDir,
@@ -395,7 +394,16 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
 
   if (!context.json && !selectedConfig.templateId) {
     output.info('');
-    projectSummary.forEach((line) => output.info(line));
+    const lines = isCustomWizard
+      ? renderCustomProjectReviewPanel(
+          getCustomReviewStep(normalized),
+          getCustomReviewStep(normalized),
+          getCustomReviewSummary(normalized),
+          getCustomReviewSections(normalized, targetDir, install),
+          context.noColor,
+        )
+      : projectSummary;
+    lines.forEach((line) => output.info(line));
   }
 
   // Confirmation Wizard
@@ -444,7 +452,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
             ? 'Material UI (MUI)'
             : 'None';
 
-    const stages = [
+    const stages: { id: string; name: string; status: 'pending' | 'running' | 'done' }[] = [
       { id: 'validate', name: 'Validating configuration', status: 'running' as const },
       { id: 'plan', name: 'Planning project generation', status: 'pending' as const },
       { id: 'template', name: 'Copying template files', status: 'pending' as const },
@@ -620,7 +628,50 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
       output.success('Structural validation passed.');
     }
   }
-  if (isInteractiveTTY) {
+  if (isCustomWizard) {
+    const theme = getTheme(context.noColor);
+    const exported = !options.yes && !options.config && !options.preset;
+    const lines = [
+      `  ${theme.bold(theme.green('Project Generated Successfully'))}`,
+      `  ${theme.gray('Structify has successfully scaffolded the selected project and everything is ready to begin development.')}`,
+      '',
+      ...renderCustomProjectOverviewPanel(
+        getCustomSuccessSections(
+          normalized,
+          targetDir,
+          result.generatedFiles.length,
+          result.durationMs,
+          context.packageVersion || '1.2.0',
+          exported,
+        ),
+        context.noColor,
+      ),
+      '',
+      ...renderGeneratedFeaturesPanel(
+        getCustomGeneratedFeatures(normalized, exported),
+        context.noColor,
+      ),
+      '',
+      ...renderNextStepsPanel(normalized.projectName, install, context.noColor),
+      '',
+      ...renderQuickTipsPanel(getCustomQuickTips(normalized), context.noColor),
+      '',
+    ];
+    const divider = theme.gray('─'.repeat(Math.max(50, Math.min(getTerminalWidth(), 80))));
+    lines.push(
+      divider,
+      '',
+      `  ${theme.green('✓')} ${theme.bold('Structify completed successfully.')}`,
+      '',
+      `  ${theme.bold('Happy Building.')}`,
+      '',
+      `  Command completed in ${(getElapsedMs(context.startTime) / 1000).toFixed(2)}s`,
+      '',
+      divider,
+      '',
+    );
+    lines.forEach((line) => output.info(line));
+  } else if (isInteractiveTTY) {
     const templateCategory = normalized.mode === 'backend-only' ? 'backend' : 'frontend';
     const finalCategoryLabel = templateCategory === 'backend' ? 'Backend' : 'Frontend';
     const template = PREDEFINED_TEMPLATES.find((item) => item.id === normalized.templateId);
@@ -663,8 +714,8 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     successLines.push('');
 
     // 2. GENERATED FEATURES
-    const sections = getTemplateSections(normalized.templateId);
-    const featuresLines = renderGeneratedFeaturesPanel(sections, context.noColor);
+    const sections = getTemplateSections(normalized.templateId || '');
+    const featuresLines = renderGeneratedFeaturesPanel(sections || [], context.noColor);
     successLines.push(...featuresLines);
     successLines.push('');
 
@@ -692,15 +743,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
     successLines.push('');
 
     // 5. COMPLETION FOOTER
-    const footerWidth = Math.max(
-      50,
-      Math.min(
-        getTheme(context.noColor).getTerminalWidth
-          ? getTheme(context.noColor).getTerminalWidth()
-          : 80,
-        80,
-      ),
-    );
+    const footerWidth = Math.max(50, Math.min(getTerminalWidth(), 80));
     const dividerLine = theme.gray('─'.repeat(footerWidth));
 
     successLines.push(dividerLine);
@@ -889,6 +932,154 @@ function formatValue(value: string): string {
     fullstack: 'Fullstack',
   };
   return labels[value] || value;
+}
+
+function getCustomReviewStep(config: NormalizedProjectConfig): number {
+  const configurationSteps =
+    1 +
+    (config.mode !== 'backend-only' ? 1 : 0) +
+    (config.mode !== 'frontend-only' ? 1 : 0) +
+    (config.mode !== 'backend-only' && config.stack.frontend !== 'none' ? 1 : 0) +
+    1 +
+    (config.stack.database !== 'none' ? 1 : 0) +
+    4;
+  return 3 + configurationSteps;
+}
+
+function yesNo(value: boolean): string {
+  return value ? 'Yes' : 'No';
+}
+
+function getCustomReviewSummary(
+  config: NormalizedProjectConfig,
+): Array<{ label: string; value: string }> {
+  return [
+    { label: 'Selected Setup', value: 'Build a Custom Project' },
+    { label: 'Project Name', value: config.projectName },
+    { label: 'Project Mode', value: formatValue(config.mode) },
+    ...(config.mode !== 'backend-only'
+      ? [{ label: 'Frontend', value: formatValue(config.stack.frontend) }]
+      : []),
+    ...(config.mode !== 'frontend-only'
+      ? [{ label: 'Backend', value: formatValue(config.stack.backend) }]
+      : []),
+    ...(config.mode !== 'backend-only'
+      ? [{ label: 'Styling', value: formatValue(config.stack.styling) }]
+      : []),
+    { label: 'Database', value: formatValue(config.stack.database) },
+    { label: 'ORM', value: formatValue(config.stack.orm) },
+  ];
+}
+
+function getCustomReviewSections(
+  config: NormalizedProjectConfig,
+  targetDir: string,
+  install: boolean,
+) {
+  return [
+    {
+      title: 'Project',
+      rows: [
+        { label: 'Name', value: config.projectName },
+        { label: 'Location', value: path.resolve(targetDir) },
+        { label: 'Setup Type', value: 'Build a Custom Project' },
+        { label: 'Mode', value: formatValue(config.mode) },
+      ],
+    },
+    {
+      title: 'Stack',
+      rows: [
+        { label: 'Frontend', value: formatValue(config.stack.frontend) },
+        { label: 'Backend', value: formatValue(config.stack.backend) },
+        { label: 'Styling', value: formatValue(config.stack.styling) },
+        { label: 'Database', value: formatValue(config.stack.database) },
+        { label: 'ORM', value: formatValue(config.stack.orm) },
+        { label: 'Package Manager', value: config.stack.packageManager },
+      ],
+    },
+    {
+      title: 'Tooling',
+      rows: [
+        { label: 'Docker', value: yesNo(config.tools.docker) },
+        { label: 'ESLint', value: yesNo(config.tools.eslint) },
+        { label: 'Prettier', value: yesNo(config.tools.prettier) },
+        { label: 'GitHub Actions', value: yesNo(config.tools.githubActions) },
+        { label: 'Install Dependencies', value: yesNo(install) },
+      ],
+    },
+  ];
+}
+
+function getCustomSuccessSections(
+  config: NormalizedProjectConfig,
+  targetDir: string,
+  files: number,
+  duration: number,
+  version: string,
+  exported: boolean,
+) {
+  return [
+    {
+      title: 'Project',
+      rows: [
+        { label: 'Name', value: config.projectName },
+        { label: 'Location', value: path.resolve(targetDir) },
+        { label: 'Setup Type', value: 'Build a Custom Project' },
+        { label: 'Mode', value: formatValue(config.mode) },
+      ],
+    },
+    {
+      title: 'Technology Stack',
+      rows: [
+        { label: 'Frontend Stack', value: formatValue(config.stack.frontend) },
+        { label: 'Backend Stack', value: formatValue(config.stack.backend) },
+        { label: 'Styling System', value: formatValue(config.stack.styling) },
+        { label: 'Database', value: formatValue(config.stack.database) },
+        { label: 'ORM', value: formatValue(config.stack.orm) },
+        { label: 'Package Manager', value: config.stack.packageManager },
+        { label: 'Docker', value: yesNo(config.tools.docker) },
+        { label: 'ESLint', value: yesNo(config.tools.eslint) },
+        { label: 'Prettier', value: yesNo(config.tools.prettier) },
+      ],
+    },
+    {
+      title: 'Generation Statistics',
+      rows: [
+        { label: 'Files Generated', value: String(files) },
+        { label: 'Duration', value: formatDuration(duration) },
+        { label: 'CLI Version', value: `v${version}` },
+        { label: 'Config Export', value: exported ? 'Exported' : 'Skipped' },
+        { label: 'Status', value: 'SUCCESS' },
+      ],
+    },
+  ];
+}
+
+function getCustomGeneratedFeatures(config: NormalizedProjectConfig, exported: boolean): string[] {
+  return [
+    ...(config.stack.frontend !== 'none' ? ['Frontend application'] : []),
+    ...(config.stack.backend !== 'none' ? ['Backend application'] : []),
+    ...(config.stack.styling !== 'none'
+      ? [`${formatValue(config.stack.styling)} configuration`]
+      : []),
+    ...(config.stack.database !== 'none' ? ['Database configuration'] : []),
+    ...(config.stack.orm !== 'none' ? ['ORM configuration'] : []),
+    ...(config.tools.docker ? ['Docker configuration'] : []),
+    ...(config.tools.eslint ? ['ESLint configuration'] : []),
+    ...(config.tools.prettier ? ['Prettier configuration'] : []),
+    ...(config.tools.githubActions ? ['GitHub Actions workflow'] : []),
+    ...(exported ? ['Structify configuration file'] : []),
+  ];
+}
+
+function getCustomQuickTips(config: NormalizedProjectConfig): string[] {
+  return [
+    ...(config.stack.database !== 'none'
+      ? ['Check environment variables before starting development.']
+      : []),
+    'Review the generated application folders before making changes.',
+    'Run the generated build or verification commands before deployment.',
+  ];
 }
 
 function classifyGenerationFailure(errors: string[]): {

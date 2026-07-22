@@ -1,0 +1,64 @@
+Structify init UI consistency verification
+=============================================
+
+Files changed by this milestone
+- apps/cli/src/utils/ui.ts
+- apps/cli/src/utils/prompts.ts
+- apps/cli/src/commands/init.ts (type-safe existing UI helper usage only)
+- apps/cli/src/custom-ui.spec.ts
+
+Custom-project screens modernized
+- Project mode, frontend, backend, styling, database, ORM, package manager,
+  Docker, ESLint, and Prettier selections now use the shared bordered panel.
+- Each uses the existing dynamic question set, current step count, compact
+  selected-value summary, ANSI-aware padding, descriptions, active marker, and
+  keyboard legend. No option values, defaults, validation, or configuration
+  mutation paths were changed.
+
+Shared UI/navigation reuse
+- Added renderWizardSelectionPanel in apps/cli/src/utils/ui.ts and used it from
+  the existing InteractivePromptEngine rather than adding a custom renderer.
+- Custom raw-mode prompts own exactly one keypress listener, unregister it on
+  Enter, Escape, and Ctrl+C, restore the previous raw-mode state, and resolve
+  Escape to the existing iterative question controller. No recursive prompt
+  loop was introduced.
+
+Focused checks
+- Typecheck: PASS
+- Build: PASS
+- Focused UI tests: PASS (14 tests, including widths 80/100/120/150 and 20
+  repeated selection cycles).
+- Terminal tests confirm full panel borders and ANSI-stripped visible widths at
+  80/100/120/150 columns. The renderer retains the established 80-column
+  maximum-width behavior for consistency with predefined panels.
+- No-color rendering is supported through the existing theme argument.
+
+Full-suite command results
+- npm run format:check: FAIL. Prettier reports existing formatting issues in
+  init.ts, prompts.ts, ui.ts, and existing specs; no bulk formatting was applied
+  because this is a focused UI-only change.
+- npm run lint: FAIL. Existing no-empty and no-control-regex violations are
+  present in prompts.ts and ui.ts. The new prompt cleanup follows the same
+  guarded raw-mode handling pattern; full lint cannot pass until the pre-existing
+  violations are addressed.
+- npm run typecheck: PASS.
+- npm run build: PASS.
+- npm test and the requested verification-script batch were started but did not
+  complete within the available execution window; no result is claimed.
+
+Predefined-flow regression and output equivalence
+- No predefined template choices, template data, generation code, normalized
+  configuration values, or output files were modified. Build/typecheck and the
+  existing predefined renderer remain intact. End-to-end generation/hash
+  comparisons were not completed in the available execution window.
+
+Cross-platform compatibility
+- Uses Node readline, existing raw-mode restoration, ANSI stripping, and the
+  established no-color/TTY checks; no platform-specific terminal APIs were added.
+
+Known limitations
+- Full validation and manual end-to-end generation checks remain incomplete.
+- The repository currently has formatting/lint failures that prevent a complete
+  green-suite claim.
+
+Verdict: NOT PASS (full requested verification could not be completed).
