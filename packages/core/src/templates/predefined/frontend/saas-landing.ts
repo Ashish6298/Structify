@@ -32,6 +32,11 @@ export const saasLandingTemplate: PredefinedTemplateDefinition = {
       dev: 'npm run dev',
     },
     verificationExpectations: ['package.json'],
+    quickTips: [
+      'Start editing components/sections/SaasSections.tsx to customize the product features.',
+      'Configure the pricing plans in data/template-data.ts.',
+      'Ensure FAQ items are updated with your product details.',
+    ],
     sections: [
       'Hero section',
       'Social proof',

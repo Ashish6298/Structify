@@ -8,8 +8,10 @@ import {
   renderReviewPanel,
   renderReadyToGeneratePanel,
   renderGenerationPanel,
-  renderSuccessSummaryPanel,
+  renderProjectOverviewPanel,
+  renderGeneratedFeaturesPanel,
   renderNextStepsPanel,
+  renderQuickTipsPanel,
   stripAnsi,
 } from './utils/ui.js';
 
@@ -362,7 +364,7 @@ describe('UI Panel Alignment Tests', () => {
     }
   });
 
-  it('should ensure all rows in renderSuccessSummaryPanel are aligned to the exact same visual width', () => {
+  it('should ensure all rows in renderProjectOverviewPanel are aligned to the exact same visual width', () => {
     const widths = [50, 60, 80];
 
     for (const width of widths) {
@@ -373,16 +375,59 @@ describe('UI Panel Alignment Tests', () => {
       });
 
       try {
-        const lines = renderSuccessSummaryPanel(
+        const lines = renderProjectOverviewPanel(
           'my-project',
           'D:\\Workspace\\my-project',
-          'Portfolio Website',
+          'Predefined Template',
           'Frontend',
+          'Portfolio Website',
           'Tailwind CSS',
           42,
           1200,
+          '1.2.0',
+          true,
           false,
         );
+        const panelLines = lines.filter((line) => {
+          const stripped = stripAnsi(line);
+          return stripped.startsWith('┌') || stripped.startsWith('│') || stripped.startsWith('└');
+        });
+
+        expect(panelLines.length).toBeGreaterThan(0);
+
+        for (const line of panelLines) {
+          const stripped = stripAnsi(line);
+          expect(stripped.length).toBe(width);
+
+          if (stripped.startsWith('┌')) {
+            expect(stripped.endsWith('┐')).toBe(true);
+          } else if (stripped.startsWith('│')) {
+            expect(stripped.endsWith('│')).toBe(true);
+          } else if (stripped.startsWith('└')) {
+            expect(stripped.endsWith('┘')).toBe(true);
+          }
+        }
+      } finally {
+        Object.defineProperty(process.stdout, 'columns', {
+          value: originalColumns,
+          configurable: true,
+        });
+      }
+    }
+  });
+
+  it('should ensure all rows in renderGeneratedFeaturesPanel are aligned to the exact same visual width', () => {
+    const widths = [50, 60, 80];
+
+    for (const width of widths) {
+      const originalColumns = process.stdout.columns;
+      Object.defineProperty(process.stdout, 'columns', {
+        value: width,
+        configurable: true,
+      });
+
+      try {
+        const lines = renderGeneratedFeaturesPanel(['Hero', 'Skills', 'Experience'], false);
         const panelLines = lines.filter((line) => {
           const stripped = stripAnsi(line);
           return stripped.startsWith('┌') || stripped.startsWith('│') || stripped.startsWith('└');
@@ -422,7 +467,47 @@ describe('UI Panel Alignment Tests', () => {
       });
 
       try {
-        const lines = renderNextStepsPanel(['cd project', 'npm install', 'npm run dev'], false);
+        const lines = renderNextStepsPanel('my-project', false, false);
+        const panelLines = lines.filter((line) => {
+          const stripped = stripAnsi(line);
+          return stripped.startsWith('┌') || stripped.startsWith('│') || stripped.startsWith('└');
+        });
+
+        expect(panelLines.length).toBeGreaterThan(0);
+
+        for (const line of panelLines) {
+          const stripped = stripAnsi(line);
+          expect(stripped.length).toBe(width);
+
+          if (stripped.startsWith('┌')) {
+            expect(stripped.endsWith('┐')).toBe(true);
+          } else if (stripped.startsWith('│')) {
+            expect(stripped.endsWith('│')).toBe(true);
+          } else if (stripped.startsWith('└')) {
+            expect(stripped.endsWith('┘')).toBe(true);
+          }
+        }
+      } finally {
+        Object.defineProperty(process.stdout, 'columns', {
+          value: originalColumns,
+          configurable: true,
+        });
+      }
+    }
+  });
+
+  it('should ensure all rows in renderQuickTipsPanel are aligned to the exact same visual width', () => {
+    const widths = [50, 60, 80];
+
+    for (const width of widths) {
+      const originalColumns = process.stdout.columns;
+      Object.defineProperty(process.stdout, 'columns', {
+        value: width,
+        configurable: true,
+      });
+
+      try {
+        const lines = renderQuickTipsPanel(['Tip 1', 'Tip 2'], false);
         const panelLines = lines.filter((line) => {
           const stripped = stripAnsi(line);
           return stripped.startsWith('┌') || stripped.startsWith('│') || stripped.startsWith('└');

@@ -32,6 +32,11 @@ export const portfolioTemplate: PredefinedTemplateDefinition = {
       dev: 'npm run dev',
     },
     verificationExpectations: ['package.json'],
+    quickTips: [
+      'Start editing components/sections/PortfolioSections.tsx to customize sections.',
+      'Update metadata in layout/PortfolioShell.tsx before deployment.',
+      'Replace placeholder portfolio items in data/template-data.ts with your own work.',
+    ],
     sections: [
       'Hero',
       'Social links',

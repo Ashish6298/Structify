@@ -20,8 +20,10 @@ import {
 import {
   getTheme,
   renderGenerationPanel,
-  renderSuccessSummaryPanel,
+  renderProjectOverviewPanel,
+  renderGeneratedFeaturesPanel,
   renderNextStepsPanel,
+  renderQuickTipsPanel,
 } from '../utils/ui.js';
 import { ConfigurationLoaderManager } from '../utils/loader.js';
 import { getElapsedMs } from '../utils/middleware.js';
@@ -637,34 +639,80 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
 
     // Branded success header
     successLines.push(`  ${theme.bold(theme.green('Project Generated Successfully'))}`);
+    successLines.push(
+      `  ${theme.gray('Structify has successfully scaffolded the selected project and everything is ready to begin development.')}`,
+    );
     successLines.push('');
 
-    // Summary panel
-    const summaryLines = renderSuccessSummaryPanel(
+    // 1. PROJECT OVERVIEW
+    const configExported = !options.yes && !options.config && !options.preset;
+    const overviewLines = renderProjectOverviewPanel(
       normalized.projectName,
       path.resolve(targetDir),
-      templateLabel,
+      'Predefined Template',
       finalCategoryLabel,
+      templateLabel,
       stylingLabel,
       result.generatedFiles.length,
       result.durationMs,
+      context.packageVersion || '1.2.0',
+      configExported,
       context.noColor,
     );
-    successLines.push(...summaryLines);
+    successLines.push(...overviewLines);
     successLines.push('');
 
-    // Next steps panel
-    const nextStepsLines = renderNextStepsPanel(nextSteps, context.noColor);
+    // 2. GENERATED FEATURES
+    const sections = getTemplateSections(normalized.templateId);
+    const featuresLines = renderGeneratedFeaturesPanel(sections, context.noColor);
+    successLines.push(...featuresLines);
+    successLines.push('');
+
+    // 3. NEXT STEPS
+    const nextStepsLines = renderNextStepsPanel(normalized.projectName, install, context.noColor);
     successLines.push(...nextStepsLines);
     successLines.push('');
 
-    // Concise completion message and styled command timing
-    const elapsed = getElapsedMs(context.startTime);
-    successLines.push(`  ${theme.gray('Structify initialization wizard completed successfully.')}`);
-    successLines.push(`  ${theme.gray('Terminal session is returning to normal.')}`);
-    successLines.push(
-      `  ${theme.green(`Command "init" completed successfully in ${elapsed.toFixed(2)}ms.`)}`,
+    // 4. QUICK TIPS
+    const quickTips =
+      template?.quickTips ||
+      (templateCategory === 'backend'
+        ? [
+            'Configure your environment variables.',
+            'Test the health endpoint.',
+            'Begin adding API routes.',
+          ]
+        : [
+            'Start editing src/app/page.tsx to customize the landing page.',
+            'Update metadata before deployment.',
+            'Replace placeholder assets with your own branding.',
+          ]);
+    const tipsLines = renderQuickTipsPanel(quickTips, context.noColor);
+    successLines.push(...tipsLines);
+    successLines.push('');
+
+    // 5. COMPLETION FOOTER
+    const footerWidth = Math.max(
+      50,
+      Math.min(
+        getTheme(context.noColor).getTerminalWidth
+          ? getTheme(context.noColor).getTerminalWidth()
+          : 80,
+        80,
+      ),
     );
+    const dividerLine = theme.gray('─'.repeat(footerWidth));
+
+    successLines.push(dividerLine);
+    successLines.push('');
+    successLines.push(`  ${theme.green('✓')} ${theme.bold('Structify completed successfully.')}`);
+    successLines.push('');
+    successLines.push(`  ${theme.bold('Happy Building.')}`);
+    successLines.push('');
+    const elapsed = getElapsedMs(context.startTime);
+    successLines.push(`  Command completed in ${(elapsed / 1000).toFixed(2)}s`);
+    successLines.push('');
+    successLines.push(dividerLine);
     successLines.push('');
 
     successLines.forEach((line) => output.info(line));

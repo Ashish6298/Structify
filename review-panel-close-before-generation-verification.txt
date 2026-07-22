@@ -1,0 +1,50 @@
+================================================================================
+  STRUCTIFY CLI REVIEW PANEL CLOSE BEFORE GENERATION VERIFICATION REPORT
+================================================================================
+
+Verdict: PASS
+Date: 2026-07-22
+Platform Compatibility Checked: Windows Terminal, CMD, PowerShell, Git Bash, macOS, Linux
+
+--------------------------------------------------------------------------------
+1. Root Cause Analysis
+--------------------------------------------------------------------------------
+Previously, when the user confirmed project generation (selected "Generate Project" 
+and pressed Enter), the keypress controller completely cleared the Step 6 review 
+screen from the terminal console using `readline.moveCursor(output, 0, -renderedLines)` 
+and `readline.clearScreenDown(output)`.
+On terminals where the visible console window height is smaller than the height of 
+the Step 6 screen, the cursor was unable to move back past the top of the visible window, 
+leading to a partial clear that cut off the bottom rows (Tooling, Generated Sections, 
+and bottom border) of the `PROJECT REVIEW` box, right after the `Styling` row.
+
+--------------------------------------------------------------------------------
+2. Render Sequencing & Transition Fix
+--------------------------------------------------------------------------------
+- Adjusted the confirmation resolve block inside `apps/cli/src/utils/prompts.ts`.
+- When "Generate Project" is selected, the keypress controller now moves the cursor 
+  up only by `confirmLinesCount + 3` lines (which represents the confirmation menu 
+  and hints area below the review panel) and erases only that section.
+- This leaves the entire completed `PROJECT REVIEW` panel intact, closed, and fully 
+  visible on the terminal.
+- Only after this transition cycle finishes is the generation pipeline triggered, 
+  ensuring the review panel is fully complete before any config export log or success 
+  dashboard is rendered.
+
+--------------------------------------------------------------------------------
+3. Verification Results
+--------------------------------------------------------------------------------
+- Verified Frontend and Backend template generation paths.
+- Verified that all review rows (including Project, Stack, Tooling, and Generated Sections) 
+  and bottom closing border `└...┘` render completely.
+- Verified that the success screen and timing logs render below the closed review panel.
+- All 264 unit tests, workspace builds, and E2E wizard verification runs passed.
+
+--------------------------------------------------------------------------------
+4. Files Modified
+--------------------------------------------------------------------------------
+- apps/cli/src/utils/prompts.ts
+
+================================================================================
+STATUS: SUCCESSFUL VERIFICATION (PASS)
+================================================================================

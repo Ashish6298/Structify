@@ -910,16 +910,19 @@ export function renderGenerationPanel(
 }
 
 /**
- * Renders the success summary details.
+ * Renders the project overview summary details.
  */
-export function renderSuccessSummaryPanel(
+export function renderProjectOverviewPanel(
   projectName: string,
   targetDir: string,
-  templateLabel: string,
+  setupType: string,
   category: string,
+  templateLabel: string,
   stylingLabel: string,
   fileCount: number,
   durationMs: number,
+  version: string,
+  configExported: boolean,
   noColor: boolean,
 ): string[] {
   const theme = getTheme(noColor);
@@ -935,8 +938,8 @@ export function renderSuccessSummaryPanel(
     return theme.gray('│') + content + ' '.repeat(padding) + theme.gray('│');
   };
 
-  // Top border: title treatment "PROJECT SUMMARY"
-  const title = 'PROJECT SUMMARY';
+  // Top border: title treatment "PROJECT OVERVIEW"
+  const title = 'PROJECT OVERVIEW';
   const topBorderRightLen = width - 4 - title.length - 2;
   const topBorder = theme.gray(
     '┌── ' +
@@ -950,30 +953,107 @@ export function renderSuccessSummaryPanel(
   // Blank spacer row
   lines.push(formatRow(''));
 
-  lines.push(formatRow(`  ${theme.gray('Project Name:')}      ${projectName}`));
+  // Section 1: Project
+  lines.push(formatRow(`  ${theme.bold(theme.cyan('Project'))}`));
+  lines.push(formatRow(`    ${theme.gray('•')} Name:          ${projectName}`));
 
   // Wrap location folder path to fit inside the panel
   const wrappedLocation = wrapText(targetDir, innerWidth - 22);
   wrappedLocation.forEach((locLine, locIdx) => {
     if (locIdx === 0) {
-      lines.push(formatRow(`  ${theme.gray('Location:')}          ${locLine}`));
+      lines.push(formatRow(`    ${theme.gray('•')} Location:      ${locLine}`));
     } else {
       lines.push(formatRow(`                    ${locLine}`));
     }
   });
 
-  lines.push(formatRow(`  ${theme.gray('Template:')}          ${templateLabel}`));
-  lines.push(formatRow(`  ${theme.gray('Category:')}          ${category}`));
-  lines.push(
-    formatRow(`  ${theme.gray('Frontend Stack:')}    ${category === 'Backend' ? 'none' : 'next'}`),
-  );
-  if (category === 'Frontend') {
-    lines.push(formatRow(`  ${theme.gray('Styling System:')}    ${stylingLabel}`));
+  lines.push(formatRow(`    ${theme.gray('•')} Setup Type:     ${setupType}`));
+  lines.push(formatRow(`    ${theme.gray('•')} Category:       ${category}`));
+  lines.push(formatRow(`    ${theme.gray('•')} Template:       ${templateLabel}`));
+
+  lines.push(formatRow(''));
+  lines.push(theme.gray('├' + '─'.repeat(innerWidth) + '┤'));
+  lines.push(formatRow(''));
+
+  // Section 2: Technology Stack
+  lines.push(formatRow(`  ${theme.bold(theme.cyan('Technology Stack'))}`));
+  if (category === 'Backend') {
+    lines.push(
+      formatRow(
+        `    ${theme.gray('•')} Backend Stack:  ${templateLabel.split(' ')[0] || 'Node.js'}`,
+      ),
+    );
+  } else {
+    lines.push(formatRow(`    ${theme.gray('•')} Frontend Stack: Next.js (React)`));
+    lines.push(formatRow(`    ${theme.gray('•')} Styling System: ${stylingLabel}`));
   }
-  lines.push(formatRow(`  ${theme.gray('Package Manager:')}   npm`));
-  lines.push(formatRow(`  ${theme.gray('Generated Files:')}   ${fileCount}`));
-  lines.push(formatRow(`  ${theme.gray('Duration:')}          ${(durationMs / 1000).toFixed(2)}s`));
-  lines.push(formatRow(`  ${theme.gray('Enabled Tooling:')}    ESLint, Prettier`));
+  lines.push(formatRow(`    ${theme.gray('•')} Package Mgr:   npm`));
+  lines.push(formatRow(`    ${theme.gray('•')} Docker:        ${theme.gray('No')}`));
+  lines.push(formatRow(`    ${theme.gray('•')} ESLint:        ${theme.green('Yes')}`));
+  lines.push(formatRow(`    ${theme.gray('•')} Prettier:      ${theme.green('Yes')}`));
+
+  lines.push(formatRow(''));
+  lines.push(theme.gray('├' + '─'.repeat(innerWidth) + '┤'));
+  lines.push(formatRow(''));
+
+  // Section 3: Statistics
+  lines.push(formatRow(`  ${theme.bold(theme.cyan('Generation Statistics'))}`));
+  lines.push(formatRow(`    ${theme.gray('•')} Files Gen:      ${fileCount}`));
+  lines.push(
+    formatRow(`    ${theme.gray('•')} Duration:       ${(durationMs / 1000).toFixed(2)}s`),
+  );
+  lines.push(formatRow(`    ${theme.gray('•')} CLI Version:    v${version}`));
+  lines.push(
+    formatRow(
+      `    ${theme.gray('•')} Config Export:  ${configExported ? theme.green('Exported') : theme.gray('Skipped')}`,
+    ),
+  );
+  lines.push(formatRow(`    ${theme.gray('•')} Status:         ${theme.green('SUCCESS')}`));
+
+  lines.push(formatRow(''));
+
+  // Bottom border
+  const bottomBorder = theme.gray('└' + '─'.repeat(innerWidth) + '┘');
+  lines.push(bottomBorder);
+
+  return lines;
+}
+
+/**
+ * Renders the generated features checklist panel.
+ */
+export function renderGeneratedFeaturesPanel(sections: string[], noColor: boolean): string[] {
+  const theme = getTheme(noColor);
+  const width = Math.max(50, Math.min(getTerminalWidth(), 80));
+  const innerWidth = width - 2;
+
+  const lines: string[] = [];
+
+  // Helper to format a row with exact padding and borders
+  const formatRow = (content: string): string => {
+    const visualLen = stripAnsi(content).length;
+    const padding = Math.max(0, innerWidth - visualLen);
+    return theme.gray('│') + content + ' '.repeat(padding) + theme.gray('│');
+  };
+
+  // Top border: title treatment "GENERATED FEATURES"
+  const title = 'GENERATED FEATURES';
+  const topBorderRightLen = width - 4 - title.length - 2;
+  const topBorder = theme.gray(
+    '┌── ' +
+      (noColor ? title : theme.bold(title)) +
+      ' ' +
+      '─'.repeat(Math.max(0, topBorderRightLen)) +
+      '┐',
+  );
+  lines.push(topBorder);
+
+  // Blank spacer row
+  lines.push(formatRow(''));
+
+  sections.forEach((s) => {
+    lines.push(formatRow(`  ${theme.green('✓')} ${s}`));
+  });
 
   lines.push(formatRow(''));
 
@@ -987,7 +1067,11 @@ export function renderSuccessSummaryPanel(
 /**
  * Renders the next steps command layout.
  */
-export function renderNextStepsPanel(nextSteps: string[], noColor: boolean): string[] {
+export function renderNextStepsPanel(
+  projectName: string,
+  install: boolean,
+  noColor: boolean,
+): string[] {
   const theme = getTheme(noColor);
   const width = Math.max(50, Math.min(getTerminalWidth(), 80));
   const innerWidth = width - 2;
@@ -1016,8 +1100,83 @@ export function renderNextStepsPanel(nextSteps: string[], noColor: boolean): str
   // Blank spacer row
   lines.push(formatRow(''));
 
-  nextSteps.forEach((step, idx) => {
-    lines.push(formatRow(`  ${idx + 1}.  ${theme.green(step)}`));
+  let stepNum = 1;
+
+  // Step 1: Open project
+  lines.push(formatRow(`  ${stepNum++}. Open your project`));
+  lines.push(formatRow(`     ${theme.green(`cd ${projectName}`)}`));
+  lines.push(formatRow(''));
+
+  // Step 2: Install dependencies (if not pre-installed)
+  if (!install) {
+    lines.push(formatRow(`  ${stepNum++}. Install dependencies`));
+    lines.push(formatRow(`     ${theme.green('npm install')}`));
+    lines.push(formatRow(''));
+  }
+
+  // Step 3: Start development server
+  lines.push(formatRow(`  ${stepNum++}. Start development server`));
+  lines.push(formatRow(`     ${theme.green('npm run dev')}`));
+  lines.push(formatRow(''));
+
+  // Step 4: Open in editor
+  lines.push(formatRow(`  ${stepNum++}. Open in your editor`));
+  lines.push(formatRow(`     ${theme.green('code .')}`));
+  lines.push(formatRow(''));
+
+  // Step 5: Git init
+  lines.push(formatRow(`  ${stepNum++}. Initialize Git repository (optional)`));
+  lines.push(formatRow(`     ${theme.green('git init')}`));
+  lines.push(formatRow(''));
+
+  // Bottom border
+  const bottomBorder = theme.gray('└' + '─'.repeat(innerWidth) + '┘');
+  lines.push(bottomBorder);
+
+  return lines;
+}
+
+/**
+ * Renders the quick tips panel.
+ */
+export function renderQuickTipsPanel(quickTips: string[], noColor: boolean): string[] {
+  const theme = getTheme(noColor);
+  const width = Math.max(50, Math.min(getTerminalWidth(), 80));
+  const innerWidth = width - 2;
+
+  const lines: string[] = [];
+
+  // Helper to format a row with exact padding and borders
+  const formatRow = (content: string): string => {
+    const visualLen = stripAnsi(content).length;
+    const padding = Math.max(0, innerWidth - visualLen);
+    return theme.gray('│') + content + ' '.repeat(padding) + theme.gray('│');
+  };
+
+  // Top border: title treatment "QUICK TIPS"
+  const title = 'QUICK TIPS';
+  const topBorderRightLen = width - 4 - title.length - 2;
+  const topBorder = theme.gray(
+    '┌── ' +
+      (noColor ? title : theme.bold(title)) +
+      ' ' +
+      '─'.repeat(Math.max(0, topBorderRightLen)) +
+      '┐',
+  );
+  lines.push(topBorder);
+
+  // Blank spacer row
+  lines.push(formatRow(''));
+
+  quickTips.forEach((tip) => {
+    const wrappedTip = wrapText(tip, innerWidth - 6);
+    wrappedTip.forEach((tipLine, idx) => {
+      if (idx === 0) {
+        lines.push(formatRow(`  ${theme.cyan('•')} ${tipLine}`));
+      } else {
+        lines.push(formatRow(`    ${tipLine}`));
+      }
+    });
   });
 
   lines.push(formatRow(''));

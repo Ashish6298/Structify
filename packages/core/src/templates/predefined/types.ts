@@ -18,6 +18,7 @@ export interface PredefinedTemplate {
   components?: string[];
   layoutType?: string;
   successSummary?: string;
+  quickTips?: string[];
 }
 
 export type TemplateKind = 'portfolio' | 'saas' | 'dashboard' | 'agency' | 'blog';

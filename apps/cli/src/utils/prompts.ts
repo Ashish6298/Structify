@@ -1689,13 +1689,13 @@ export async function runInitWizardStateController(
 
         if (key.name === 'return' || key.name === 'enter') {
           cleanup();
-          if (renderedLines > 0) {
-            readline.moveCursor(output, 0, -renderedLines);
-            readline.clearScreenDown(output);
-          }
 
           if (selectedConfirmIndex === 1) {
-            // Cancel selected
+            // Cancel selected: clear the entire screen region
+            if (renderedLines > 0) {
+              readline.moveCursor(output, 0, -renderedLines);
+              readline.clearScreenDown(output);
+            }
             resolve({
               setupType: 'predefined',
               projectName: typedProjectName,
@@ -1704,7 +1704,18 @@ export async function runInitWizardStateController(
             return;
           }
 
-          // Generate selected
+          // Generate selected: leave review panel intact, clear only confirmation menu + hints
+          const confirmLinesCount = renderReadyToGeneratePanel(
+            selectedConfirmIndex,
+            noColor,
+            false,
+          ).length;
+          const linesToClear = confirmLinesCount + 3; // blank + confirmLines + blank + hints
+          if (renderedLines > 0) {
+            readline.moveCursor(output, 0, -linesToClear);
+            readline.clearScreenDown(output);
+          }
+
           const finalCategory = selectedCategoryIndex === 0 ? 'frontend' : 'backend';
           const frontendTemplates = [
             'portfolio-website',

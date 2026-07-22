@@ -32,6 +32,11 @@ export const adminDashboardTemplate: PredefinedTemplateDefinition = {
       dev: 'npm run dev',
     },
     verificationExpectations: ['package.json'],
+    quickTips: [
+      'Customize dashboard navigation tabs in layout/DashboardShell.tsx.',
+      'Fetch your actual database metrics to replace mock chart data.',
+      'Configure table headers in components/sections/DashboardSections.tsx.',
+    ],
     sections: [
       'Sidebar layout',
       'Header controls',
