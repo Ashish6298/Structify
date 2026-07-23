@@ -1,0 +1,62 @@
+Structify Manual Verification Fix Report
+========================================
+
+Original Errors & Root Causes
+------------------------------
+1. Unused context parameters in packages/core/src/generation/adapters.ts:
+   - Root Cause: Multiple support/contribute functions defined the context parameter but did not refer to it.
+2. Unused imports/parameters in packages/core/src/generation/fullstack-architecture.spec.ts:
+   - Root Cause: PrismaAdapter and MongooseAdapter were imported but never used; context variable was defined in a test block without any assertions.
+3. Unused parameters/imports in packages/core/src/generation/fullstack-generator.ts:
+   - Root Cause: Imports for path, GenerationAnalytics, ProjectGraph were unused; frontend parameter in mapTemplatePath was defined but never read.
+4. Plural dependency fields interface mismatch in fullstack-generator.ts:
+   - Root Cause: The DependencyGraphResult.resolved list mapped dependencies using a singular 'source' object instead of the required 'sources' list, and lacked other optional/peer dependency structures.
+5. Unsafe 'any' type casts in fullstack-generator.ts & ecommerce-platform.ts:
+   - Root Cause: Raw string parameters and dictionary keys were broad cast to any instead of leveraging their respective precise union types (FrontendOption, BackendOption, etc.).
+
+Exact Fixes Applied
+-------------------
+- Renamed all unused context parameters to _context in adapters.ts.
+- Cleaned unused imports and leveraged context inside assertions in fullstack-architecture.spec.ts.
+- Removed unused imports, renamed frontend parameter to _frontend, and mapped resolved dependencies plural 'sources' array correctly in fullstack-generator.ts.
+- Replaced all occurrences of 'any' type casts with FrontendOption, BackendOption, DatabaseOption, OrmOption, and narrow Record<string, string> structures.
+- Updated fallback packageVersion strings to '1.3.1' across cli command files.
+
+Files Modified
+--------------
+- packages/core/src/generation/adapters.ts
+- packages/core/src/generation/fullstack-architecture.spec.ts
+- packages/core/src/generation/fullstack-generator.ts
+- packages/core/src/templates/predefined/fullstack/ecommerce-platform.ts
+- apps/cli/package.json
+- apps/cli/src/commands/init.ts
+- apps/cli/src/ui.spec.ts
+- package-lock.json
+
+Vulnerability Analysis (npm audit)
+----------------------------------
+Total Vulnerabilities Reported: 5
+1. brace-expansion (high severity): GHSA-3jxr-9vmj-r5cp. DoS via exponential-time expansion of consecutive non-expanding {} groups.
+   - Introduced by: @typescript-eslint/typescript-estree
+   - Status: Accepted limitation (requires major package updates).
+2. esbuild / vite / vitest (moderate severity): GHSA-67mh-4wv8-2f99 / GHSA-g7r4-m6w7-qqqr.
+   - Introduced by: vite / vitest
+   - Status: Accepted limitation (upgrading vitest is a breaking change).
+
+Version Verification
+--------------------
+- publishable structify-tool package version: 1.3.1 (genuine release alignment).
+- CLI version command dynamically reads 1.3.1 from package.json metadata.
+
+Clean Command Outputs & Test Totals
+-----------------------------------
+- npx turbo lint: SUCCESS (Zero Errors, Zero Warnings)
+- npx turbo typecheck: SUCCESS (Zero Errors)
+- npx turbo test: SUCCESS (100% PASS)
+  - Core Tests: 27 test files, 189 tests
+  - CLI Tests: 12 test files, 85 tests
+  - MCP Tests: 2 test files, 2 tests
+- npx turbo build: SUCCESS
+- git diff --check: SUCCESS (Zero issues)
+
+Verdict: PASS

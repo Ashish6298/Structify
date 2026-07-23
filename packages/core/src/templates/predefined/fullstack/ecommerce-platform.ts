@@ -4,7 +4,13 @@ import {
   DEFAULT_FULLSTACK_WORKSPACE,
   FullstackFeatureId,
 } from '../../../generation/fullstack-architecture.js';
-import { NormalizedProjectConfig } from '../../../types/index.js';
+import {
+  NormalizedProjectConfig,
+  FrontendOption,
+  BackendOption,
+  DatabaseOption,
+  OrmOption,
+} from '../../../types/index.js';
 
 export const ecommercePlatformTemplate: PredefinedTemplateDefinition = {
   metadata: {
@@ -73,11 +79,11 @@ export const ecommercePlatformTemplate: PredefinedTemplateDefinition = {
         mode: 'fullstack',
         language: 'typescript',
         stack: {
-          frontend: frontend as any,
-          backend: backend as any,
+          frontend: frontend as FrontendOption,
+          backend: backend as BackendOption,
           styling: 'tailwind' as const,
-          database: database as any,
-          orm: orm as any,
+          database: database as DatabaseOption,
+          orm: orm as OrmOption,
           packageManager: 'npm' as const,
         },
         tools: {

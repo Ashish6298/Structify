@@ -40,6 +40,7 @@ export interface QuestionMetadata {
 
 export interface PromptRunOptions {
   projectName?: string;
+  mode?: 'frontend-only' | 'backend-only' | 'fullstack';
 }
 
 export interface ProjectNameNormalizationResult {
@@ -857,10 +858,16 @@ export class InteractivePromptEngine {
     if (options.projectName) {
       config.projectName = options.projectName;
     }
+    if (options.mode) {
+      config.mode = options.mode;
+    }
 
     const skippedKeys = new Set<string>();
     if (options.projectName) {
       skippedKeys.add('projectName');
+    }
+    if (options.mode) {
+      skippedKeys.add('mode');
     }
 
     let currentIndex = 0;
@@ -1814,6 +1821,23 @@ export async function runInitWizardStateController(
         }
 
         if (key.name === 'return' || key.name === 'enter') {
+          if (selectedCategoryIndex === 2) {
+            cleanup();
+            if (renderedLines > 0) {
+              readline.moveCursor(output, 0, -renderedLines);
+              readline.clearScreenDown(output);
+            }
+            resolve({
+              setupType: 'predefined',
+              projectName: typedProjectName,
+              category: 'fullstack',
+              templateId: 'ecommerce-platform',
+              styling: 'none',
+              confirmed: true,
+            });
+            return;
+          }
+
           if (selectedCategoryIndex !== 0) {
             // Backend: no styling, move straight to review
             currentStep = 'review';

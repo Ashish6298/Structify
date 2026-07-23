@@ -184,7 +184,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
         // Fullstack predefined templates reuse the established stack-selection
         // engine; the template remains an overlay, never a fixed stack preset.
         const promptEngine = new InteractivePromptEngine();
-        const selectedStack = await promptEngine.run({ projectName });
+        const selectedStack = await promptEngine.run({ projectName, mode: 'fullstack' });
         promptConfig = { ...selectedStack, projectName, templateId };
       } else {
         promptConfig = {
@@ -649,7 +649,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
           targetDir,
           result.generatedFiles.length,
           result.durationMs,
-          context.packageVersion || '1.2.0',
+          context.packageVersion || '1.3.1',
           exported,
         ),
         context.noColor,
@@ -714,7 +714,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
       stylingLabel,
       result.generatedFiles.length,
       result.durationMs,
-      context.packageVersion || '1.2.0',
+      context.packageVersion || '1.3.1',
       configExported,
       context.noColor,
     );

@@ -320,7 +320,7 @@ export class ExpressAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && context.config.stack.backend === 'express';
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       dependencies: [
         {
@@ -416,7 +416,7 @@ export class NestAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && context.config.stack.backend === 'nest';
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       dependencies: [
         {
@@ -526,7 +526,7 @@ export class PostgresAdapter implements FullstackAdapter {
   supports(context: FullstackGenerationContext) {
     return context.config.mode === 'fullstack' && context.config.stack.database === 'postgres';
   }
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {};
   }
 }
@@ -537,7 +537,7 @@ export class MongoDbAdapter implements FullstackAdapter {
   supports(context: FullstackGenerationContext) {
     return context.config.mode === 'fullstack' && context.config.stack.database === 'mongodb';
   }
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {};
   }
 }
@@ -554,7 +554,7 @@ export class PrismaAdapter implements FullstackAdapter {
     );
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       dependencies: [
         {
@@ -600,7 +600,7 @@ export class MongooseAdapter implements FullstackAdapter {
     );
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       dependencies: [
         {
@@ -635,7 +635,7 @@ export class DockerAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && !!context.config.tools.docker;
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       files: [
         {
@@ -661,7 +661,7 @@ export class EslintAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && !!context.config.tools.eslint;
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       dependencies: [
         {
@@ -705,7 +705,7 @@ export class PrettierAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && !!context.config.tools.prettier;
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       dependencies: [
         {
@@ -735,7 +735,7 @@ export class GithubActionsAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && !!context.config.tools.githubActions;
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       files: [
         {
@@ -756,7 +756,7 @@ export class GitAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && !!context.config.tools.git;
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       files: [
         {
@@ -777,7 +777,7 @@ export class EditorconfigAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && !!context.config.tools.editorconfig;
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       files: [
         {
@@ -798,7 +798,7 @@ export class TailwindAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && context.config.stack.styling === 'tailwind';
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       dependencies: [
         {
@@ -847,7 +847,7 @@ export class MuiAdapter implements FullstackAdapter {
     return context.config.mode === 'fullstack' && context.config.stack.styling === 'mui';
   }
 
-  contribute(context: FullstackGenerationContext): FullstackContribution {
+  contribute(_context: FullstackGenerationContext): FullstackContribution {
     return {
       dependencies: [
         {

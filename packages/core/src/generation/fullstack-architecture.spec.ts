@@ -6,14 +6,7 @@ import {
   resolveFeatureModules,
 } from './fullstack-architecture.js';
 import { createFullstackWorkspaceGenerationPlan } from './fullstack-generator.js';
-import {
-  NextAdapter,
-  ViteReactAdapter,
-  ExpressAdapter,
-  NestAdapter,
-  PrismaAdapter,
-  MongooseAdapter,
-} from './adapters.js';
+import { NextAdapter, ViteReactAdapter, ExpressAdapter, NestAdapter } from './adapters.js';
 import { NormalizedProjectConfig } from '../types/index.js';
 
 const baseConfig: NormalizedProjectConfig = {
@@ -43,6 +36,37 @@ const baseConfig: NormalizedProjectConfig = {
 };
 
 describe('Fullstack Generator Adapter Architecture & Workspace Composition', () => {
+  const nextAdapter = new NextAdapter();
+  const viteAdapter = new ViteReactAdapter();
+  const expressAdapter = new ExpressAdapter();
+  const nestAdapter = new NestAdapter();
+
+  const baseConfigObj: NormalizedProjectConfig = {
+    projectName: 'shop',
+    version: '1.0',
+    mode: 'fullstack',
+    language: 'typescript',
+    stack: {
+      frontend: 'next',
+      backend: 'express',
+      styling: 'tailwind',
+      database: 'postgres',
+      orm: 'prisma',
+      packageManager: 'npm',
+    },
+    tools: {
+      docker: false,
+      eslint: true,
+      prettier: true,
+      githubActions: false,
+      git: true,
+      editorconfig: true,
+      husky: false,
+      lintStaged: false,
+      commitlint: false,
+    },
+  };
+
   it('resolves reusable feature dependencies in deterministic order', () => {
     expect(resolveFeatureModules(['checkout', 'search']).map((module) => module.id)).toEqual([
       'shared-types',
@@ -53,6 +77,18 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
       'products',
       'search',
     ]);
+  });
+
+  it('correctly maps adapter supports conditions', () => {
+    const context = {
+      config: baseConfigObj,
+      layout: DEFAULT_FULLSTACK_WORKSPACE,
+      features: [],
+    };
+    expect(nextAdapter.supports(context)).toBe(true);
+    expect(viteAdapter.supports(context)).toBe(false);
+    expect(expressAdapter.supports(context)).toBe(true);
+    expect(nestAdapter.supports(context)).toBe(false);
   });
 
   it('keeps feature output in the shared workspace without virtual path collisions', () => {
@@ -71,25 +107,7 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
     ).toThrow('Fullstack script conflict');
   });
 
-  it('correctly maps supports checks for adapters', () => {
-    const nextAdapter = new NextAdapter();
-    const viteAdapter = new ViteReactAdapter();
-    const expressAdapter = new ExpressAdapter();
-    const nestAdapter = new NestAdapter();
-
-    const context = {
-      config: baseConfig,
-      layout: DEFAULT_FULLSTACK_WORKSPACE,
-      features: [],
-    };
-
-    expect(nextAdapter.supports(context)).toBe(true);
-    expect(viteAdapter.supports(context)).toBe(false);
-    expect(expressAdapter.supports(context)).toBe(true);
-    expect(nestAdapter.supports(context)).toBe(false);
-  });
-
-  it('generates a valid workspace configuration file plan for Next + Express + Postgres + Prisma', () => {
+  it('composes fullstack workspace scripts and layouts seamlessly', () => {
     const plan = createFullstackWorkspaceGenerationPlan(baseConfig);
     const paths = plan.files.map((f) => f.path);
 
@@ -150,13 +168,13 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
   });
 
   it('validates feature modules registry discovery and dependencies mapping', () => {
-    const nextAdapter = new NextAdapter();
     const context = {
       config: baseConfig,
       layout: DEFAULT_FULLSTACK_WORKSPACE,
       features: [],
     };
     expect(nextAdapter.id).toBe('frontend-next');
+    expect(nextAdapter.supports(context)).toBe(true);
   });
 
   it('throws an error when a circular dependency is detected in features list', () => {

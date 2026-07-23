@@ -1,13 +1,9 @@
 import { createHash } from 'crypto';
-import * as path from 'path';
-import {
-  NormalizedProjectConfig,
-  ComposableGenerationPlan,
-  GeneratedTemplateFile,
-  GenerationAnalytics,
-} from './composable.js';
+import { ComposableGenerationPlan } from './composable.js';
+import { NormalizedProjectConfig } from '../types/index.js';
+import { GeneratedTemplateFile } from '../templates/templates.js';
 import { DependencyRegistry } from '../registry/dependency.js';
-import { ProjectGraph, ProjectGraphBuilder } from '../platform/project-graph.js';
+import { ProjectGraphBuilder } from '../platform/project-graph.js';
 import { getPredefinedTemplateFiles } from '../templates/predefined/index.js';
 import {
   createFullstackArchitecturePlan,
@@ -172,8 +168,8 @@ export function createFullstackWorkspaceGenerationPlan(
     devDependencies: Object.fromEntries(apiDeps.dev.map(splitPackageSpec)),
   };
   if (config.stack.orm === 'prisma') {
-    (apiPkg.scripts as any)['db:generate'] = 'prisma generate';
-    (apiPkg.scripts as any)['db:migrate'] = 'prisma migrate dev';
+    (apiPkg.scripts as Record<string, string>)['db:generate'] = 'prisma generate';
+    (apiPkg.scripts as Record<string, string>)['db:migrate'] = 'prisma migrate dev';
   }
   filesMap.set('apps/api/package.json', JSON.stringify(apiPkg, null, 2) + '\n');
 
@@ -276,15 +272,19 @@ export function createFullstackWorkspaceGenerationPlan(
     dependencyGraph: {
       dependencies: {},
       devDependencies: {},
+      peerDependencies: {},
+      optionalDependencies: {},
       resolved: resolvedDependencies.resolved.map((d) => ({
         name: d.packageName,
         version: d.versionRange,
         type: d.dependencyType === 'prod' ? ('runtime' as const) : ('dev' as const),
         target: d.targetWorkspace || 'root',
-        packageManager: 'npm',
-        source: { generatorId: 'gen-fullstack-adapter', reason: d.reason },
+        sources: [{ generatorId: 'gen-fullstack-adapter', reason: d.reason }],
       })),
       diagnostics: [],
+      conflicts: [],
+      installPlan: [],
+      explanations: {},
     },
     projectGraph,
     analytics: {
@@ -303,7 +303,7 @@ export function createFullstackWorkspaceGenerationPlan(
   };
 }
 
-function mapTemplatePath(filePath: string, frontend: string): string {
+function mapTemplatePath(filePath: string, _frontend: string): string {
   if (filePath === 'app/page.tsx') return 'apps/web/app/page.tsx';
   if (filePath === 'app/globals.css') return 'apps/web/app/globals.css';
   if (filePath === 'src/App.tsx') return 'apps/web/src/App.tsx';

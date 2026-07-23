@@ -384,7 +384,7 @@ describe('UI Panel Alignment Tests', () => {
           'Tailwind CSS',
           42,
           1200,
-          '1.2.0',
+          '1.3.1',
           true,
           false,
         );
