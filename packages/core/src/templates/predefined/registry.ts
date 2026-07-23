@@ -65,6 +65,11 @@ export function getPredefinedTemplateFiles(
   framework: string,
   styling: string,
   projectName: string,
+  fullstackContext?: Partial<{
+    backend: string;
+    database: string;
+    orm: string;
+  }>,
 ): { path: string; content: string }[] {
   const template = registry.getTemplate(templateId);
   if (!template) {
@@ -73,6 +78,17 @@ export function getPredefinedTemplateFiles(
 
   if (template.backendDefinition) {
     return template.backendDefinition.files({ projectName });
+  }
+
+  if (template.fullstackDefinition) {
+    return template.fullstackDefinition.files({
+      projectName,
+      frontend: framework,
+      styling,
+      backend: fullstackContext?.backend ?? 'express',
+      database: fullstackContext?.database ?? 'none',
+      orm: fullstackContext?.orm ?? 'none',
+    });
   }
 
   const definition = template.visualDefinition;

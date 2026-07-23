@@ -36,6 +36,23 @@ export interface BackendTemplateDefinition {
   files: (context: BackendTemplateRenderContext) => PredefinedTemplateFile[];
 }
 
+/**
+ * A fullstack template augments the framework/database files produced by the
+ * normal generator.  Keeping this separate from visual and API-only templates
+ * lets future fullstack starters share the same registry and render pipeline.
+ */
+export interface FullstackTemplateRenderContext extends BackendTemplateRenderContext {
+  frontend: string;
+  backend: string;
+  styling: string;
+  database: string;
+  orm: string;
+}
+
+export interface FullstackTemplateDefinition {
+  files: (context: FullstackTemplateRenderContext) => PredefinedTemplateFile[];
+}
+
 export interface VisualTemplateDefinition {
   kind: TemplateKind;
   shellName: string;
@@ -70,4 +87,5 @@ export interface PredefinedTemplateDefinition {
   metadata: PredefinedTemplate;
   visualDefinition?: VisualTemplateDefinition;
   backendDefinition?: BackendTemplateDefinition;
+  fullstackDefinition?: FullstackTemplateDefinition;
 }

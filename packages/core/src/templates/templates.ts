@@ -535,6 +535,11 @@ export function getLegacyStarterTemplates(
       fe,
       style,
       config.projectName,
+      {
+        backend: config.stack.backend,
+        database: config.stack.database,
+        orm: config.stack.orm,
+      },
     );
     for (const tf of templateFiles) {
       const existing = files.find((f) => f.path === tf.path);

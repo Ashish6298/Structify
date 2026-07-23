@@ -529,7 +529,7 @@ export function renderCategoryPanel(
       value: 'backend',
     },
     {
-      title: 'Fullstack (Coming Soon)',
+      title: 'Fullstack',
       desc: 'Combine frontend and backend into a unified application structure.',
       value: 'fullstack',
     },
@@ -553,14 +553,10 @@ export function renderCategoryPanel(
   choices.forEach((choice, idx) => {
     const isSelected = idx === selectedIndex && !isFallback;
     const bullet = isSelected ? theme.cyan('❯') : ' ';
-    const isComingSoon = choice.value === 'fullstack';
-
     // Build styled title text
     let titleText = choice.title;
     if (isSelected) {
       titleText = theme.bold(theme.cyan(choice.title));
-    } else if (isComingSoon) {
-      titleText = theme.gray(choice.title);
     }
 
     const titleRow = `  ${bullet}  ${titleText}`;
@@ -617,7 +613,7 @@ export function renderTemplatePanel(
   lines.push(`  ${theme.gray('Selected Setup:')} ${theme.cyan('Use a Predefined Template')}`);
   lines.push(`  ${theme.gray('Project Name:')}   ${theme.cyan(projectName)}`);
   lines.push(
-    `  ${theme.gray('Category:')}       ${theme.cyan(category === 'frontend' ? 'Frontend' : 'Backend')}`,
+    `  ${theme.gray('Category:')}       ${theme.cyan(category === 'frontend' ? 'Frontend' : category === 'backend' ? 'Backend' : 'Fullstack')}`,
   );
   lines.push('');
 
@@ -684,7 +680,20 @@ export function renderTemplatePanel(
     },
   ];
 
-  const choices = category === 'backend' ? backendChoices : frontendChoices;
+  const fullstackChoices = [
+    {
+      title: 'E-Commerce Platform',
+      desc: 'Configurable storefront and modular API foundation with catalog, cart, orders, checkout, and admin modules.',
+      value: 'ecommerce-platform',
+    },
+  ];
+
+  const choices =
+    category === 'backend'
+      ? backendChoices
+      : category === 'fullstack'
+        ? fullstackChoices
+        : frontendChoices;
 
   // Top border: title treatment "AVAILABLE TEMPLATES"
   const title = 'AVAILABLE TEMPLATES';

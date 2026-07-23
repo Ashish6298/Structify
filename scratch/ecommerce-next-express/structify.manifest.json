@@ -1,0 +1,77 @@
+{
+  "manifestVersion": "1.0.0",
+  "structifyVersion": "1.0.0",
+  "projectId": "proj-a213ed74cd98",
+  "generatedAt": "2026-07-23T05:42:31.400Z",
+  "templateVersion": "1.0.0",
+  "generatorVersions": {
+    "gen-base-typescript": "1.0.0",
+    "gen-frontend": "1.0.0",
+    "gen-next": "1.0.0",
+    "gen-backend": "1.0.0",
+    "gen-express": "1.0.0",
+    "gen-tailwind": "1.0.0",
+    "gen-prisma": "1.0.0",
+    "gen-eslint": "1.0.0",
+    "gen-prettier": "1.0.0"
+  },
+  "pluginVersions": {
+    "structify-builtins": "1.0.0"
+  },
+  "stackHash": "100367a37e2d0d94742d9cf883d8cb12850e23b6bb0369f372593c85932fc734",
+  "templateHash": "faccd6d99f0cbdcac265414848634bf8774e0a7629ef23ac94a27f6af3794af0",
+  "platform": {
+    "os": "win32",
+    "arch": "x64",
+    "node": "v24.1.0"
+  },
+  "packageManager": "npm",
+  "config": {
+    "projectName": "ecommerce-next-express",
+    "version": "1.0",
+    "mode": "fullstack",
+    "language": "typescript",
+    "stack": {
+      "frontend": "next",
+      "backend": "express",
+      "styling": "tailwind",
+      "database": "postgres",
+      "orm": "prisma",
+      "packageManager": "npm"
+    },
+    "tools": {
+      "docker": false,
+      "eslint": true,
+      "prettier": true,
+      "githubActions": false,
+      "git": false,
+      "editorconfig": true,
+      "husky": false,
+      "lintStaged": false,
+      "commitlint": false
+    },
+    "templateId": "ecommerce-platform"
+  },
+  "projectGraphPath": "structify.project-graph.json",
+  "projectGraphSummary": {
+    "app": 1,
+    "package": 1,
+    "route": 0,
+    "page": 1,
+    "api-endpoint": 2,
+    "component": 6,
+    "layout": 1,
+    "service": 3,
+    "database-client": 1,
+    "model": 0,
+    "config-file": 23,
+    "script": 0,
+    "tooling": 0
+  },
+  "dependencyDiagnostics": [],
+  "analytics": {
+    "fileCount": 39,
+    "generatorCount": 9,
+    "dependencyCount": 19
+  }
+}

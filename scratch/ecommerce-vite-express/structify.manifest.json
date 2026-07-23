@@ -1,0 +1,76 @@
+{
+  "manifestVersion": "1.0.0",
+  "structifyVersion": "1.0.0",
+  "projectId": "proj-e35ebefbc480",
+  "generatedAt": "2026-07-23T05:42:54.981Z",
+  "templateVersion": "1.0.0",
+  "generatorVersions": {
+    "gen-base-typescript": "1.0.0",
+    "gen-frontend": "1.0.0",
+    "gen-vite-react": "1.0.0",
+    "gen-backend": "1.0.0",
+    "gen-express": "1.0.0",
+    "gen-mongoose": "1.0.0",
+    "gen-eslint": "1.0.0",
+    "gen-prettier": "1.0.0"
+  },
+  "pluginVersions": {
+    "structify-builtins": "1.0.0"
+  },
+  "stackHash": "541a963f1db3112f9fac7ccfb8c24118ef86c680819368dc50e79f59eba00149",
+  "templateHash": "42db5ac09fe021188c0799c8715bd2e03bcd529f55d3fe5de67f3d8255b62e8a",
+  "platform": {
+    "os": "win32",
+    "arch": "x64",
+    "node": "v24.1.0"
+  },
+  "packageManager": "npm",
+  "config": {
+    "projectName": "ecommerce-vite-express",
+    "version": "1.0",
+    "mode": "fullstack",
+    "language": "typescript",
+    "stack": {
+      "frontend": "vite-react",
+      "backend": "express",
+      "styling": "none",
+      "database": "mongodb",
+      "orm": "mongoose",
+      "packageManager": "npm"
+    },
+    "tools": {
+      "docker": false,
+      "eslint": true,
+      "prettier": true,
+      "githubActions": false,
+      "git": false,
+      "editorconfig": true,
+      "husky": false,
+      "lintStaged": false,
+      "commitlint": false
+    },
+    "templateId": "ecommerce-platform"
+  },
+  "projectGraphPath": "structify.project-graph.json",
+  "projectGraphSummary": {
+    "app": 1,
+    "package": 1,
+    "route": 0,
+    "page": 0,
+    "api-endpoint": 2,
+    "component": 8,
+    "layout": 0,
+    "service": 3,
+    "database-client": 1,
+    "model": 1,
+    "config-file": 21,
+    "script": 0,
+    "tooling": 0
+  },
+  "dependencyDiagnostics": [],
+  "analytics": {
+    "fileCount": 38,
+    "generatorCount": 8,
+    "dependencyCount": 16
+  }
+}

@@ -175,38 +175,46 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
       const promptEngine = new InteractivePromptEngine();
       promptConfig = await promptEngine.run({ projectName });
     } else {
-      const templateCategory = category as 'frontend' | 'backend';
+      const templateCategory = category as 'frontend' | 'backend' | 'fullstack';
       const template = PREDEFINED_TEMPLATES.find((item) => item.id === templateId);
       const stylingVal = styling || 'none';
       const backend = template?.defaultFramework || 'express';
 
-      promptConfig = {
-        projectName,
-        mode: templateCategory === 'backend' ? 'backend-only' : 'frontend-only',
-        templateId,
-        stack: {
-          frontend: templateCategory === 'backend' ? 'none' : 'next',
-          styling: stylingVal,
-          backend:
-            templateCategory === 'backend'
-              ? (backend as ProjectConfig['stack']['backend'])
-              : 'none',
-          database: 'none',
-          orm: 'none',
-          packageManager: 'npm',
-        },
-        tools: {
-          docker: false,
-          eslint: true,
-          prettier: true,
-          githubActions: false,
-          git: true,
-          editorconfig: true,
-          husky: false,
-          lintStaged: false,
-          commitlint: false,
-        },
-      };
+      if (templateCategory === 'fullstack') {
+        // Fullstack predefined templates reuse the established stack-selection
+        // engine; the template remains an overlay, never a fixed stack preset.
+        const promptEngine = new InteractivePromptEngine();
+        const selectedStack = await promptEngine.run({ projectName });
+        promptConfig = { ...selectedStack, projectName, templateId };
+      } else {
+        promptConfig = {
+          projectName,
+          mode: templateCategory === 'backend' ? 'backend-only' : 'frontend-only',
+          templateId,
+          stack: {
+            frontend: templateCategory === 'backend' ? 'none' : 'next',
+            styling: stylingVal,
+            backend:
+              templateCategory === 'backend'
+                ? (backend as ProjectConfig['stack']['backend'])
+                : 'none',
+            database: 'none',
+            orm: 'none',
+            packageManager: 'npm',
+          },
+          tools: {
+            docker: false,
+            eslint: true,
+            prettier: true,
+            githubActions: false,
+            git: true,
+            editorconfig: true,
+            husky: false,
+            lintStaged: false,
+            commitlint: false,
+          },
+        };
+      }
     }
   } else if (options.yes) {
     promptConfig = {

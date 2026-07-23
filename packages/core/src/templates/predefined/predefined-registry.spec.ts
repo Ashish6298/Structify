@@ -32,7 +32,23 @@ describe('Predefined Templates Modular Registry', () => {
     expect(backends).toHaveLength(5);
 
     const fullstacks = registry.filterTemplates({ category: 'fullstack' });
-    expect(fullstacks).toHaveLength(0);
+    expect(fullstacks).toHaveLength(1);
+    expect(fullstacks[0]?.id).toBe('ecommerce-platform');
+  });
+
+  it('generates a stack-aware E-Commerce Platform overlay', () => {
+    const files = getPredefinedTemplateFiles('ecommerce-platform', 'next', 'tailwind', 'shop', {
+      backend: 'express',
+      database: 'postgres',
+      orm: 'prisma',
+    });
+    const paths = files.map((file) => file.path);
+    expect(paths).toContain('app/page.tsx');
+    expect(paths).toContain('src/shared/api/client.ts');
+    expect(paths).toContain('src/server/application/catalog.service.ts');
+    expect(paths).toContain('src/server/infrastructure/database/repository.ts');
+    expect(paths).toContain('docs/ecommerce-architecture.md');
+    expect(files.find((file) => file.path === '.env.example')?.content).toContain('postgres');
   });
 
   it('should generate backend template files from dedicated modules', () => {

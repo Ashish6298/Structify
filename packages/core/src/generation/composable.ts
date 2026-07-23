@@ -3,6 +3,7 @@ import { GeneratedTemplateFile, getLegacyStarterTemplates } from '../templates/t
 import { NormalizedProjectConfig } from '../types/index.js';
 import { DependencyGraph, DependencyGraphResult } from '../platform/dependency-graph.js';
 import { ProjectGraph, ProjectGraphBuilder } from '../platform/project-graph.js';
+import { createFullstackWorkspaceGenerationPlan } from './fullstack-generator.js';
 
 export interface ComposableGeneratorContribution {
   id: string;
@@ -36,6 +37,10 @@ export interface ComposableGenerationPlan {
 export function createComposableGenerationPlan(
   config: NormalizedProjectConfig,
 ): ComposableGenerationPlan {
+  if (config.mode === 'fullstack') {
+    return createFullstackWorkspaceGenerationPlan(config);
+  }
+
   const startedAt = Date.now();
   const legacyFiles = getLegacyStarterTemplates(config).filter(
     (file) => file.path !== 'structify.project-graph.json',

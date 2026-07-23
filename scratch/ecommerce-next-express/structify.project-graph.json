@@ -1,0 +1,486 @@
+{
+  "version": "1.0.0",
+  "projectName": "ecommerce-next-express",
+  "stackHash": "100367a37e2d0d94742d9cf883d8cb12850e23b6bb0369f372593c85932fc734",
+  "nodes": [
+    {
+      "id": "app:root",
+      "type": "app",
+      "name": "ecommerce-next-express",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:.editorconfig",
+      "type": "config-file",
+      "name": ".editorconfig",
+      "path": ".editorconfig",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:.env.example",
+      "type": "config-file",
+      "name": ".env.example",
+      "path": ".env.example",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:.eslintrc.json",
+      "type": "config-file",
+      "name": ".eslintrc.json",
+      "path": ".eslintrc.json",
+      "sourceGenerator": "gen-eslint"
+    },
+    {
+      "id": "file:.gitignore",
+      "type": "config-file",
+      "name": ".gitignore",
+      "path": ".gitignore",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:.prettierrc",
+      "type": "config-file",
+      "name": ".prettierrc",
+      "path": ".prettierrc",
+      "sourceGenerator": "gen-prettier"
+    },
+    {
+      "id": "file:app/globals.css",
+      "type": "component",
+      "name": "app/globals.css",
+      "path": "app/globals.css",
+      "sourceGenerator": "gen-next"
+    },
+    {
+      "id": "file:app/layout.tsx",
+      "type": "layout",
+      "name": "app/layout.tsx",
+      "path": "app/layout.tsx",
+      "sourceGenerator": "gen-next"
+    },
+    {
+      "id": "file:app/page.tsx",
+      "type": "page",
+      "name": "app/page.tsx",
+      "path": "app/page.tsx",
+      "sourceGenerator": "gen-next"
+    },
+    {
+      "id": "file:docs/ecommerce-architecture.md",
+      "type": "component",
+      "name": "docs/ecommerce-architecture.md",
+      "path": "docs/ecommerce-architecture.md",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:next.config.ts",
+      "type": "config-file",
+      "name": "next.config.ts",
+      "path": "next.config.ts",
+      "sourceGenerator": "gen-next"
+    },
+    {
+      "id": "file:package.json",
+      "type": "package",
+      "name": "package.json",
+      "path": "package.json",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:postcss.config.js",
+      "type": "config-file",
+      "name": "postcss.config.js",
+      "path": "postcss.config.js",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:prisma/schema.prisma",
+      "type": "component",
+      "name": "prisma/schema.prisma",
+      "path": "prisma/schema.prisma",
+      "sourceGenerator": "gen-prisma"
+    },
+    {
+      "id": "file:README.md",
+      "type": "component",
+      "name": "README.md",
+      "path": "README.md",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/app.ts",
+      "type": "config-file",
+      "name": "src/app.ts",
+      "path": "src/app.ts",
+      "sourceGenerator": "gen-express"
+    },
+    {
+      "id": "file:src/config/env.ts",
+      "type": "config-file",
+      "name": "src/config/env.ts",
+      "path": "src/config/env.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/db/prisma.ts",
+      "type": "database-client",
+      "name": "src/db/prisma.ts",
+      "path": "src/db/prisma.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/features/README.md",
+      "type": "component",
+      "name": "src/features/README.md",
+      "path": "src/features/README.md",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/index.ts",
+      "type": "config-file",
+      "name": "src/index.ts",
+      "path": "src/index.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/middleware/error.middleware.ts",
+      "type": "config-file",
+      "name": "src/middleware/error.middleware.ts",
+      "path": "src/middleware/error.middleware.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/routes/health.route.ts",
+      "type": "api-endpoint",
+      "name": "src/routes/health.route.ts",
+      "path": "src/routes/health.route.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/server/application/auth.service.ts",
+      "type": "service",
+      "name": "src/server/application/auth.service.ts",
+      "path": "src/server/application/auth.service.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/server/application/catalog.service.ts",
+      "type": "service",
+      "name": "src/server/application/catalog.service.ts",
+      "path": "src/server/application/catalog.service.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/server/application/order.service.ts",
+      "type": "service",
+      "name": "src/server/application/order.service.ts",
+      "path": "src/server/application/order.service.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/server/infrastructure/database/repository.ts",
+      "type": "config-file",
+      "name": "src/server/infrastructure/database/repository.ts",
+      "path": "src/server/infrastructure/database/repository.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/server/middleware/authentication.ts",
+      "type": "config-file",
+      "name": "src/server/middleware/authentication.ts",
+      "path": "src/server/middleware/authentication.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/server/middleware/authorization.ts",
+      "type": "config-file",
+      "name": "src/server/middleware/authorization.ts",
+      "path": "src/server/middleware/authorization.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/server/modules/README.md",
+      "type": "component",
+      "name": "src/server/modules/README.md",
+      "path": "src/server/modules/README.md",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/server/routes/ecommerce.routes.ts",
+      "type": "api-endpoint",
+      "name": "src/server/routes/ecommerce.routes.ts",
+      "path": "src/server/routes/ecommerce.routes.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/server/validation/catalog.ts",
+      "type": "config-file",
+      "name": "src/server/validation/catalog.ts",
+      "path": "src/server/validation/catalog.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/shared/api/client.ts",
+      "type": "config-file",
+      "name": "src/shared/api/client.ts",
+      "path": "src/shared/api/client.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/shared/config/ecommerce.ts",
+      "type": "config-file",
+      "name": "src/shared/config/ecommerce.ts",
+      "path": "src/shared/config/ecommerce.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:src/shared/types/ecommerce.ts",
+      "type": "config-file",
+      "name": "src/shared/types/ecommerce.ts",
+      "path": "src/shared/types/ecommerce.ts",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:structify.config.json",
+      "type": "config-file",
+      "name": "structify.config.json",
+      "path": "structify.config.json",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:structify.manifest.json",
+      "type": "config-file",
+      "name": "structify.manifest.json",
+      "path": "structify.manifest.json",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:tailwind.config.js",
+      "type": "config-file",
+      "name": "tailwind.config.js",
+      "path": "tailwind.config.js",
+      "sourceGenerator": "gen-tailwind"
+    },
+    {
+      "id": "file:tsconfig.json",
+      "type": "config-file",
+      "name": "tsconfig.json",
+      "path": "tsconfig.json",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:tsconfig.server.json",
+      "type": "config-file",
+      "name": "tsconfig.server.json",
+      "path": "tsconfig.server.json",
+      "sourceGenerator": "gen-base-typescript"
+    }
+  ],
+  "edges": [
+    {
+      "from": "app:root",
+      "to": "file:.editorconfig",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.env.example",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.eslintrc.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.gitignore",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.prettierrc",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:app/globals.css",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:app/layout.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:app/page.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:docs/ecommerce-architecture.md",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:next.config.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:package.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:postcss.config.js",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:prisma/schema.prisma",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:README.md",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/app.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/config/env.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/db/prisma.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/features/README.md",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/index.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/middleware/error.middleware.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/routes/health.route.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/server/application/auth.service.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/server/application/catalog.service.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/server/application/order.service.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/server/infrastructure/database/repository.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/server/middleware/authentication.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/server/middleware/authorization.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/server/modules/README.md",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/server/routes/ecommerce.routes.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/server/validation/catalog.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/shared/api/client.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/shared/config/ecommerce.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:src/shared/types/ecommerce.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:structify.config.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:structify.manifest.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:tailwind.config.js",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:tsconfig.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:tsconfig.server.json",
+      "relation": "contains"
+    }
+  ],
+  "summary": {
+    "app": 1,
+    "package": 1,
+    "route": 0,
+    "page": 1,
+    "api-endpoint": 2,
+    "component": 6,
+    "layout": 1,
+    "service": 3,
+    "database-client": 1,
+    "model": 0,
+    "config-file": 23,
+    "script": 0,
+    "tooling": 0
+  }
+}

@@ -1228,7 +1228,7 @@ export async function promptTemplateCategory(): Promise<'frontend' | 'backend' |
   const choices = [
     { value: 'frontend', label: 'Frontend' },
     { value: 'backend', label: 'Backend' },
-    { value: 'fullstack', label: 'Fullstack (Coming Soon)' },
+    { value: 'fullstack', label: 'Fullstack' },
   ];
   const ans = await promptKeyboardChoiceWithFallback(
     'Select a template category',
@@ -1239,7 +1239,7 @@ export async function promptTemplateCategory(): Promise<'frontend' | 'backend' |
 }
 
 export async function promptTemplateSelection(
-  category: 'frontend' | 'backend' = 'frontend',
+  category: 'frontend' | 'backend' | 'fullstack' = 'frontend',
 ): Promise<string> {
   const frontendChoices = [
     {
@@ -1294,11 +1294,27 @@ export async function promptTemplateSelection(
         'Node.js Authentication API - Express JWT auth starter with register/login, password hashing, refresh token mock flow, and protected routes',
     },
   ];
-  const choices = category === 'backend' ? backendChoices : frontendChoices;
+  const fullstackChoices = [
+    {
+      value: 'ecommerce-platform',
+      label:
+        'E-Commerce Platform - Configurable storefront and modular API foundation with catalog, cart, wishlist, orders, checkout, and admin modules',
+    },
+  ];
+  const choices =
+    category === 'backend'
+      ? backendChoices
+      : category === 'fullstack'
+        ? fullstackChoices
+        : frontendChoices;
   return promptKeyboardChoiceWithFallback(
     'Select a predefined template',
     choices,
-    category === 'backend' ? 'express-rest-api' : 'portfolio-website',
+    category === 'backend'
+      ? 'express-rest-api'
+      : category === 'fullstack'
+        ? 'ecommerce-platform'
+        : 'portfolio-website',
   );
 }
 
@@ -1369,28 +1385,8 @@ export async function runInitWizardStateController(
     if (setupType === 'custom') {
       return { setupType, projectName };
     }
-    let category: 'frontend' | 'backend' | 'fullstack' = 'frontend';
-    let choosingCategory = true;
-    while (choosingCategory) {
-      category = await promptTemplateCategory();
-      if (category === 'fullstack') {
-        console.log(`\nComing Soon: Predefined Fullstack templates are not yet available.`);
-        const action = await promptKeyboardChoiceWithFallback(
-          'What would you like to do?',
-          [
-            { value: 'category', label: 'Back to Category Selection' },
-            { value: 'setup', label: 'Back to Setup Type Choice' },
-          ],
-          'category',
-        );
-        if (action === 'setup') {
-          return runInitWizardStateController(defaultName, context);
-        }
-      } else {
-        choosingCategory = false;
-      }
-    }
-    const templateId = await promptTemplateSelection(category as 'frontend' | 'backend');
+    const category = await promptTemplateCategory();
+    const templateId = await promptTemplateSelection(category);
     const styling = category === 'frontend' ? await promptStylingSelection() : 'none';
     return { setupType, projectName, category, templateId, styling, confirmed: true };
   }
@@ -1460,7 +1456,12 @@ export async function runInitWizardStateController(
         output.write('\x1b[?25l');
       }
     } else if (currentStep === 'template') {
-      const catStr = selectedCategoryIndex === 0 ? 'frontend' : 'backend';
+      const catStr =
+        selectedCategoryIndex === 0
+          ? 'frontend'
+          : selectedCategoryIndex === 1
+            ? 'backend'
+            : 'fullstack';
       lines = renderTemplatePanel(
         selectedTemplateIndex,
         typedProjectName || defaultName,
@@ -1472,7 +1473,12 @@ export async function runInitWizardStateController(
         output.write('\x1b[?25l');
       }
     } else if (currentStep === 'styling') {
-      const catStr = selectedCategoryIndex === 0 ? 'frontend' : 'backend';
+      const catStr =
+        selectedCategoryIndex === 0
+          ? 'frontend'
+          : selectedCategoryIndex === 1
+            ? 'backend'
+            : 'fullstack';
       const templateLabel =
         catStr === 'frontend'
           ? [
@@ -1482,13 +1488,15 @@ export async function runInitWizardStateController(
               'Agency / Business Website',
               'Blog / Content Website',
             ][selectedTemplateIndex]
-          : [
-              'Express REST API',
-              'NestJS REST API',
-              'Fastify API',
-              'Hono API',
-              'Node.js Authentication API',
-            ][selectedTemplateIndex];
+          : catStr === 'backend'
+            ? [
+                'Express REST API',
+                'NestJS REST API',
+                'Fastify API',
+                'Hono API',
+                'Node.js Authentication API',
+              ][selectedTemplateIndex]
+            : 'E-Commerce Platform';
       lines = renderStylingPanel(
         selectedStylingIndex,
         typedProjectName || defaultName,
@@ -1501,8 +1509,14 @@ export async function runInitWizardStateController(
         output.write('\x1b[?25l');
       }
     } else if (currentStep === 'review') {
-      const catStr = selectedCategoryIndex === 0 ? 'frontend' : 'backend';
-      const finalCategoryLabel = catStr === 'frontend' ? 'Frontend' : 'Backend';
+      const catStr =
+        selectedCategoryIndex === 0
+          ? 'frontend'
+          : selectedCategoryIndex === 1
+            ? 'backend'
+            : 'fullstack';
+      const finalCategoryLabel =
+        catStr === 'frontend' ? 'Frontend' : catStr === 'backend' ? 'Backend' : 'Fullstack';
       const templateLabel =
         catStr === 'frontend'
           ? [
@@ -1512,13 +1526,15 @@ export async function runInitWizardStateController(
               'Agency / Business Website',
               'Blog / Content Website',
             ][selectedTemplateIndex]
-          : [
-              'Express REST API',
-              'NestJS REST API',
-              'Fastify API',
-              'Hono API',
-              'Node.js Authentication API',
-            ][selectedTemplateIndex];
+          : catStr === 'backend'
+            ? [
+                'Express REST API',
+                'NestJS REST API',
+                'Fastify API',
+                'Hono API',
+                'Node.js Authentication API',
+              ][selectedTemplateIndex]
+            : 'E-Commerce Platform';
       const templateId =
         catStr === 'frontend'
           ? [
@@ -1528,9 +1544,11 @@ export async function runInitWizardStateController(
               'agency-business',
               'blog-content',
             ][selectedTemplateIndex]
-          : ['express-rest-api', 'nestjs-rest-api', 'fastify-api', 'hono-api', 'node-auth-api'][
-              selectedTemplateIndex
-            ];
+          : catStr === 'backend'
+            ? ['express-rest-api', 'nestjs-rest-api', 'fastify-api', 'hono-api', 'node-auth-api'][
+                selectedTemplateIndex
+              ]
+            : 'ecommerce-platform';
       const stylingLabel =
         catStr === 'frontend'
           ? ['Tailwind CSS', 'Material UI (MUI)', 'None'][selectedStylingIndex]
@@ -1768,54 +1786,6 @@ export async function runInitWizardStateController(
         }
 
         if (key.name === 'return' || key.name === 'enter') {
-          if (selectedCategoryIndex === 2) {
-            input.off('keypress', onKeypress);
-            try {
-              input.setRawMode?.(wasRaw);
-            } catch (e) {
-              // Intentionally ignored during terminal cleanup.
-            }
-            if (output.isTTY) {
-              output.write('\x1b[?25h');
-            }
-            if (renderedLines > 0) {
-              readline.moveCursor(output, 0, -renderedLines);
-              readline.clearScreenDown(output);
-              renderedLines = 0;
-            }
-
-            console.log(`\nComing Soon: Predefined Fullstack templates are not yet available.`);
-            const action = await promptKeyboardChoiceWithFallback(
-              'What would you like to do?',
-              [
-                { value: 'category', label: 'Back to Category Selection' },
-                { value: 'setup', label: 'Back to Setup Type Choice' },
-              ],
-              'category',
-            );
-
-            try {
-              input.setRawMode?.(true);
-            } catch (e) {
-              // Intentionally ignored during terminal setup.
-            }
-            try {
-              input.resume();
-            } catch (e) {
-              // Intentionally ignored during terminal setup.
-            }
-            input.on('keypress', onKeypress);
-
-            if (action === 'setup') {
-              currentStep = 'setup';
-              typedProjectName = '';
-            } else {
-              currentStep = 'category';
-            }
-            render();
-            return;
-          }
-
           currentStep = 'template';
           selectedTemplateIndex = 0;
           render();
@@ -1834,13 +1804,17 @@ export async function runInitWizardStateController(
         }
 
         if (key.name === 'up' || key.name === 'down') {
-          selectedTemplateIndex = moveSelection(selectedTemplateIndex, key.name, 5);
+          selectedTemplateIndex = moveSelection(
+            selectedTemplateIndex,
+            key.name,
+            selectedCategoryIndex === 2 ? 1 : 5,
+          );
           render();
           return;
         }
 
         if (key.name === 'return' || key.name === 'enter') {
-          if (selectedCategoryIndex === 1) {
+          if (selectedCategoryIndex !== 0) {
             // Backend: no styling, move straight to review
             currentStep = 'review';
             selectedConfirmIndex = 0;
@@ -1925,7 +1899,12 @@ export async function runInitWizardStateController(
             readline.clearScreenDown(output);
           }
 
-          const finalCategory = selectedCategoryIndex === 0 ? 'frontend' : 'backend';
+          const finalCategory =
+            selectedCategoryIndex === 0
+              ? 'frontend'
+              : selectedCategoryIndex === 1
+                ? 'backend'
+                : 'fullstack';
           const frontendTemplates = [
             'portfolio-website',
             'saas-landing',
@@ -1943,7 +1922,9 @@ export async function runInitWizardStateController(
           const selectedTemplateVal =
             finalCategory === 'frontend'
               ? frontendTemplates[selectedTemplateIndex]
-              : backendTemplates[selectedTemplateIndex];
+              : finalCategory === 'backend'
+                ? backendTemplates[selectedTemplateIndex]
+                : 'ecommerce-platform';
           const stylingVal: 'tailwind' | 'mui' | 'none' =
             finalCategory === 'frontend'
               ? (['tailwind', 'mui', 'none'] as const)[selectedStylingIndex] || 'none'

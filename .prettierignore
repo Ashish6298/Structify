@@ -6,6 +6,8 @@ build/
 .structify/
 .structify-backups/
 coverage/
+scratch/
+.tmp/
 pnpm-lock.yaml
 package-lock.json
 *.tgz

@@ -349,7 +349,7 @@ describe('Generation Engine & Project Scaffolding', () => {
         },
         tools: baseTools,
       } satisfies NormalizedProjectConfig,
-      files: ['app/page.tsx', 'src/app.ts', 'tsconfig.server.json'],
+      files: ['apps/web/app/page.tsx', 'apps/api/src/app.ts', 'apps/api/tsconfig.json'],
     },
     {
       name: 'Vite + Express fullstack',
@@ -368,7 +368,7 @@ describe('Generation Engine & Project Scaffolding', () => {
         },
         tools: baseTools,
       } satisfies NormalizedProjectConfig,
-      files: ['src/main.tsx', 'src/theme.ts', 'src/app.ts'],
+      files: ['apps/web/src/main.tsx', 'apps/web/src/theme.ts', 'apps/api/src/app.ts'],
     },
     {
       name: 'Postgres + Prisma',

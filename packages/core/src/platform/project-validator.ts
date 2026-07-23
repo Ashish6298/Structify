@@ -344,34 +344,57 @@ function checkRequiredStackFiles(
   errors: ProjectValidationIssue[],
 ): void {
   const required: string[] = [];
+  const isFullstack = config.mode === 'fullstack';
+  const fePrefix = isFullstack ? 'apps/web/' : '';
+  const bePrefix = isFullstack ? 'apps/api/' : '';
+
   if (config.stack.frontend === 'next') {
-    required.push('app/page.tsx', 'app/layout.tsx', 'app/globals.css', 'next.config.ts');
+    required.push(
+      `${fePrefix}app/page.tsx`,
+      `${fePrefix}app/layout.tsx`,
+      `${fePrefix}app/globals.css`,
+      `${fePrefix}next.config.ts`,
+    );
   }
   if (config.stack.frontend === 'vite-react') {
-    required.push('src/main.tsx', 'src/App.tsx', 'src/index.css', 'vite.config.ts', 'index.html');
+    required.push(
+      `${fePrefix}src/main.tsx`,
+      `${fePrefix}src/App.tsx`,
+      `${fePrefix}src/index.css`,
+      `${fePrefix}vite.config.ts`,
+      `${fePrefix}index.html`,
+    );
   }
   if (config.stack.backend === 'express') {
-    required.push('src/index.ts', 'src/app.ts', 'src/routes/health.route.ts');
+    required.push(
+      `${bePrefix}src/index.ts`,
+      `${bePrefix}src/app.ts`,
+      `${bePrefix}src/routes/health.route.ts`,
+    );
   }
   if (config.stack.backend === 'nest') {
     required.push(
-      'src/main.ts',
-      'src/app.module.ts',
-      'src/app.controller.ts',
-      'src/app.service.ts',
+      `${bePrefix}src/main.ts`,
+      `${bePrefix}src/app.module.ts`,
+      `${bePrefix}src/app.controller.ts`,
+      `${bePrefix}src/app.service.ts`,
     );
   }
   if (config.stack.styling === 'tailwind') {
-    required.push('tailwind.config.js', 'postcss.config.js');
+    required.push(`${fePrefix}tailwind.config.js`, `${fePrefix}postcss.config.js`);
   }
   if (config.stack.styling === 'mui') {
-    required.push('src/theme.ts');
+    required.push(`${fePrefix}src/theme.ts`);
   }
   if (config.stack.database === 'postgres' && config.stack.orm === 'prisma') {
-    required.push('prisma/schema.prisma', 'src/db/prisma.ts', '.env.example');
+    required.push(`${bePrefix}prisma/schema.prisma`, `${bePrefix}src/db/prisma.ts`, '.env.example');
   }
   if (config.stack.database === 'mongodb' && config.stack.orm === 'mongoose') {
-    required.push('src/db/mongoose.ts', 'src/models/example.model.ts', '.env.example');
+    required.push(
+      `${bePrefix}src/db/mongoose.ts`,
+      `${bePrefix}src/models/example.model.ts`,
+      '.env.example',
+    );
   }
   if (config.tools.docker) {
     required.push('Dockerfile', 'docker-compose.yml');

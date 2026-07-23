@@ -9,12 +9,12 @@ import { validateGeneratedProject } from './project-validator.js';
 const config: NormalizedProjectConfig = {
   projectName: 'validator-app',
   version: '1.0',
-  mode: 'fullstack',
+  mode: 'backend-only',
   language: 'typescript',
   stack: {
-    frontend: 'next',
+    frontend: 'none',
     backend: 'express',
-    styling: 'tailwind',
+    styling: 'none',
     database: 'postgres',
     orm: 'prisma',
     packageManager: 'npm',
