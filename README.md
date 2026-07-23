@@ -36,32 +36,9 @@
 Overview
 </h2>
 
-# ✨ What is Structify Tool?
-
-**Structify Tool** is a professional, open-source project scaffolding platform and command-line interface (CLI) that automates the creation of production-ready software architectures.
-
-Instead of manually creating folders, installing packages, configuring TypeScript, ESLint, Prettier, databases, ORMs, Docker, CI/CD pipelines and project structures, Structify Tool generates everything through a modern interactive CLI.
-
-The goal is simple:
+Structify is a complete **developer productivity platform** that automates the creation of production-ready application architectures through an intelligent interactive CLI. From frontend starters to full-stack platforms, Structify generates everything—TypeScript configuration, ESLint, Prettier, databases, ORMs, Docker, CI/CD pipelines, and complete project structure—through a single guided command.
 
 > **Spend less time configuring projects and more time building software.**
-
-Structify Tool emphasizes:
-
-- ⚡ Fast project initialization
-- 🏗 Production-ready architecture
-- 🔒 Deterministic & safe generation
-- 🔍 Built-in verification & diagnostics
-- 🤖 AI-ready tooling
-- 📦 Modular & extensible design
-
-**Structify** is an enterprise-grade, open-source project scaffolding platform that empowers developers to generate **production-ready application architectures** through an intelligent, interactive command-line interface (CLI).
-
-Rather than spending hours configuring project structures, TypeScript, package managers, linters, formatters, databases, ORMs, Docker, CI/CD pipelines, testing frameworks and boilerplate files, Structify automates the entire setup process while following modern engineering best practices.
-
-Built around a modular generation engine, Structify combines **interactive project creation**, **enterprise templates**, **blueprint-driven architecture**, **intelligent validation**, **rollback protection** and **AI-ready workflows** into a single developer experience. Every generated project is deterministic, reproducible, configurable and designed to scale from personal applications to enterprise-grade systems.
-
-Whether you're building a **frontend application**, **REST API**, **full-stack platform**, **microservice**, **CLI tool**, or **AI-powered application**, Structify provides a consistent, maintainable and production-ready foundation—allowing you to focus on building features instead of configuring infrastructure.
 
 </td>
 </tr>
@@ -156,7 +133,18 @@ Structify Tool eliminates these repetitive tasks by generating a complete produc
 
 </td>
 
+<td align="center" width="160">
+
+<img width="42" src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Down%20arrow/3D/down_arrow_3d.png"/>
+
+<b>Downloads</b>
+
+<img src="https://img.shields.io/npm/dt/structify-tool?style=flat-square&logo=npm&logoColor=white"/>
+
+</td>
+
 </tr>
+
 </table>
 
 </br>
@@ -357,7 +345,23 @@ Built to maximize developer productivity.
 
 <tr>
 
-<td colspan="2">
+<td width="50%" valign="top">
+
+### 🔌 Fullstack Generator Architecture
+
+Adapter-based engine for collision-free, workspace-native fullstack generation.
+
+- 🧩 Pluggable `FullstackAdapter` contract
+- 📐 `frontend/` + `backend/` workspace layout
+- 🗂️ Shared Feature Module Library
+- 🏷️ Domain Module Library
+- 🛒 E-Commerce Platform predefined template
+- 🔄 Automatic dependency resolution & merging
+- 🗺️ Composition Registry for reusable modules
+
+</td>
+
+<td width="50%" valign="top">
 
 ### 🤖 AI Integration
 
@@ -380,18 +384,21 @@ Structify is built for the next generation of AI-assisted software development.
 
 ### 🌟 Highlights
 
-| Feature                         | Included |
-| :------------------------------ | :------: |
-| 🚀 Production-Ready Scaffolding |    ✅    |
-| 🛡️ Rollback Protection          |    ✅    |
-| 📋 Interactive CLI              |    ✅    |
-| 🧩 Blueprint Architecture       |    ✅    |
-| 🏗️ Enterprise Templates         |    ✅    |
-| 🔍 Project Diagnostics          |    ✅    |
-| 🤖 Built-in MCP Server          |    ✅    |
-| 🌍 Cross-Platform Support       |    ✅    |
-| ⚡ Dry-Run Execution            |    ✅    |
-| 📦 Modular Plugin System        |    ✅    |
+| Feature                              | Included |
+| :----------------------------------- | :------: |
+| 🚀 Production-Ready Scaffolding      |    ✅    |
+| 🛡️ Rollback Protection               |    ✅    |
+| 📋 Interactive CLI                   |    ✅    |
+| 🧩 Blueprint Architecture            |    ✅    |
+| 🏗️ Enterprise Templates              |    ✅    |
+| 🔍 Project Diagnostics               |    ✅    |
+| 🤖 Built-in MCP Server               |    ✅    |
+| 🌍 Cross-Platform Support            |    ✅    |
+| ⚡ Dry-Run Execution                 |    ✅    |
+| 📦 Modular Plugin System             |    ✅    |
+| 🔌 Adapter-Based Fullstack Generator |    ✅    |
+| 🗂️ Shared Feature Module Library     |    ✅    |
+| 🏷️ Domain Module Library             |    ✅    |
 
 </td>
 </tr>
@@ -463,36 +470,50 @@ Getting started with Structify takes only a few seconds. Install it globally to 
 
 ### 📦 Install Globally
 
-## 🚀 Minimal Effort, Premium Output
+```bash
+npm install -g structify-tool
+```
 
 ### ⚡ Run Without Installation
 
-## 🔒 Deterministic & Safe
+```bash
+npx structify-tool init my-project
+```
 
 ### 🚀 Create Your First Project
 
 Generate a brand-new production-ready project using the interactive CLI.
 
-## 🧩 Modular Architecture
-
-Every generation engine is isolated, making future frameworks and generators easy to add.
-
-## 🤖 AI Ready
+```bash
+structify init my-project
+```
 
 <br/>
 
 ### 🛠 Common CLI Commands
 
-| Command                         | Description                                          |
-| :------------------------------ | :--------------------------------------------------- |
-| `structify init my-project`     | Create a new project using the interactive generator |
-| `structify generate my-project` | Generate a project from templates and blueprints     |
-| `structify verify-project`      | Validate the project structure and configuration     |
-| `structify doctor`              | Run diagnostics and identify potential issues        |
-| `structify inspect`             | Inspect project architecture and metadata            |
-| `structify repair --dry-run`    | Preview automatic repairs without modifying files    |
+| Command                         | Description                                                       |
+| :------------------------------ | :---------------------------------------------------------------- |
+| `structify init my-project`     | Create a new project using the interactive guided CLI             |
+| `structify generate my-project` | Generate a project from templates and blueprints                  |
+| `structify verify-project`      | Validate project structure, configuration, and generated files    |
+| `structify doctor`              | Diagnose common project issues and provide recommendations        |
+| `structify inspect`             | Inspect project architecture, metadata, and workspace information |
+| `structify repair --dry-run`    | Preview automatic repairs without modifying project files         |
+| `structify blueprint`           | Create or manage reusable project blueprints                      |
+| `structify templates`           | Browse all available predefined templates                         |
+| `structify preview`             | Preview the execution plan before generating a project            |
+| `structify plan`                | Generate and review the execution plan                            |
+| `structify explain-template`    | Display detailed information about a specific template            |
+| `structify validate-template`   | Validate a custom template before using it                        |
+| `structify render`              | Render templates without generating a complete project            |
+| `structify upgrade`             | Check for updates and upgrade existing Structify projects         |
+| `structify --help`              | Display all available commands and usage information              |
+| `structify --version`           | Display the installed Structify version                           |
 
-Predefined Templates are available from `structify init` for frontend starters and backend starters. Backend options include Express REST API, NestJS REST API, Fastify API, Hono API, and Node.js Authentication API; Fullstack predefined templates remain Coming Soon.
+Structify provides a rich collection of CLI commands for project generation, architecture planning, template management, validation, diagnostics, project inspection, blueprint management, execution previews, repairs, upgrades, and AI-assisted development workflows. Whether you're creating a brand-new application, validating an existing workspace, inspecting project metadata, or managing reusable templates and blueprints, Structify offers a unified developer experience through a single, intelligent command-line interface.
+
+Predefined templates are available through `structify init`, covering **Frontend**, **Backend**, and **Fullstack** application categories. Current templates include modern frontend websites, production-ready backend APIs, and the Fullstack **E-Commerce Platform**, with additional enterprise templates such as **Project Management Platform**, **Hotel Booking System**, **Learning Management System**, and **Hospital Management System** planned for future releases.
 
 <br/>
 
@@ -520,6 +541,553 @@ Start Building 🚀
 <br/>
 
 Structify automatically handles project scaffolding, dependency management, configuration generation, validation and project initialization allowing you to move from **idea to development in minutes**.
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<table align="center" width="100%">
+<tr>
+<td>
+
+<h2>
+<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Joystick/3D/joystick_3d.png" width="34">
+Premium Interactive CLI
+</h2>
+
+Structify provides a fully guided, intelligent, interactive project creation experience—developers are walked through every configuration choice step by step instead of manually remembering commands, flags, or configuration files. Every stage includes **intelligent validation**, **keyboard navigation**, **real-time configuration previews**, **safe defaults**, and a **final review screen** before a single file is written to disk.
+
+<br/>
+
+### 🔀 Interactive Generation Flow
+
+```text
+structify init my-project
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Use a Predefined Template?     │  ← Choose template path or custom build
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Project Name                   │  ← Validated, filesystem-safe name
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Template Category              │  ← Frontend / Backend / Fullstack
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Available Templates            │  ← Curated predefined starters
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Frontend Framework             │  ← Next.js / Vite / Vue / Angular / SvelteKit
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Backend Framework              │  ← Express / NestJS / Fastify / Hono
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Database                       │  ← PostgreSQL / MySQL / MongoDB / SQLite
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  ORM                            │  ← Prisma / TypeORM / Drizzle / Mongoose
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Styling                        │  ← Tailwind CSS / Material UI / None
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Package Manager                │  ← npm / yarn / pnpm / bun
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Tooling                        │  ← ESLint / Prettier / Docker / GitHub Actions
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Review & Generate ✅           │  ← Full configuration preview before generation
+└─────────────────────────────────┘
+        │
+        ▼
+  Production-Ready Project 🚀
+```
+
+<br/>
+
+Structify validates every selection in real time, intelligently adapts future options based on previous choices, prevents invalid stack combinations, and ensures the final generated project meets production quality standards—before any files are written to disk.
+
+<br/>
+
+<table width="100%">
+<tr>
+
+<td width="50%" valign="top">
+
+### ⌨️ Guided Navigation
+
+- 🎯 Step-by-step interactive wizard
+- ⬆️⬇️ Arrow-key keyboard navigation
+- ↩️ Enter to confirm, Escape to go back
+- 🔍 Intelligent option filtering
+- 💡 Context-sensitive help at every step
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🛡️ Intelligent Validation
+
+- ✅ Real-time selection validation
+- 🔗 Stack compatibility enforcement
+- ⚠️ Invalid combination prevention
+- 🔒 Safe defaults for every option
+- 🔄 Adaptive options based on prior choices
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" valign="top">
+
+### 📋 Live Configuration Preview
+
+- 👀 Inline review of every selection
+- 📄 Technology stack summary
+- 📂 Generated file structure preview
+- 🔍 Dependency resolution snapshot
+- ⚡ Deterministic execution plan display
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🔐 Safe Generation Guarantee
+
+- 📝 Final review screen before generation
+- 🛡️ Rollback protection on every operation
+- ⚙️ Transactional file writes
+- ✅ Post-generation project validation
+- 🚀 Zero-configuration ready output
+
+</td>
+
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<table align="center" width="100%">
+<tr>
+<td>
+
+<h2>
+<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Party%20popper/3D/party_popper_3d.png" width="34">
+What's New in Structify v1.3.1
+</h2>
+
+Structify v1.3.1 is the most significant architectural release since the platform's inception. It introduces a production-ready **Fullstack E-Commerce Platform**, a completely redesigned **Adapter-Based Generation Engine**, and two new internal libraries that make every future template faster to build and easier to maintain.
+
+<br/>
+
+<table width="100%">
+<tr>
+
+<td width="50%" valign="top">
+
+### 🔌 Adapter-Based Generation Engine
+
+The legacy single-root emitter has been replaced with a composable adapter pipeline.
+
+- 🏗️ Isolated `FullstackAdapter` per technology
+- 🔄 Collision-free contribution merging
+- 📐 Workspace-aware path resolution
+- 🛡️ Deterministic, reproducible output
+- ⚡ Independently testable adapters
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🧩 Shared Feature Module Library
+
+Reusable platform capabilities shared across all current and future fullstack templates.
+
+- 🔐 Authentication & RBAC
+- 👤 User profiles & permissions
+- 🔔 Notifications & audit logging
+- 🔍 Search, pagination & filtering
+- 📋 Form validation & API client
+- 🏥 Health checks & metrics
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" valign="top">
+
+### 🗂️ Domain Module Library
+
+Business entity modules automatically composed into generated projects.
+
+- 🛒 Products, categories & inventory
+- 👥 Customers, orders & payments
+- 🏷️ Coupons, taxes & shipping
+- 📦 Suppliers & warehousing
+- 📊 Analytics, reports & dashboards
+- 🔗 Automatic dependency resolution
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🛒 E-Commerce Platform Template
+
+The first production-ready fullstack predefined template built on the adapter architecture.
+
+- 🎨 5 frontend frameworks supported
+- 🖥️ 4 backend frameworks supported
+- 🗄️ 4 databases + 4 ORMs supported
+- 🏗️ `frontend/` + `backend/` workspace layout
+- 📋 Auto-generated architecture docs
+- 🔐 Role-based access built in
+
+</td>
+
+</tr>
+</table>
+
+<br/>
+
+### 🏗️ Professional Workspace Layout
+
+Every fullstack project now generates with a clean, production-standard directory structure:
+
+```text
+my-project/
+│
+├── frontend/               # Client application
+│   └── src/
+│       ├── app/            # Pages & routing
+│       ├── components/     # Shared UI components
+│       ├── features/       # Feature modules
+│       ├── hooks/          # Framework hooks
+│       ├── services/       # API client & services
+│       └── shared/         # Utilities & types
+│
+├── backend/                # Server application
+│   └── src/
+│       ├── application/    # Application services
+│       ├── domain/         # Domain models & entities
+│       ├── infrastructure/ # Database & repositories
+│       ├── middleware/      # Auth, RBAC & guards
+│       └── routes/         # API route handlers
+│
+├── packages/shared/        # Cross-cutting types & utilities
+├── docs/                   # Auto-generated architecture docs
+└── package.json            # Root npm workspace manifest
+```
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<table align="center" width="100%">
+<tr>
+<td>
+
+<h2>
+<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Laptop/3D/laptop_3d.png" width="34">
+Supported Technologies
+</h2>
+
+Structify supports a comprehensive range of modern frameworks, databases, ORMs, styling libraries, package managers and developer tooling—all configurable through the interactive CLI without any manual setup.
+
+<br/>
+
+<table width="100%">
+<tr>
+
+<td width="50%" valign="top">
+
+### 🎨 Frontend Frameworks
+
+| Framework    | Mode               |
+| :----------- | :----------------- |
+| Next.js      | Fullstack / Custom |
+| Vite + React | Fullstack / Custom |
+| Vue 3        | Fullstack / Custom |
+| Angular      | Fullstack / Custom |
+| SvelteKit    | Fullstack / Custom |
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🖥️ Backend Frameworks
+
+| Framework | Mode               |
+| :-------- | :----------------- |
+| Express   | Fullstack / Custom |
+| NestJS    | Fullstack / Custom |
+| Fastify   | Fullstack / Custom |
+| Hono      | Fullstack / Custom |
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" valign="top">
+
+### 🗄️ Databases
+
+| Database   | Type       |
+| :--------- | :--------- |
+| PostgreSQL | Relational |
+| MySQL      | Relational |
+| MongoDB    | Document   |
+| SQLite     | Embedded   |
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🔧 ORMs & Query Builders
+
+| ORM / Library | Compatible Databases      |
+| :------------ | :------------------------ |
+| Prisma        | PostgreSQL, MySQL, SQLite |
+| TypeORM       | PostgreSQL, MySQL, SQLite |
+| Drizzle       | PostgreSQL, MySQL, SQLite |
+| Mongoose      | MongoDB                   |
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" valign="top">
+
+### 💅 Styling Libraries
+
+- Tailwind CSS
+- Material UI (MUI)
+- None (plain CSS)
+
+### 📦 Package Managers
+
+- npm
+- yarn
+- pnpm
+- bun
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🛠️ Developer Tooling
+
+- ESLint (with TypeScript rules)
+- Prettier (with project-wide config)
+- Docker & Docker Compose
+- GitHub Actions CI/CD
+- TypeScript (strict mode)
+
+</td>
+
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<table align="center" width="100%">
+<tr>
+<td>
+
+<h2>
+<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Puzzle%20piece/3D/puzzle_piece_3d.png" width="34">
+Predefined Templates
+</h2>
+
+Structify ships with curated, production-ready predefined templates across Frontend, Backend, and Fullstack categories. Each template is generated through the interactive wizard—including full technology stack configuration—and produces a complete, working project foundation.
+
+<br/>
+
+<table width="100%">
+<tr>
+
+<td width="33%" valign="top">
+
+### 🎨 Frontend Templates
+
+Templates for building modern client applications.
+
+| Template              | Status |
+| :-------------------- | :----: |
+| React + Vite Starter  |   ✅   |
+| Next.js Application   |   ✅   |
+| Vue 3 Application     |   ✅   |
+| Angular Application   |   ✅   |
+| SvelteKit Application |   ✅   |
+
+</td>
+
+<td width="33%" valign="top">
+
+### 🖥️ Backend Templates
+
+Templates for building production-grade APIs.
+
+| Template         | Status |
+| :--------------- | :----: |
+| Express REST API |   ✅   |
+| NestJS REST API  |   ✅   |
+| Fastify API      |   ✅   |
+| Hono API         |   ✅   |
+| Node.js Auth API |   ✅   |
+
+</td>
+
+<td width="33%" valign="top">
+
+### 🏗️ Fullstack Templates
+
+Full-stack platforms with frontend, backend, database and workspace generation.
+
+| Template                    | Status |
+| :-------------------------- | :----: |
+| E-Commerce Platform         |   ✅   |
+| Project Management Platform |   🔜   |
+| Hotel Booking System        |   🔜   |
+| Learning Management System  |   🔜   |
+| Hospital Management System  |   🔜   |
+
+</td>
+
+</tr>
+</table>
+
+<br/>
+
+> **✅ Live** = available now via `structify init` &nbsp;|&nbsp; **🔜 Planned** = upcoming release
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<table align="center" width="100%">
+<tr>
+<td>
+
+<h2>
+<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Electric%20plug/3D/electric_plug_3d.png" width="34">
+Adapter-Based Generation Architecture
+</h2>
+
+Structify v1.3 introduces a composable, adapter-driven generation pipeline that powers all fullstack project generation. Instead of a monolithic code emitter, every supported technology registers as an independent `FullstackAdapter` that contributes files, dependencies, scripts, and environment configuration through a unified contract.
+
+<br/>
+
+<table width="100%">
+<tr>
+
+<td width="33%" valign="top">
+
+### 🔌 FullstackAdapter Contract
+
+Each technology implements a simple, consistent interface:
+
+- `supports(context)` — declares compatibility
+- `contribute(context)` — emits files, deps & scripts
+- Contributions are merged collision-free
+- Context carries workspace layout & config
+- Independently testable with snapshot tests
+
+</td>
+
+<td width="33%" valign="top">
+
+### 🧩 Feature Composition
+
+The Shared Feature Module Library provides reusable platform capabilities:
+
+- Authentication & role-based access control
+- User profile & permission management
+- Notification & audit logging system
+- Search, pagination & filtering utilities
+- Form validation & typed API client
+- Health check & metrics endpoints
+
+</td>
+
+<td width="33%" valign="top">
+
+### 🗂️ Domain Composition
+
+The Domain Module Library provides reusable business entities:
+
+- Users, organizations & teams
+- Products, categories & inventory
+- Orders, payments & invoices
+- Customers, addresses & shipping
+- Analytics, reports & dashboards
+- Coupons, taxes & promotions
+
+</td>
+
+</tr>
+</table>
+
+<br/>
+
+### ⚙️ Dependency Resolution
+
+The generation engine automatically resolves cross-adapter dependencies before writing any files to disk. When a feature module declares a dependency on another module, the engine walks the dependency graph, deduplicates, and merges all contributions into a single coherent output before applying any file operations—ensuring the generated project is always self-consistent and production-ready.
+
+| Stage                   | Description                                                    |
+| :---------------------- | :------------------------------------------------------------- |
+| 🔍 Adapter Selection    | Each adapter declares which technology contexts it supports    |
+| 📐 Workspace Layout     | `frontend/`, `backend/`, and `packages/shared/` paths resolved |
+| 🧩 Feature Resolution   | Dependency graph traversed; feature modules composed in order  |
+| 📦 Contribution Merging | Files, deps, scripts, and env vars merged collision-free       |
+| ✅ Validation           | Generated plan validated before any files are written          |
+| 🛡️ Safe Write           | Transactional file system operations with automatic rollback   |
 
 </td>
 </tr>
@@ -590,6 +1158,71 @@ Enterprise-ready templates, blueprints, plugins and modular generators provide e
 </td>
 </tr>
 </table>
+
+<br>
+
+<table align="center" width="100%">
+<tr>
+<td>
+
+<h2>
+<img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/World%20map/3D/world_map_3d.png" width="34">
+Roadmap
+</h2>
+
+Structify follows a milestone-driven development process. Below is a transparent view of what has been shipped and what is coming next.
+
+<br/>
+
+<table width="100%">
+<tr>
+
+<td width="50%" valign="top">
+
+### ✅ Completed Milestones
+
+| Milestone                            | Release |
+| :----------------------------------- | :-----: |
+| 🖥️ Interactive CLI Wizard            |  v1.0   |
+| 🎨 Frontend Predefined Templates     |  v1.1   |
+| 🛠️ Backend Predefined Templates      |  v1.1   |
+| 🤖 Built-in MCP Server               |  v1.1   |
+| 🔍 Project Diagnostics & Doctor      |  v1.1   |
+| 🔌 Adapter-Based Generation Engine   |  v1.3   |
+| 🧩 Shared Feature Module Library     |  v1.3   |
+| 🗂️ Domain Module Library             |  v1.3   |
+| 🏗️ Professional Workspace Generation |  v1.3   |
+| 🛒 E-Commerce Platform Template      | v1.3.1  |
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🔜 Planned Milestones
+
+| Milestone                          | Status  |
+| :--------------------------------- | :-----: |
+| 📋 Project Management Platform     | Planned |
+| 🏨 Hotel Booking System            | Planned |
+| 📚 Learning Management System      | Planned |
+| 🏥 Hospital Management System      | Planned |
+| 📱 Mobile Application Templates    | Planned |
+| 🖥️ Desktop Application Templates   | Planned |
+| 🔌 Plugin Marketplace              | Planned |
+| 🌐 Community Template Registry     | Planned |
+| 🏢 Additional Enterprise Templates | Planned |
+| ⚡ Expanded Framework Adapters     | Planned |
+
+</td>
+
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+
+<br>
 
 <table align="center" width="100%">
 <tr>

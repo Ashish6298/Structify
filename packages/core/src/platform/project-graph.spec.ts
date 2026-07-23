@@ -99,10 +99,10 @@ describe('Project Graph focused verification', () => {
       mode: 'fullstack',
       stack: { ...baseConfig.stack, backend: 'express' },
     });
-    expect(plan.projectGraph.nodes.some((node) => node.path === 'apps/web/app/page.tsx')).toBe(
+    expect(plan.projectGraph.nodes.some((node) => node.path === 'frontend/app/page.tsx')).toBe(
       true,
     );
-    expect(plan.projectGraph.nodes.some((node) => node.path === 'apps/api/src/app.ts')).toBe(true);
+    expect(plan.projectGraph.nodes.some((node) => node.path === 'backend/src/app.ts')).toBe(true);
   });
 
   it('Project Graph detects invalid graph metadata during project verification', () => {

@@ -112,12 +112,24 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
     const paths = plan.files.map((f) => f.path);
 
     expect(paths).toContain('package.json');
-    expect(paths).toContain('apps/web/package.json');
-    expect(paths).toContain('apps/api/package.json');
+    expect(paths).toContain('frontend/package.json');
+    expect(paths).toContain('backend/package.json');
     expect(paths).toContain('packages/shared/package.json');
-    expect(paths).toContain('apps/web/next.config.ts');
-    expect(paths).toContain('apps/api/src/app.ts');
-    expect(paths).toContain('apps/api/prisma/schema.prisma');
+    expect(paths).toContain('frontend/next.config.ts');
+    expect(paths).toContain('backend/src/app.ts');
+    expect(paths).toContain('backend/prisma/schema.prisma');
+    expect(
+      paths.some((path) => path.startsWith('apps/frontend/') || path.startsWith('apps/backend/')),
+    ).toBe(false);
+
+    const rootPackage = JSON.parse(
+      plan.files.find((file) => file.path === 'package.json')!.content,
+    );
+    expect(rootPackage.workspaces).toEqual(['frontend', 'backend', 'packages/*']);
+    expect(rootPackage.scripts).toMatchObject({
+      dev: expect.stringContaining('--workspaces'),
+      build: expect.stringContaining('--workspaces'),
+    });
   });
 
   it('generates a valid workspace configuration file plan for Vite + NestJS + MongoDB + Mongoose', () => {
@@ -137,12 +149,12 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
     const paths = plan.files.map((f) => f.path);
 
     expect(paths).toContain('package.json');
-    expect(paths).toContain('apps/web/package.json');
-    expect(paths).toContain('apps/api/package.json');
+    expect(paths).toContain('frontend/package.json');
+    expect(paths).toContain('backend/package.json');
     expect(paths).toContain('packages/shared/package.json');
-    expect(paths).toContain('apps/web/vite.config.ts');
-    expect(paths).toContain('apps/api/src/main.ts');
-    expect(paths).toContain('apps/api/src/db/mongoose.ts');
+    expect(paths).toContain('frontend/vite.config.ts');
+    expect(paths).toContain('backend/src/main.ts');
+    expect(paths).toContain('backend/src/db/mongoose.ts');
   });
 
   it('ensures E-Commerce platform templates features are mapped properly without root collisions', () => {
@@ -155,14 +167,14 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
     const paths = plan.files.map((f) => f.path);
 
     // Verify workspace separation for template pages and configs
-    expect(paths).toContain('apps/web/app/page.tsx');
+    expect(paths).toContain('frontend/app/page.tsx');
     expect(paths).toContain('packages/shared/src/types/ecommerce.ts');
-    expect(paths).toContain('apps/api/src/application/catalog.service.ts');
-    expect(paths).toContain('apps/api/src/routes/ecommerce.routes.ts');
+    expect(paths).toContain('backend/src/application/catalog.service.ts');
+    expect(paths).toContain('backend/src/routes/ecommerce.routes.ts');
 
     // Confirm that tsconfig configs do not collide
-    const webTsconfig = plan.files.find((f) => f.path === 'apps/web/tsconfig.json');
-    const apiTsconfig = plan.files.find((f) => f.path === 'apps/api/tsconfig.json');
+    const webTsconfig = plan.files.find((f) => f.path === 'frontend/tsconfig.json');
+    const apiTsconfig = plan.files.find((f) => f.path === 'backend/tsconfig.json');
     expect(webTsconfig).toBeDefined();
     expect(apiTsconfig).toBeDefined();
   });
@@ -187,8 +199,8 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
   it('detects and rejects duplicate files with differing contents during merge', () => {
     expect(() =>
       mergeFullstackContributions([
-        { files: [{ path: 'apps/web/app/page.tsx', content: 'one', source: 'test' }] },
-        { files: [{ path: 'apps/web/app/page.tsx', content: 'two', source: 'test' }] },
+        { files: [{ path: 'frontend/app/page.tsx', content: 'one', source: 'test' }] },
+        { files: [{ path: 'frontend/app/page.tsx', content: 'two', source: 'test' }] },
       ]),
     ).toThrow('Fullstack file conflict');
   });

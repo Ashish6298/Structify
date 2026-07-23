@@ -1,0 +1,522 @@
+{
+  "version": "1.0.0",
+  "projectName": "ecommerce-root-layout",
+  "stackHash": "100367a37e2d0d94742d9cf883d8cb12850e23b6bb0369f372593c85932fc734",
+  "nodes": [
+    {
+      "id": "app:root",
+      "type": "app",
+      "name": "ecommerce-root-layout",
+      "sourceGenerator": "gen-base-typescript"
+    },
+    {
+      "id": "file:.editorconfig",
+      "type": "config-file",
+      "name": ".editorconfig",
+      "path": ".editorconfig",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:.env.example",
+      "type": "config-file",
+      "name": ".env.example",
+      "path": ".env.example",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:.eslintrc.json",
+      "type": "config-file",
+      "name": ".eslintrc.json",
+      "path": ".eslintrc.json",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:.prettierrc",
+      "type": "config-file",
+      "name": ".prettierrc",
+      "path": ".prettierrc",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/package.json",
+      "type": "package",
+      "name": "backend/package.json",
+      "path": "backend/package.json",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/prisma/schema.prisma",
+      "type": "config-file",
+      "name": "backend/prisma/schema.prisma",
+      "path": "backend/prisma/schema.prisma",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/app.ts",
+      "type": "config-file",
+      "name": "backend/src/app.ts",
+      "path": "backend/src/app.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/application/auth.service.ts",
+      "type": "config-file",
+      "name": "backend/src/application/auth.service.ts",
+      "path": "backend/src/application/auth.service.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/application/catalog.service.ts",
+      "type": "config-file",
+      "name": "backend/src/application/catalog.service.ts",
+      "path": "backend/src/application/catalog.service.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/application/order.service.ts",
+      "type": "config-file",
+      "name": "backend/src/application/order.service.ts",
+      "path": "backend/src/application/order.service.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/config/env.ts",
+      "type": "config-file",
+      "name": "backend/src/config/env.ts",
+      "path": "backend/src/config/env.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/db/prisma.ts",
+      "type": "config-file",
+      "name": "backend/src/db/prisma.ts",
+      "path": "backend/src/db/prisma.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/index.ts",
+      "type": "config-file",
+      "name": "backend/src/index.ts",
+      "path": "backend/src/index.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/infrastructure/database/repository.ts",
+      "type": "config-file",
+      "name": "backend/src/infrastructure/database/repository.ts",
+      "path": "backend/src/infrastructure/database/repository.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/middleware/authentication.ts",
+      "type": "config-file",
+      "name": "backend/src/middleware/authentication.ts",
+      "path": "backend/src/middleware/authentication.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/middleware/authorization.ts",
+      "type": "config-file",
+      "name": "backend/src/middleware/authorization.ts",
+      "path": "backend/src/middleware/authorization.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/middleware/error.middleware.ts",
+      "type": "config-file",
+      "name": "backend/src/middleware/error.middleware.ts",
+      "path": "backend/src/middleware/error.middleware.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/modules/README.md",
+      "type": "config-file",
+      "name": "backend/src/modules/README.md",
+      "path": "backend/src/modules/README.md",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/routes/ecommerce.routes.ts",
+      "type": "config-file",
+      "name": "backend/src/routes/ecommerce.routes.ts",
+      "path": "backend/src/routes/ecommerce.routes.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/routes/health.route.ts",
+      "type": "config-file",
+      "name": "backend/src/routes/health.route.ts",
+      "path": "backend/src/routes/health.route.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/src/validation/catalog.ts",
+      "type": "config-file",
+      "name": "backend/src/validation/catalog.ts",
+      "path": "backend/src/validation/catalog.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:backend/tsconfig.json",
+      "type": "config-file",
+      "name": "backend/tsconfig.json",
+      "path": "backend/tsconfig.json",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:docs/ecommerce-architecture.md",
+      "type": "config-file",
+      "name": "docs/ecommerce-architecture.md",
+      "path": "docs/ecommerce-architecture.md",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:frontend/app/globals.css",
+      "type": "config-file",
+      "name": "frontend/app/globals.css",
+      "path": "frontend/app/globals.css",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:frontend/app/layout.tsx",
+      "type": "config-file",
+      "name": "frontend/app/layout.tsx",
+      "path": "frontend/app/layout.tsx",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:frontend/app/page.tsx",
+      "type": "config-file",
+      "name": "frontend/app/page.tsx",
+      "path": "frontend/app/page.tsx",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:frontend/next.config.ts",
+      "type": "config-file",
+      "name": "frontend/next.config.ts",
+      "path": "frontend/next.config.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:frontend/package.json",
+      "type": "package",
+      "name": "frontend/package.json",
+      "path": "frontend/package.json",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:frontend/postcss.config.js",
+      "type": "config-file",
+      "name": "frontend/postcss.config.js",
+      "path": "frontend/postcss.config.js",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:frontend/src/features/README.md",
+      "type": "config-file",
+      "name": "frontend/src/features/README.md",
+      "path": "frontend/src/features/README.md",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:frontend/tailwind.config.js",
+      "type": "config-file",
+      "name": "frontend/tailwind.config.js",
+      "path": "frontend/tailwind.config.js",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:frontend/tsconfig.json",
+      "type": "config-file",
+      "name": "frontend/tsconfig.json",
+      "path": "frontend/tsconfig.json",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:package.json",
+      "type": "package",
+      "name": "package.json",
+      "path": "package.json",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:packages/shared/package.json",
+      "type": "package",
+      "name": "packages/shared/package.json",
+      "path": "packages/shared/package.json",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:packages/shared/src/api/client.ts",
+      "type": "config-file",
+      "name": "packages/shared/src/api/client.ts",
+      "path": "packages/shared/src/api/client.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:packages/shared/src/config/ecommerce.ts",
+      "type": "config-file",
+      "name": "packages/shared/src/config/ecommerce.ts",
+      "path": "packages/shared/src/config/ecommerce.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:packages/shared/src/index.ts",
+      "type": "config-file",
+      "name": "packages/shared/src/index.ts",
+      "path": "packages/shared/src/index.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:packages/shared/src/types/ecommerce.ts",
+      "type": "config-file",
+      "name": "packages/shared/src/types/ecommerce.ts",
+      "path": "packages/shared/src/types/ecommerce.ts",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:packages/shared/tsconfig.json",
+      "type": "config-file",
+      "name": "packages/shared/tsconfig.json",
+      "path": "packages/shared/tsconfig.json",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:README.md",
+      "type": "config-file",
+      "name": "README.md",
+      "path": "README.md",
+      "sourceGenerator": "gen-fullstack-adapter"
+    },
+    {
+      "id": "file:structify.config.json",
+      "type": "config-file",
+      "name": "structify.config.json",
+      "path": "structify.config.json",
+      "sourceGenerator": "gen-fullstack-adapter"
+    }
+  ],
+  "edges": [
+    {
+      "from": "app:root",
+      "to": "file:.editorconfig",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.env.example",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.eslintrc.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:.prettierrc",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/package.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/prisma/schema.prisma",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/app.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/application/auth.service.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/application/catalog.service.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/application/order.service.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/config/env.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/db/prisma.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/index.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/infrastructure/database/repository.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/middleware/authentication.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/middleware/authorization.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/middleware/error.middleware.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/modules/README.md",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/routes/ecommerce.routes.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/routes/health.route.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/src/validation/catalog.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:backend/tsconfig.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:docs/ecommerce-architecture.md",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:frontend/app/globals.css",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:frontend/app/layout.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:frontend/app/page.tsx",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:frontend/next.config.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:frontend/package.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:frontend/postcss.config.js",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:frontend/src/features/README.md",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:frontend/tailwind.config.js",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:frontend/tsconfig.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:package.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:packages/shared/package.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:packages/shared/src/api/client.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:packages/shared/src/config/ecommerce.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:packages/shared/src/index.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:packages/shared/src/types/ecommerce.ts",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:packages/shared/tsconfig.json",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:README.md",
+      "relation": "contains"
+    },
+    {
+      "from": "app:root",
+      "to": "file:structify.config.json",
+      "relation": "contains"
+    }
+  ],
+  "summary": {
+    "app": 1,
+    "package": 4,
+    "route": 0,
+    "page": 0,
+    "api-endpoint": 0,
+    "component": 0,
+    "layout": 0,
+    "service": 0,
+    "database-client": 0,
+    "model": 0,
+    "config-file": 37,
+    "script": 0,
+    "tooling": 0
+  }
+}

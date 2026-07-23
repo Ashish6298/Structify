@@ -345,8 +345,8 @@ function checkRequiredStackFiles(
 ): void {
   const required: string[] = [];
   const isFullstack = config.mode === 'fullstack';
-  const fePrefix = isFullstack ? 'apps/web/' : '';
-  const bePrefix = isFullstack ? 'apps/api/' : '';
+  const fePrefix = isFullstack ? 'frontend/' : '';
+  const bePrefix = isFullstack ? 'backend/' : '';
 
   if (config.stack.frontend === 'next') {
     required.push(

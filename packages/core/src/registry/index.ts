@@ -152,7 +152,7 @@ export function registerBuiltIns(): void {
     dependencyType: 'prod',
     supportedPackageManagers: ['npm'],
     installScope: 'workspace',
-    targetWorkspace: 'apps/frontend',
+    targetWorkspace: 'frontend',
     reason: 'Next.js framework dependency',
   });
 
@@ -162,7 +162,7 @@ export function registerBuiltIns(): void {
     dependencyType: 'prod',
     supportedPackageManagers: ['npm'],
     installScope: 'workspace',
-    targetWorkspace: 'apps/frontend',
+    targetWorkspace: 'frontend',
     reason: 'React frontend framework dependency',
   });
 
@@ -172,7 +172,7 @@ export function registerBuiltIns(): void {
     dependencyType: 'prod',
     supportedPackageManagers: ['npm'],
     installScope: 'workspace',
-    targetWorkspace: 'apps/backend',
+    targetWorkspace: 'backend',
     reason: 'Express server framework dependency',
   });
 
@@ -182,7 +182,7 @@ export function registerBuiltIns(): void {
     dependencyType: 'dev',
     supportedPackageManagers: ['npm'],
     installScope: 'workspace',
-    targetWorkspace: 'apps/frontend',
+    targetWorkspace: 'frontend',
     reason: 'Tailwind CSS styling library',
   });
 }

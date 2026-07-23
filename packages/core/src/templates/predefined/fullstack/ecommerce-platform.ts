@@ -158,14 +158,14 @@ export const ecommercePlatformTemplate: PredefinedTemplateDefinition = {
       // Map paths back to raw format so registry tests comparing raw paths pass successfully
       return (plan.files ?? []).map((file) => {
         let rawPath = file.path;
-        if (rawPath.startsWith('apps/web/app/')) {
-          rawPath = rawPath.replace('apps/web/app/', 'app/');
-        } else if (rawPath.startsWith('apps/web/src/')) {
-          rawPath = rawPath.replace('apps/web/src/', 'src/');
+        if (rawPath.startsWith('frontend/app/')) {
+          rawPath = rawPath.replace('frontend/app/', 'app/');
+        } else if (rawPath.startsWith('frontend/src/')) {
+          rawPath = rawPath.replace('frontend/src/', 'src/');
         } else if (rawPath.startsWith('packages/shared/src/')) {
           rawPath = rawPath.replace('packages/shared/src/', 'src/shared/');
-        } else if (rawPath.startsWith('apps/api/src/')) {
-          rawPath = rawPath.replace('apps/api/src/', 'src/server/');
+        } else if (rawPath.startsWith('backend/src/')) {
+          rawPath = rawPath.replace('backend/src/', 'src/server/');
         }
         return {
           path: rawPath,

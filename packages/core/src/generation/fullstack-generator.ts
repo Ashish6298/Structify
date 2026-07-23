@@ -139,10 +139,10 @@ export function createFullstackWorkspaceGenerationPlan(
   const groupedDeps = depRegistry.groupByPackageManagerAndWorkspace('npm');
 
   // Build the specific package.json manifests
-  // Apps/Web manifest
-  const webDeps = groupedDeps['apps/web'] || { prod: [], dev: [] };
+  // Apps/Frontend manifest
+  const webDeps = groupedDeps['frontend'] || { prod: [], dev: [] };
   const webPkg = {
-    name: `@${config.projectName.toLowerCase()}/web`,
+    name: `@${config.projectName.toLowerCase()}/frontend`,
     version: '1.0.0',
     private: true,
     scripts:
@@ -152,12 +152,12 @@ export function createFullstackWorkspaceGenerationPlan(
     dependencies: Object.fromEntries(webDeps.prod.map(splitPackageSpec)),
     devDependencies: Object.fromEntries(webDeps.dev.map(splitPackageSpec)),
   };
-  filesMap.set('apps/web/package.json', JSON.stringify(webPkg, null, 2) + '\n');
+  filesMap.set('frontend/package.json', JSON.stringify(webPkg, null, 2) + '\n');
 
-  // Apps/Api manifest
-  const apiDeps = groupedDeps['apps/api'] || { prod: [], dev: [] };
+  // Apps/Backend manifest
+  const apiDeps = groupedDeps['backend'] || { prod: [], dev: [] };
   const apiPkg = {
-    name: `@${config.projectName.toLowerCase()}/api`,
+    name: `@${config.projectName.toLowerCase()}/backend`,
     version: '1.0.0',
     private: true,
     scripts:
@@ -170,8 +170,9 @@ export function createFullstackWorkspaceGenerationPlan(
   if (config.stack.orm === 'prisma') {
     (apiPkg.scripts as Record<string, string>)['db:generate'] = 'prisma generate';
     (apiPkg.scripts as Record<string, string>)['db:migrate'] = 'prisma migrate dev';
+    (apiPkg.scripts as Record<string, string>).build = 'prisma generate && tsc';
   }
-  filesMap.set('apps/api/package.json', JSON.stringify(apiPkg, null, 2) + '\n');
+  filesMap.set('backend/package.json', JSON.stringify(apiPkg, null, 2) + '\n');
 
   // Root manifest update with merged workspaces dependencies
   const rootDeps = groupedDeps['root'] || { prod: [], dev: [] };
@@ -304,27 +305,27 @@ export function createFullstackWorkspaceGenerationPlan(
 }
 
 function mapTemplatePath(filePath: string, _frontend: string): string {
-  if (filePath === 'app/page.tsx') return 'apps/web/app/page.tsx';
-  if (filePath === 'app/globals.css') return 'apps/web/app/globals.css';
-  if (filePath === 'src/App.tsx') return 'apps/web/src/App.tsx';
-  if (filePath === 'src/index.css') return 'apps/web/src/index.css';
+  if (filePath === 'app/page.tsx') return 'frontend/app/page.tsx';
+  if (filePath === 'app/globals.css') return 'frontend/app/globals.css';
+  if (filePath === 'src/App.tsx') return 'frontend/src/App.tsx';
+  if (filePath === 'src/index.css') return 'frontend/src/index.css';
   if (filePath.startsWith('src/shared/')) {
     return filePath.replace('src/shared/', 'packages/shared/src/');
   }
   if (filePath.startsWith('src/server/')) {
-    return filePath.replace('src/server/', 'apps/api/src/');
+    return filePath.replace('src/server/', 'backend/src/');
   }
   if (filePath.startsWith('src/features/')) {
-    return filePath.replace('src/features/', 'apps/web/src/features/');
+    return filePath.replace('src/features/', 'frontend/src/features/');
   }
   return filePath;
 }
 
 function rewriteImports(content: string, targetPath: string): string {
-  if (targetPath.startsWith('apps/api/')) {
+  if (targetPath.startsWith('backend/')) {
     return content.replace(
       /from\s+['"]\.\.\/\.\.\/shared\//g,
-      "from '../../../../packages/shared/src/",
+      "from '../../../packages/shared/src/",
     );
   }
   return content;
