@@ -2,6 +2,9 @@ import os from 'os';
 import { createHash } from 'crypto';
 import { NormalizedProjectConfig } from '../types/index.js';
 
+/** Release identity written into every generated-project metadata artifact. */
+export const STRUCTIFY_VERSION = '1.3.2';
+
 export interface StructifyManifest {
   manifestVersion: string;
   structifyVersion: string;
@@ -33,7 +36,7 @@ export function createStructifyManifest(options: {
   const templateHash = hashStable([...options.templatePaths].sort());
   return {
     manifestVersion: '1.0.0',
-    structifyVersion: '1.0.0',
+    structifyVersion: STRUCTIFY_VERSION,
     projectId: `proj-${hashStable(`${options.config.projectName}:${generatedAt}`).slice(0, 12)}`,
     generatedAt,
     templateVersion: '1.0.0',

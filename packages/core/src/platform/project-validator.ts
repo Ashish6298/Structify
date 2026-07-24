@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { hashStable, StructifyManifest } from '../manifest/index.js';
+import { hashStable, StructifyManifest, STRUCTIFY_VERSION } from '../manifest/index.js';
 import { NormalizedProjectConfig } from '../types/index.js';
 import { createComposableGenerationPlan } from '../generation/composable.js';
 import { ProjectGraph } from './project-graph.js';
@@ -78,10 +78,10 @@ export function validateGeneratedProject(projectPath: string): ProjectValidation
 
   if (config) {
     validateConfigShape(config, errors);
-    if (config.structify?.version !== '1.0.0') {
+    if (config.structify?.version !== STRUCTIFY_VERSION) {
       errors.push({
         code: 'CONFIG_STRUCTIFY_METADATA_MISSING',
-        message: 'structify.config.json is missing Structify metadata version 1.0.0.',
+        message: `structify.config.json is missing Structify metadata version ${STRUCTIFY_VERSION}.`,
         path: 'structify.config.json',
       });
     }
@@ -106,7 +106,7 @@ export function validateGeneratedProject(projectPath: string): ProjectValidation
   }
 
   if (config && manifest) {
-    if (manifest.structifyVersion !== '1.0.0') {
+    if (manifest.structifyVersion !== STRUCTIFY_VERSION) {
       errors.push({
         code: 'STRUCTIFY_VERSION_MISMATCH',
         message: `Unsupported Structify version ${manifest.structifyVersion}`,

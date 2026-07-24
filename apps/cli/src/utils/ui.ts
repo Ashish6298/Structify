@@ -686,6 +686,11 @@ export function renderTemplatePanel(
       desc: 'Configurable storefront and modular API foundation with catalog, cart, orders, checkout, and admin modules.',
       value: 'ecommerce-platform',
     },
+    {
+      title: 'Project Management Platform',
+      desc: 'Configurable responsive workspace foundation with Kanban, sprint, backlog, calendar, timeline, roles & workspaces.',
+      value: 'project-management-platform',
+    },
   ];
 
   const choices =

@@ -1,6 +1,6 @@
 {
   "name": "structify-tool",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Interactive CLI for generating production-ready project architectures",
   "main": "dist/index.js",
   "bin": {
@@ -44,5 +44,38 @@
   "devDependencies": {
     "@structify/core": "*",
     "@structify/logger": "*"
-  }
+  },
+  "keywords": [
+    "structify",
+    "project generator",
+    "code generator",
+    "scaffolding",
+    "boilerplate",
+    "starter",
+    "template",
+    "cli",
+    "typescript",
+    "javascript",
+    "react",
+    "nextjs",
+    "express",
+    "nestjs",
+    "fastify",
+    "hono",
+    "node",
+    "fullstack",
+    "frontend",
+    "backend",
+    "ecommerce",
+    "generator",
+    "developer tools",
+    "automation",
+    "productivity",
+    "npm",
+    "tailwind",
+    "prisma",
+    "mongoose",
+    "mongodb",
+    "postgresql"
+  ]
 }

@@ -1,6 +1,6 @@
 import { NormalizedProjectConfig } from '../types/index.js';
 import { DependencyRegistry } from '../registry/dependency.js';
-import { createStructifyManifest } from '../manifest/index.js';
+import { createStructifyManifest, STRUCTIFY_VERSION } from '../manifest/index.js';
 import { createComposableGenerationPlan } from '../generation/composable.js';
 import { getPredefinedTemplateFiles } from './predefined/index.js';
 
@@ -48,9 +48,11 @@ export function getLegacyStarterTemplates(
         {
           ...config,
           structify: {
-            version: '1.0.0',
+            version: STRUCTIFY_VERSION,
             generatedBy: 'structify',
             manifestPath: 'structify.manifest.json',
+            projectGraphPath: 'structify.project-graph.json',
+            packageManager: config.stack.packageManager,
           },
         },
         null,

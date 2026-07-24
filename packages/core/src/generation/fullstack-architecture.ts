@@ -7,6 +7,7 @@ export interface FullstackGeneratedFile {
   path: string;
   content: string;
   source: string;
+  owner?: 'framework' | 'fallback-starter' | 'predefined-template' | 'feature' | 'domain' | 'tool';
 }
 
 export interface FullstackDependency {
@@ -140,7 +141,15 @@ export type FullstackFeatureId =
   | 'storefront'
   | 'profile'
   | 'documentation'
-  | 'validation';
+  | 'validation'
+  // --- Project Management Domain ---
+  | 'projects'
+  | 'milestones'
+  | 'epics'
+  | 'sprints'
+  | 'tasks'
+  | 'subtasks'
+  | 'board';
 
 export interface FullstackFeatureModule {
   id: FullstackFeatureId;
@@ -272,8 +281,8 @@ const featureModules: Record<FullstackFeatureId, FullstackFeatureModule> = {
     contribute: (context) => ({
       files: [
         {
-          path: `${context.layout.shared}/src/config/ecommerce.ts`,
-          content: `export const ecommerceConfig = {\n  currency: 'USD',\n  checkoutEnabled: true,\n  taxRate: 0.08,\n  shippingMethods: [\n    { id: 'standard', name: 'Standard Shipping', cost: 0 },\n    { id: 'express', name: 'Express Shipping', cost: 15 },\n  ],\n} as const;\n`,
+          path: `${context.layout.shared}/src/config/platform.ts`,
+          content: `export const platformConfig = {\n  apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3000/api',\n  environment: process.env.NODE_ENV || 'development',\n} as const;\n`,
           source: 'feature:configuration',
         },
       ],
@@ -287,7 +296,7 @@ const featureModules: Record<FullstackFeatureId, FullstackFeatureModule> = {
     contribute: (context) => ({
       files: [
         {
-          path: `${context.layout.shared}/src/types/ecommerce.ts`,
+          path: `${context.layout.shared}/src/types/domain.ts`,
           content: `export interface Product {\n  id: string;\n  name: string;\n  slug: string;\n  description: string;\n  price: number;\n  category: string;\n  rating: number;\n  inventory: number;\n  image?: string;\n}\n\nexport interface Category {\n  id: string;\n  name: string;\n  slug: string;\n}\n\nexport interface CartItem {\n  productId: string;\n  quantity: number;\n}\n\nexport interface Order {\n  id: string;\n  userId: string;\n  items: CartItem[];\n  total: number;\n  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';\n  createdAt: string;\n}\n\nexport interface UserProfile {\n  id: string;\n  email: string;\n  name?: string;\n  role: 'customer' | 'admin';\n}\n`,
           source: 'feature:shared-types',
         },
@@ -507,7 +516,7 @@ const featureModules: Record<FullstackFeatureId, FullstackFeatureModule> = {
     contribute: (context) => ({
       files: [
         {
-          path: `${context.layout.backend}/src/validation/catalog.ts`,
+          path: `${context.layout.backend}/src/validation/entity.ts`,
           content: `export function validateProductSchema(input: any) {\n  if (!input.name || typeof input.name !== 'string') {\n    throw new Error('Product name is required and must be a string');\n  }\n  if (typeof input.price !== 'number' || input.price < 0) {\n    throw new Error('Product price must be a positive number');\n  }\n}\n`,
           source: 'feature:validation',
         },
@@ -589,6 +598,110 @@ const featureModules: Record<FullstackFeatureId, FullstackFeatureModule> = {
       return { files };
     },
   },
+  projects: {
+    id: 'projects',
+    requires: ['shared-types', 'repositories'],
+    kind: 'domain',
+    contribute: (context) => ({
+      files: [
+        {
+          path: `${context.layout.backend}/src/application/project.service.ts`,
+          content: `import type { Project } from '../../shared/types/ecommerce.js';\n\nexport class ProjectService {\n  private projects = [\n    { id: 'proj_1', name: 'Phoenix Platform Upgrade', code: 'PHX', description: 'Core system migrations.', status: 'active', owner: 'Alice Smith' },\n    { id: 'proj_2', name: 'Mobile App Redesign', code: 'MOB', description: 'React Native upgrade.', status: 'planning', owner: 'Bob Jones' },\n  ];\n\n  async getProjects() {\n    return this.projects;\n  }\n}\n`,
+          source: 'feature:projects',
+        },
+      ],
+    }),
+  },
+  milestones: { id: 'milestones', requires: ['projects'], kind: 'domain', contribute: () => ({}) },
+  epics: { id: 'epics', requires: ['projects'], kind: 'domain', contribute: () => ({}) },
+  sprints: { id: 'sprints', requires: ['projects'], kind: 'domain', contribute: () => ({}) },
+  tasks: {
+    id: 'tasks',
+    requires: ['projects', 'repositories'],
+    kind: 'domain',
+    contribute: (context) => ({
+      files: [
+        {
+          path: `${context.layout.backend}/src/application/task.service.ts`,
+          content: `export class TaskService {\n  private tasks = [\n    { id: 'tsk_1', projectId: 'proj_1', title: 'Setup CI/CD pipeline', priority: 'high', status: 'todo', assignee: 'Charlie Brown' },\n    { id: 'tsk_2', projectId: 'proj_1', title: 'Database schema migration', priority: 'critical', status: 'in-progress', assignee: 'Alice Smith' },\n    { id: 'tsk_3', projectId: 'proj_2', title: 'Design user onboarding flow', priority: 'medium', status: 'done', assignee: 'Bob Jones' },\n  ];\n\n  async getTasks(projectId?: string) {\n    if (projectId) return this.tasks.filter(t => t.projectId === projectId);\n    return this.tasks;\n  }\n}\n`,
+          source: 'feature:tasks',
+        },
+      ],
+    }),
+  },
+  subtasks: { id: 'subtasks', requires: ['tasks'], kind: 'domain', contribute: () => ({}) },
+  board: {
+    id: 'board',
+    requires: ['shared-ui', 'api-client', 'projects', 'tasks'],
+    kind: 'domain',
+    contribute: (context) => {
+      const files: FullstackGeneratedFile[] = [];
+      const brandLabel = context.config.projectName.toUpperCase();
+      const component = `'use client';\n\nimport React, { useState } from 'react';\n\nconst initialProjects = [\n  { id: 'proj_1', name: 'Phoenix Platform Upgrade', code: 'PHX', description: 'Core system migrations.', status: 'active', owner: 'Alice Smith' },\n  { id: 'proj_2', name: 'Mobile App Redesign', code: 'MOB', description: 'React Native upgrade.', status: 'planning', owner: 'Bob Jones' }\n];\n\nconst initialTasks = [\n  { id: 'tsk_1', projectId: 'proj_1', title: 'Setup CI/CD pipeline', priority: 'high', status: 'todo', assignee: 'Charlie Brown' },\n  { id: 'tsk_2', projectId: 'proj_1', title: 'Database schema migration', priority: 'critical', status: 'in-progress', assignee: 'Alice Smith' },\n  { id: 'tsk_3', projectId: 'proj_2', title: 'Design user onboarding flow', priority: 'medium', status: 'done', assignee: 'Bob Jones' }\n];\n\nexport default function ProjectBoard() {\n  const [projects] = useState(initialProjects);\n  const [tasks, setTasks] = useState(initialTasks);\n  const [activeTab, setActiveTab] = useState<'board' | 'backlog' | 'settings'>('board');\n  const [selectedProjectId, setSelectedProjectId] = useState('proj_1');\n\n  const moveTask = (taskId: string, newStatus: 'todo' | 'in-progress' | 'done') => {\n    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));\n  };\n\n  const filteredTasks = tasks.filter(t => t.projectId === selectedProjectId);\n  const currentProject = projects.find(p => p.id === selectedProjectId);\n\n  return (\n    <div className="pm-app">\n      <header className="pm-header">\n        <div className="header-container">\n          <div className="brand" onClick={() => setActiveTab('board')}>📁 ${brandLabel} PM</div>\n          <nav className="nav-links">\n            <button className={activeTab === 'board' ? 'active' : ''} onClick={() => setActiveTab('board')}>Kanban Board</button>\n            <button className={activeTab === 'backlog' ? 'active' : ''} onClick={() => setActiveTab('backlog')}>Backlog & Sprints</button>\n            <button className={activeTab === 'settings' ? 'active' : ''} onClick={() => setActiveTab('settings')}>Settings</button>\n          </nav>\n        </div>\n      </header>\n\n      <main className="pm-main">\n        <div className="project-selector-bar">\n          <label>Active Project: </label>\n          <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)}>\n            {projects.map(p => (\n              <option key={p.id} value={p.id}>{p.name} ({p.code})</option>\n            ))}\n          </select>\n          <span className="owner-badge">Owner: {currentProject?.owner}</span>\n        </div>\n\n        {activeTab === 'board' && (\n          <div>\n            <section className="board-grid">\n              {['todo', 'in-progress', 'done'].map(status => (\n                <div key={status} className="board-column">\n                  <h2 className="column-title">{status.toUpperCase()}</h2>\n                  <div className="tasks-container">\n                    {filteredTasks.filter(t => t.status === status).map(t => (\n                      <div key={t.id} className="task-card">\n                        <h3>{t.title}</h3>\n                        <div className="task-meta">\n                          <span className={\`priority-badge \${t.priority}\`}>{t.priority}</span>\n                          <span className="assignee">{t.assignee}</span>\n                        </div>\n                        <div className="actions">\n                          {status !== 'todo' && <button onClick={() => moveTask(t.id, 'todo')}>Todo</button>}\n                          {status !== 'in-progress' && <button onClick={() => moveTask(t.id, 'in-progress')}>Work</button>}\n                          {status !== 'done' && <button onClick={() => moveTask(t.id, 'done')}>Done</button>}\n                        </div>\n                      </div>\n                    ))}\n                  </div>\n                </div>\n              ))}\n            </section>\n          </div>\n        )}\n\n        {activeTab === 'backlog' && (\n          <section className="backlog-section">\n            <h2>Product Backlog & Epics</h2>\n            <div className="backlog-list">\n              {filteredTasks.map(t => (\n                <div key={t.id} className="backlog-item">\n                  <span className="backlog-id">{t.id}</span>\n                  <span className="backlog-title">{t.title}</span>\n                  <span className={\`priority-badge \${t.priority}\`}>{t.priority}</span>\n                  <span className="backlog-status">{t.status}</span>\n                </div>\n              ))}\n            </div>\n          </section>\n        )}\n\n        {activeTab === 'settings' && (\n          <section className="settings-section">\n            <h2>Project Configuration</h2>\n            <div className="settings-form">\n              <div className="form-group">\n                <label>Project Name</label>\n                <input type="text" defaultValue={currentProject?.name} disabled />\n              </div>\n              <div className="form-group">\n                <label>Code Prefix</label>\n                <input type="text" defaultValue={currentProject?.code} disabled />\n              </div>\n              <p className="notice">Settings and access rules are locked in read-only mode. Integrate database storage to persist configurations.</p>\n            </div>\n          </section>\n        )}\n      </main>\n\n      <footer className="pm-footer">\n        <p>&copy; {new Date().getFullYear()} ${brandLabel}. Workspaces powered by clean modular fullstack architecture.</p>\n      </footer>\n    </div>\n  );\n}\n`;
+      const css = `\n:root {\n  --bg-color: #f8fafc;\n  --text-color: #0f172a;\n  --primary-color: #2563eb;\n  --border-color: #e2e8f0;\n  --card-bg: #ffffff;\n}\n\nbody {\n  margin: 0;\n  padding: 0;\n  background-color: var(--bg-color);\n  color: var(--text-color);\n  font-family: ui-sans-serif, system-ui, sans-serif;\n}\n\n.pm-app {\n  display: flex;\n  flex-direction: column;\n  min-height: 100vh;\n}\n\n.pm-header {\n  background-color: #ffffff;\n  border-bottom: 1px solid var(--border-color);\n  position: sticky;\n  top: 0;\n  z-index: 10;\n}\n\n.header-container {\n  max-width: 1200px;\n  margin: 0 auto;\n  padding: 1rem 2rem;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n\n.brand {\n  font-size: 1.25rem;\n  font-weight: 700;\n  cursor: pointer;\n}\n\n.nav-links button {\n  background: none;\n  border: none;\n  font-size: 0.95rem;\n  margin-left: 1rem;\n  padding: 0.5rem 1rem;\n  cursor: pointer;\n  border-radius: 6px;\n  transition: all 0.2s ease;\n}\n\n.nav-links button.active {\n  background-color: var(--primary-color);\n  color: #ffffff;\n}\n\n.pm-main {\n  flex: 1;\n  max-width: 1200px;\n  margin: 0 auto;\n  padding: 2rem;\n  width: 100%;\n}\n\n.project-selector-bar {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin-bottom: 2rem;\n  background: #ffffff;\n  padding: 1rem;\n  border-radius: 8px;\n  border: 1px solid var(--border-color);\n}\n\n.project-selector-bar select {\n  padding: 0.5rem;\n  border-radius: 6px;\n  border: 1px solid var(--border-color);\n}\n\n.owner-badge {\n  font-size: 0.85rem;\n  color: #64748b;\n  margin-left: auto;\n}\n\n.board-grid {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 1.5rem;\n}\n\n.board-column {\n  background: #f1f5f9;\n  padding: 1rem;\n  border-radius: 10px;\n  min-height: 500px;\n}\n\n.column-title {\n  font-size: 0.9rem;\n  color: #475569;\n  margin-bottom: 1rem;\n  border-bottom: 2px solid var(--border-color);\n  padding-bottom: 0.5rem;\n}\n\n.tasks-container {\n  display: flex;\n  flex-direction: column;\n  gap: 1rem;\n}\n\n.task-card {\n  background: var(--card-bg);\n  padding: 1rem;\n  border-radius: 8px;\n  box-shadow: 0 1px 3px rgba(0,0,0,0.05);\n  border: 1px solid var(--border-color);\n}\n\n.task-card h3 {\n  margin: 0 0 0.75rem;\n  font-size: 1rem;\n}\n\n.task-meta {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 1rem;\n}\n\n.priority-badge {\n  font-size: 0.75rem;\n  padding: 0.25rem 0.5rem;\n  border-radius: 4px;\n  font-weight: 600;\n  text-transform: uppercase;\n}\n\n.priority-badge.high { background: #fee2e2; color: #991b1b; }\n.priority-badge.critical { background: #fef2f2; color: #b91c1c; border: 1px solid #f87171; }\n.priority-badge.medium { background: #fef3c7; color: #92400e; }\n\n.assignee {\n  font-size: 0.8rem;\n  color: #64748b;\n}\n\n.actions {\n  display: flex;\n  gap: 0.5rem;\n}\n\n.actions button {\n  flex: 1;\n  font-size: 0.8rem;\n  padding: 0.25rem;\n  border: 1px solid var(--border-color);\n  background: #ffffff;\n  cursor: pointer;\n  border-radius: 4px;\n}\n\n.backlog-list {\n  display: flex;\n  flex-direction: column;\n  gap: 0.75rem;\n}\n\n.backlog-item {\n  background: #ffffff;\n  padding: 1rem;\n  border-radius: 8px;\n  border: 1px solid var(--border-color);\n  display: flex;\n  align-items: center;\n  gap: 1.5rem;\n}\n\n.backlog-id { font-weight: 700; color: #64748b; }\n.backlog-title { flex: 1; }\n\n.settings-form {\n  background: #ffffff;\n  padding: 2rem;\n  border-radius: 8px;\n  border: 1px solid var(--border-color);\n  max-width: 600px;\n}\n\n.form-group {\n  margin-bottom: 1.5rem;\n}\n\n.form-group label {\n  display: block;\n  margin-bottom: 0.5rem;\n  font-weight: 600;\n}\n\n.form-group input {\n  width: 100%;\n  padding: 0.5rem;\n  border: 1px solid var(--border-color);\n  border-radius: 6px;\n  background: #f8fafc;\n}\n\n.notice { color: #64748b; font-style: italic; font-size: 0.9rem; }\n\n.pm-footer {\n  background-color: #ffffff;\n  border-top: 1px solid var(--border-color);\n  padding: 2rem;\n  text-align: center;\n  color: #64748b;\n  margin-top: auto;\n}\n`;
+      if (context.config.stack.frontend === 'next') {
+        files.push(
+          {
+            path: `${context.layout.frontend}/app/page.tsx`,
+            content: component,
+            source: 'feature:board',
+          },
+          {
+            path: `${context.layout.frontend}/app/globals.css`,
+            content: css,
+            source: 'feature:board',
+          },
+        );
+      } else {
+        files.push(
+          {
+            path: `${context.layout.frontend}/src/App.tsx`,
+            content: component,
+            source: 'feature:board',
+          },
+          {
+            path: `${context.layout.frontend}/src/index.css`,
+            content: css,
+            source: 'feature:board',
+          },
+        );
+      }
+
+      files.push(
+        {
+          path: `${context.layout.backend}/src/routes/project.routes.ts`,
+          content: `import { Router } from 'express';\nimport { ProjectService } from '../application/project.service.js';\n\nexport const projectRouter = Router();\nconst projectService = new ProjectService();\n\nprojectRouter.get('/projects', async (req, res) => {\n  const projects = await projectService.getProjects();\n  res.json({ data: projects });\n});\n`,
+          source: 'feature:board',
+        },
+        {
+          path: `${context.layout.backend}/src/modules/README.md`,
+          content: `# PM Modules\nPlace project routing boundaries and service configurations here.\n`,
+          source: 'feature:board',
+        },
+        {
+          path: `${context.layout.frontend}/src/features/README.md`,
+          content: `# Kanban UI components\nUI features and board layouts.\n`,
+          source: 'feature:board',
+        },
+        {
+          path: 'README.md',
+          content: `# ${brandLabel} - Project Management Platform\n\nA professional project board workspace generated by Structify.\n`,
+          source: 'feature:board',
+        },
+        {
+          path: '.env.example',
+          content: `NODE_ENV=development\nPORT=3000\nAPI_BASE_URL=http://localhost:3000/api\nDATABASE_URL=replace-with-${context.config.stack.database}-connection-string\nJWT_SECRET=replace-with-jwt-secret\n`,
+          source: 'feature:board',
+        },
+        {
+          path: 'docs/pm-architecture.md',
+          content: `# Project Management Architecture Overview\nWorkspace isolation details.\n`,
+          source: 'feature:board',
+        },
+      );
+      return { files };
+    },
+  },
 };
 
 // Returns a helper object for feature metadata discovery
@@ -639,8 +752,27 @@ export function createFullstackArchitecturePlan(
   const contributions = [
     ...adapters
       .filter((adapter) => adapter.supports(context))
-      .map((adapter) => adapter.contribute(context)),
-    ...resolveFeatureModules(features).map((module) => module.contribute(context)),
+      .map((adapter) => {
+        const contrib = adapter.contribute(context);
+        if (contrib.files) {
+          contrib.files = contrib.files.map((file) => ({
+            ...file,
+            owner:
+              file.owner || (adapter.id === 'fallback-starter' ? 'fallback-starter' : 'framework'),
+          }));
+        }
+        return contrib;
+      }),
+    ...resolveFeatureModules(features).map((module) => {
+      const contrib = module.contribute(context);
+      if (contrib.files) {
+        contrib.files = contrib.files.map((file) => ({
+          ...file,
+          owner: file.owner || (module.kind === 'domain' ? 'domain' : 'feature'),
+        }));
+      }
+      return contrib;
+    }),
   ];
   return mergeFullstackContributions(contributions);
 }
@@ -671,8 +803,29 @@ export function mergeFullstackContributions(
   const environment = new Map<string, string>();
   const documentation = new Set<string>();
   for (const contribution of contributions) {
-    for (const file of contribution.files ?? [])
-      merge(files, file.path, file, (value) => value.content, 'file');
+    for (const file of contribution.files ?? []) {
+      const existing = files.get(file.path);
+      if (existing) {
+        if (existing.content === file.content) {
+          continue;
+        }
+
+        const existingOwner = existing.owner || 'fallback-starter';
+        const newOwner = file.owner || 'fallback-starter';
+
+        if (existingOwner === 'fallback-starter' && newOwner !== 'fallback-starter') {
+          files.set(file.path, file);
+        } else if (newOwner === 'fallback-starter' && existingOwner !== 'fallback-starter') {
+          continue;
+        } else {
+          throw new Error(
+            `Fullstack file conflict at "${file.path}": "${existing.content}" vs "${file.content}" (owner: ${existingOwner} vs ${newOwner})`,
+          );
+        }
+      } else {
+        files.set(file.path, file);
+      }
+    }
     for (const dependency of contribution.dependencies ?? [])
       merge(
         dependencies,

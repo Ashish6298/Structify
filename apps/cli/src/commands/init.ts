@@ -649,7 +649,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
           targetDir,
           result.generatedFiles.length,
           result.durationMs,
-          context.packageVersion || '1.3.1',
+          context.packageVersion || '1.3.2',
           exported,
         ),
         context.noColor,
@@ -714,7 +714,7 @@ export async function handleInit(options: InitOptions, context: CLIContext): Pro
       stylingLabel,
       result.generatedFiles.length,
       result.durationMs,
-      context.packageVersion || '1.3.1',
+      context.packageVersion || '1.3.2',
       configExported,
       context.noColor,
     );

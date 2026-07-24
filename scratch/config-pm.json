@@ -1,0 +1,19 @@
+{
+  "projectName": "validation-pm",
+  "version": "1.0",
+  "mode": "fullstack",
+  "templateId": "project-management-platform",
+  "stack": {
+    "frontend": "next",
+    "backend": "express",
+    "styling": "tailwind",
+    "database": "postgres",
+    "orm": "prisma",
+    "packageManager": "npm"
+  },
+  "tools": {
+    "docker": true,
+    "eslint": true,
+    "prettier": true
+  }
+}

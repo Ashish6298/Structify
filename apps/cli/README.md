@@ -706,10 +706,10 @@ Structify validates every selection in real time, intelligently adapts future op
 
 <h2>
 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Party%20popper/3D/party_popper_3d.png" width="34">
-What's New in Structify v1.3.1
+What's New in Structify v1.3.2
 </h2>
 
-Structify v1.3.1 is the most significant architectural release since the platform's inception. It introduces a production-ready **Fullstack E-Commerce Platform**, a completely redesigned **Adapter-Based Generation Engine**, and two new internal libraries that make every future template faster to build and easier to maintain.
+Structify v1.3.2 strengthens the adapter-based generation engine with canonical project metadata, validated workspace tooling, and isolated predefined-template composition.
 
 <br/>
 
@@ -1192,7 +1192,7 @@ Structify follows a milestone-driven development process. Below is a transparent
 | 🧩 Shared Feature Module Library     |  v1.3   |
 | 🗂️ Domain Module Library             |  v1.3   |
 | 🏗️ Professional Workspace Generation |  v1.3   |
-| 🛒 E-Commerce Platform Template      | v1.3.1  |
+| 🛒 E-Commerce Platform Template      | v1.3.2  |
 
 </td>
 

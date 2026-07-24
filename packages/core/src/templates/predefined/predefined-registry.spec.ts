@@ -32,8 +32,10 @@ describe('Predefined Templates Modular Registry', () => {
     expect(backends).toHaveLength(5);
 
     const fullstacks = registry.filterTemplates({ category: 'fullstack' });
-    expect(fullstacks).toHaveLength(1);
-    expect(fullstacks[0]?.id).toBe('ecommerce-platform');
+    expect(fullstacks).toHaveLength(2);
+    const fullstackIds = fullstacks.map((t) => t.id);
+    expect(fullstackIds).toContain('ecommerce-platform');
+    expect(fullstackIds).toContain('project-management-platform');
   });
 
   it('generates a stack-aware E-Commerce Platform overlay', () => {
@@ -48,6 +50,27 @@ describe('Predefined Templates Modular Registry', () => {
     expect(paths).toContain('src/server/application/catalog.service.ts');
     expect(paths).toContain('src/server/infrastructure/database/repository.ts');
     expect(paths).toContain('docs/ecommerce-architecture.md');
+    expect(files.find((file) => file.path === '.env.example')?.content).toContain('postgres');
+  });
+
+  it('generates a stack-aware Project Management Platform overlay', () => {
+    const files = getPredefinedTemplateFiles(
+      'project-management-platform',
+      'next',
+      'tailwind',
+      'pm-app',
+      {
+        backend: 'express',
+        database: 'postgres',
+        orm: 'prisma',
+      },
+    );
+    const paths = files.map((file) => file.path);
+    expect(paths).toContain('app/page.tsx');
+    expect(paths).toContain('src/shared/api/client.ts');
+    expect(paths).toContain('src/server/application/project.service.ts');
+    expect(paths).toContain('src/server/application/task.service.ts');
+    expect(paths).toContain('docs/pm-architecture.md');
     expect(files.find((file) => file.path === '.env.example')?.content).toContain('postgres');
   });
 

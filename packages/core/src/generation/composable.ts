@@ -4,6 +4,7 @@ import { NormalizedProjectConfig } from '../types/index.js';
 import { DependencyGraph, DependencyGraphResult } from '../platform/dependency-graph.js';
 import { ProjectGraph, ProjectGraphBuilder } from '../platform/project-graph.js';
 import { createFullstackWorkspaceGenerationPlan } from './fullstack-generator.js';
+import { STRUCTIFY_VERSION } from '../manifest/index.js';
 
 export interface ComposableGeneratorContribution {
   id: string;
@@ -383,7 +384,7 @@ function rewriteMetadataFiles(
             {
               ...parsed,
               structify: {
-                version: '1.0.0',
+                version: STRUCTIFY_VERSION,
                 generatedBy: 'structify',
                 manifestPath: 'structify.manifest.json',
                 projectGraphPath: 'structify.project-graph.json',

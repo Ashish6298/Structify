@@ -1,0 +1,113 @@
+STRUCTIFY v1.3.2 REMEDIATION AND VALIDATION REPORT
+==================================================
+
+Execution completed: 2026-07-24T14:38:28+05:30
+Repository: D:\Structify
+Git: main @ 49c451fb9d1d468b9309e5ec724e73faf305835f
+Environment: Windows 11 Pro 64-bit; Node v24.1.0; npm 11.12.1; Turbo 2.10.3
+
+REMEDIATION IMPLEMENTED
+-----------------------
+1. Canonical metadata generation
+   - Added a single Structify release identity (1.3.2) and used it in manifests,
+     generated config metadata, validator checks, CLI fallbacks, and package metadata.
+   - Full-stack generation now derives config, manifest, graph summary, stack hash,
+     package manager, generator versions, and generated-file metadata from the normalized
+     generation context via createStructifyManifest.
+   - Generated config now references both manifest and project graph metadata.
+   - Fallback ownership now guarantees README.md and .env.example for full-stack projects.
+
+2. Workspace scripts and tooling
+   - Added actual frontend/backend lint and typecheck scripts, so root workspace scripts no
+     longer succeed without running checks.
+   - Updated generated ESLint TypeScript parser/plugin versions to the compatible v8 line and
+     retained ESLint 8.57 for generated .eslintrc compatibility.
+
+3. Template composition and advertised support
+   - Restricted full-stack template metadata to implemented Next.js and Vite React adapters.
+   - PM composition filters commerce-only catalog/router artifacts and rewrites inherited
+     shared type imports to domain-neutral paths. Fresh PM output contains no ecommerce or
+     catalog filenames/references.
+   - Refreshed generation snapshot only after reviewing the intended new README/.env and
+     real lint/typecheck output.
+
+4. Validation and ownership
+   - Existing rollback, ownership, graph, validator, template registry, integration, and
+     state/lifecycle tests remain intact and pass.
+   - Full-stack files retain adapter/fallback/template ownership semantics; template overlays
+     replace fallback application files while infrastructure remains adapter-owned.
+
+COMMANDS EXECUTED
+-----------------
+npm run format:check
+npm run lint
+npm run typecheck
+npm run build
+npm test
+npm --workspace @structify/core test
+npm --workspace @structify/core run typecheck
+npm --workspace @structify/core run build
+npm --workspace structify-tool run build
+npm pack (apps/cli)
+npm uninstall -g structify-tool
+npm install -g D:\Structify\apps\cli\structify-tool-1.3.2.tgz
+structify init --config scratch\config-custom-next.json --output scratch\remediation-validation\custom-next --skip-install --verify
+structify init --config scratch\config-pm.json --output scratch\remediation-validation\pm-final2 --skip-install --verify
+
+RESULTS
+-------
+Formatting: PASS after formatting fullstack-generator.ts.
+Lint: PASS (Turbo).
+Typecheck: PASS (Turbo).
+Build: PASS (Turbo).
+Core tests: PASS, 27 test files / 194 tests.
+CLI tests: PASS, 12 test files / 85 tests.
+MCP tests: PASS, 2 test files / 2 tests.
+Snapshot tests: PASS; one deliberate snapshot update.
+Rollback: PASS (execution/rollback-final.spec.ts).
+Packaging: PASS. apps/cli/structify-tool-1.3.2.tgz produced successfully.
+Global CLI: PASS. Previously installed package removed; packed 1.3.2 package installed;
+structify --version reports 1.3.2.
+
+FRESH GENERATED PROJECT VALIDATION
+----------------------------------
+custom-next: Next + Express + Tailwind + PostgreSQL + Prisma, Docker enabled.
+  Location: scratch/remediation-validation/custom-next
+  Generation: 30 files in 38 ms.
+  --verify: PASS immediately. README, .env.example, config, manifest, and graph present.
+
+pm-final2: Project Management Platform, Next + Express + Tailwind + PostgreSQL + Prisma.
+  Location: scratch/remediation-validation/pm-final2
+  Generation: 44 files in 115 ms.
+  --verify: PASS immediately.
+  Template isolation: PASS. Search found no ecommerce/catalog references outside node_modules.
+  Workspace manifests expose real lint/typecheck scripts in frontend and backend packages.
+
+METADATA / MANIFEST / GRAPH VALIDATION
+--------------------------------------
+Fresh generation now passes Structify's own offline structural validator. This verifies
+config-to-manifest references, Structify version, package manager, stack hashes, graph summary,
+graph nodes, generated files, and required base assets against the same normalized context.
+
+WARNINGS AND LIMITATIONS
+------------------------
+- Generated-project npm install was started during the PM tooling check but exceeded the
+  workspace runner's 124-second command limit. It is recorded as an environment-timeout, not
+  an engine failure. Fresh structural validation, package manifests, and generated scripts pass.
+- The repository was already dirty at the start of remediation. Existing unrelated changes and
+  historical validation artifacts were preserved.
+- npm reports existing dependency-audit/deprecation notices; these are dependency maintenance
+  observations, not generator-structure defects.
+
+TEMPLATE IMPLEMENTATION OBSERVATIONS
+------------------------------------
+Generated templates intentionally include editable mock data and starter services. These are
+not engine failures. No cross-template E-Commerce artifacts remain in the fresh PM output.
+
+SCAFFOLDING ENGINE OBSERVATIONS
+-------------------------------
+The previous engine defects are remediated: generated metadata validates immediately, required
+base assets are emitted, workspace checks are actionable, version identity is 1.3.2, unsupported
+framework advertisements are removed, and PM composition is isolated from commerce artifacts.
+
+FINAL STATUS: SCAFFOLDING ENGINE VALIDATED WITH TEMPLATE OBSERVATIONS

@@ -1,0 +1,166 @@
+STRUCTIFY v1.3.2 END-TO-END VALIDATION REPORT
+================================================
+
+Execution time: 2026-07-24T10:49:12.3612666+05:30
+Repository: D:\Structify
+Git branch / commit: main / 49c451fb9d1d468b9309e5ec724e73faf305835f
+Host: Windows 11 Pro 64-bit (10.0.26200)
+Node.js / npm / Turbo: v24.1.0 / 11.12.1 / 2.10.3
+
+SCOPE AND BASELINE
+------------------
+This validation assesses the generator and starter-project handoff, not application-domain
+completeness. The worktree was already dirty at start (active CLI/fullstack-template changes,
+scratch projects, and prior reports). Those files were preserved. The checked CLI package
+declares and packs version 1.3.1, not 1.3.2; therefore no artifact named v1.3.2 was available
+to certify.
+
+CLEAN REBUILD AND REPOSITORY CHECKS
+-----------------------------------
+Commands executed:
+  npm run clean
+  npm cache clean --force
+  npm ci
+  npm run format:check
+  npm run lint
+  npm run typecheck
+  npm test
+  npm run build
+
+Results:
+  npm ci: PASS, 240 packages installed in 10 seconds; npm audit reports 5 vulnerabilities
+  Formatting check: PASS
+  Lint: PASS (Turbo, 6 tasks)
+  Typecheck: PASS (Turbo, 6 tasks)
+  Turbo build: PASS (4 tasks; cache replayed because the shell safety policy rejected manual
+    recursive removal of .turbo/dist in a combined command; npm ci was completed cleanly)
+  Unit/integration/regression suite: FAIL. @structify/core has 193 passing tests and 1 failure
+  across 27 files. The failed test is generation/composable.spec.ts, "snapshots important
+  generated output for supported MVP combinations". Received output adds root lint and
+  typecheck scripts to a full-stack project; the stored snapshot lacks them.
+  Rollback coverage: execution/rollback-final.spec.ts passed (1 test).
+  Ownership/architecture coverage: fullstack-architecture.spec.ts passed (14 tests), and
+  predefined-registry.spec.ts passed (10 tests).
+
+CLI PACKAGING AND PARITY
+------------------------
+  npm pack (apps/cli): PASS
+  Archive: apps/cli/structify-tool-1.3.1.tgz, 1.0 MB packed / 5.4 MB unpacked, 10 files
+  npm uninstall -g structify-tool: PASS
+  npm install -g D:\Structify\apps\cli\structify-tool-1.3.1.tgz: PASS
+  Installed CLI version: 1.3.1
+  Local dist CLI version: 1.3.1
+  init --help output: equivalent for global package and local dist CLI.
+
+GENERATION SCENARIOS EXECUTED
+-----------------------------
+All projects were generated consecutively in fresh directories under
+D:\Structify\scratch\e2e-20260724 using the globally installed packed CLI with --skip-install
+--verify. This exercised a single CLI installation across changing choices.
+
+  1. custom-next       fullstack: Next + Express + Tailwind + PostgreSQL + Prisma;
+                         Docker on, ESLint/Prettier on. PASS generation, 28 files, 72 ms.
+  2. custom-vite       fullstack: Vite React + Express + MUI + MongoDB + Mongoose;
+                         Docker off, ESLint/Prettier on. PASS generation, 26 files, 100 ms.
+  3. ecommerce         predefined E-Commerce Platform: Next + Express + Tailwind +
+                         PostgreSQL + Prisma; Docker on. PASS generation, 44 files, 101 ms.
+  4. pm-platform       predefined Project Management Platform: Next + Express + Tailwind +
+                         PostgreSQL + Prisma; Docker on. PASS generation, 45 files, 99 ms.
+
+Generation consistency/isolation observation: all four completed without a crash or rollback;
+the second custom run did not retain Docker, Tailwind, PostgreSQL, or Prisma selections from
+the first. Both fullstack templates selected their intended template content. This is useful
+but not a complete proof of every supported combination.
+
+GENERATION VALIDATION FINDINGS
+------------------------------
+The CLI's --verify emitted structural warnings for every generated scenario (6 for custom
+projects, 4 for predefined projects). Direct validateGeneratedProject inspection confirmed
+engine-produced metadata failures in all checked fullstack generations:
+  - CONFIG_STRUCTIFY_METADATA_INVALID: structify.config.json does not reference all expected
+    generated metadata files.
+  - STRUCTIFY_VERSION_MISMATCH: structify.manifest.json exposes no supported Structify version.
+  - MANIFEST_STACK_HASH_MISMATCH.
+  - MANIFEST_PACKAGE_MANAGER_MISMATCH.
+  - Custom-next additionally lacks README.md and .env.example although its validator/model
+    considers them required.
+
+Dependency registration itself was structurally present in the checked projects (the validator
+matched root ESLint/Prettier dependency declarations), package.json files parsed successfully,
+and intended hierarchy/configuration files were created (workspace root, frontend, backend,
+shared package, framework config, ORM config, Docker files when requested, and template docs).
+No duplicate project-graph node IDs were observed in the inspected graphs. However, metadata
+validation failures mean the generation pipeline is not internally self-consistent.
+
+GENERATED PROJECT INSTALL / BUILD / DEVELOPER EXPERIENCE
+--------------------------------------------------------
+custom-next:
+  npm install: completed and wrote package-lock.json/node_modules before the combined command
+    exceeded the 124 s runner limit during subsequent commands.
+  npm run build: PASS (Next production build and Prisma generate + tsc).
+  Next emitted an ESLint plugin load error while building: @typescript-eslint could not load
+    from the generated .eslintrc.json. Next still exited 0; this is a starter-tooling issue.
+  npm run lint: exit 0 but no child workspace exposes a lint script; it is a no-op.
+  npm run typecheck: exit 0 but no child workspace exposes a typecheck script; it is a no-op.
+  npm run dev: not started because it is persistent and the generated project already has
+    missing effective validation scripts; no endpoint assertion was made.
+
+File Ownership Contract:
+  Source tests covering fullstack architecture passed. Project graphs show each emitted path
+  once. The generated E-Commerce and PM overlays correctly contain their template-owned
+  feature/application files alongside adapter-owned infrastructure. Nevertheless, the PM
+  graph also contains ecommerce-named shared paths (e.g. config/ecommerce.ts and catalog
+  service), which is an ownership/template-selection leakage observation needing correction.
+
+NOT EXECUTED / LIMITATIONS
+--------------------------
+An exhaustive Cartesian run of every declared tool toggle, all 12 predefined templates,
+all backend choices, and every claimed template framework was not completed after the above
+engine blockers were established. The public template metadata claims vue, angular, and
+sveltekit for fullstack templates, while the runtime ProjectConfig type and adapters implement
+only next and vite-react; this advertised-vs-implemented path needs a dedicated defect test.
+No intentional unrelated-generator conflict was injected in this run; existing rollback test
+coverage passed. Remaining generated projects were not dependency-installed because confirming
+an already-invalid metadata pipeline across the full matrix would not produce a valid engine
+certification.
+
+PERFORMANCE
+-----------
+  Repository npm ci: 10 s
+  Package creation: 2.0 s
+  Global package replacement/install: approximately 1.5 s
+  Generation: 72 ms, 100 ms, 101 ms, 99 ms (four consecutive runs)
+  custom-next npm run build: 31 s
+  custom-next combined install/tool command: exceeded runner timeout at 124 s; install had
+  completed as evidenced by package-lock.json and node_modules.
+
+WARNINGS / TEMPLATE IMPLEMENTATION OBSERVATIONS
+------------------------------------------------
+  - npm audit: 5 dependency vulnerabilities (2 moderate, 2 high, 1 critical).
+  - Deprecated transitive packages reported by npm (including eslint 8 and rimraf 3).
+  - Next warned about multiple lockfiles and chose the repository root for output tracing.
+  - The generated Next ESLint configuration/plugin loading warning should be fixed for a clean
+    starter experience, independently of placeholder business logic.
+
+SCAFFOLDING ENGINE ISSUES
+-------------------------
+  1. Generated Structify config/manifest/graph metadata is mutually inconsistent, causing the
+     generator's own structural validator to fail immediately after successful generation.
+  2. Generated fullstack root lint and typecheck scripts silently run no validations because
+     workspace package manifests lack corresponding scripts.
+  3. Custom fullstack output omits files the generator's own validation contract requires
+     (README.md and .env.example in the checked Next/Prisma scenario).
+  4. Active core generation regression: composable output snapshot is stale/unapproved.
+  5. Release metadata mismatch: requested v1.3.2 cannot be packaged; CLI remains 1.3.1.
+
+TEMPLATE IMPLEMENTATION OBSERVATIONS
+------------------------------------
+  - PM template contains ecommerce-named shared/configuration artifacts, suggesting template
+    overlay leakage rather than developer-editable placeholder content.
+  - Generated Next ESLint integration reports a plugin load failure during build.
+
+FINAL STATUS: SCAFFOLDING ENGINE VALIDATION FAILED
+
+The result is based on engine-generated metadata and scripts, not on incomplete example
+business logic. The listed engine issues must be resolved and the full matrix rerun before
+Structify v1.3.2 can be validated.

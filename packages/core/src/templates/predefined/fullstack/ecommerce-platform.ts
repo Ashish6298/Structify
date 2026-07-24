@@ -19,7 +19,7 @@ export const ecommercePlatformTemplate: PredefinedTemplateDefinition = {
     category: 'fullstack',
     description:
       'Configurable production-ready E-Commerce Platform starter with storefront, modular API boundaries, authentication-ready architecture, and admin foundations.',
-    supportedFrameworks: ['next', 'vite-react', 'vue', 'angular', 'sveltekit'],
+    supportedFrameworks: ['next', 'vite-react'],
     supportedStyling: ['tailwind', 'mui', 'none'],
     defaultFramework: 'next',
     defaultStyling: 'tailwind',

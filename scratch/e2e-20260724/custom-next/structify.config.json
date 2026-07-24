@@ -1,0 +1,30 @@
+{
+  "projectName": "validation-custom-next",
+  "version": "1.0",
+  "mode": "fullstack",
+  "language": "typescript",
+  "stack": {
+    "frontend": "next",
+    "backend": "express",
+    "styling": "tailwind",
+    "database": "postgres",
+    "orm": "prisma",
+    "packageManager": "npm"
+  },
+  "tools": {
+    "docker": true,
+    "eslint": true,
+    "prettier": true,
+    "githubActions": false,
+    "git": false,
+    "editorconfig": false,
+    "husky": false,
+    "lintStaged": false,
+    "commitlint": false
+  },
+  "structify": {
+    "version": "1.0.0",
+    "generatedBy": "structify",
+    "manifestPath": "structify.manifest.json"
+  }
+}

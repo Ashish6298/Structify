@@ -1,0 +1,18 @@
+{
+  "projectName": "validation-custom-vite",
+  "version": "1.0",
+  "mode": "fullstack",
+  "stack": {
+    "frontend": "vite-react",
+    "backend": "express",
+    "styling": "mui",
+    "database": "mongodb",
+    "orm": "mongoose",
+    "packageManager": "npm"
+  },
+  "tools": {
+    "docker": false,
+    "eslint": true,
+    "prettier": true
+  }
+}

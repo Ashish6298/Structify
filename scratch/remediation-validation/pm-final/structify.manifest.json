@@ -1,0 +1,86 @@
+{
+  "manifestVersion": "1.0.0",
+  "structifyVersion": "1.3.2",
+  "projectId": "proj-0cbd523d1c76",
+  "generatedAt": "2026-07-24T09:06:16.975Z",
+  "templateVersion": "1.0.0",
+  "generatorVersions": {
+    "workspace-npm": "1.3.2",
+    "frontend-next": "1.3.2",
+    "frontend-vite-react": "1.3.2",
+    "backend-express": "1.3.2",
+    "backend-nest": "1.3.2",
+    "database-postgres": "1.3.2",
+    "database-mongodb": "1.3.2",
+    "orm-prisma": "1.3.2",
+    "orm-mongoose": "1.3.2",
+    "tooling-docker": "1.3.2",
+    "tooling-eslint": "1.3.2",
+    "tooling-prettier": "1.3.2",
+    "tooling-github-actions": "1.3.2",
+    "tooling-git": "1.3.2",
+    "tooling-editorconfig": "1.3.2",
+    "styling-tailwind": "1.3.2",
+    "styling-mui": "1.3.2",
+    "fallback-starter": "1.3.2"
+  },
+  "pluginVersions": {
+    "structify-builtins": "1.0.0"
+  },
+  "stackHash": "100367a37e2d0d94742d9cf883d8cb12850e23b6bb0369f372593c85932fc734",
+  "templateHash": "f1d14667c8d418317622e6eba7da4c45ba7d9aec716104e201568435f373bf43",
+  "platform": {
+    "os": "win32",
+    "arch": "x64",
+    "node": "v24.1.0"
+  },
+  "packageManager": "npm",
+  "config": {
+    "projectName": "validation-pm",
+    "version": "1.0",
+    "mode": "fullstack",
+    "language": "typescript",
+    "stack": {
+      "frontend": "next",
+      "backend": "express",
+      "styling": "tailwind",
+      "database": "postgres",
+      "orm": "prisma",
+      "packageManager": "npm"
+    },
+    "tools": {
+      "docker": true,
+      "eslint": true,
+      "prettier": true,
+      "githubActions": false,
+      "git": false,
+      "editorconfig": false,
+      "husky": false,
+      "lintStaged": false,
+      "commitlint": false
+    },
+    "templateId": "project-management-platform"
+  },
+  "projectGraphPath": "structify.project-graph.json",
+  "projectGraphSummary": {
+    "app": 1,
+    "package": 4,
+    "route": 0,
+    "page": 0,
+    "api-endpoint": 0,
+    "component": 0,
+    "layout": 0,
+    "service": 0,
+    "database-client": 0,
+    "model": 0,
+    "config-file": 39,
+    "script": 0,
+    "tooling": 0
+  },
+  "dependencyDiagnostics": [],
+  "analytics": {
+    "fileCount": 45,
+    "generatorCount": 18,
+    "dependencyCount": 20
+  }
+}

@@ -4,6 +4,7 @@ import { NormalizedProjectConfig } from '../types/index.js';
 import { GeneratedTemplateFile } from '../templates/templates.js';
 import { DependencyRegistry } from '../registry/dependency.js';
 import { ProjectGraphBuilder } from '../platform/project-graph.js';
+import { createStructifyManifest, STRUCTIFY_VERSION } from '../manifest/index.js';
 import { getPredefinedTemplateFiles } from '../templates/predefined/index.js';
 import {
   createFullstackArchitecturePlan,
@@ -29,6 +30,7 @@ import {
   EditorconfigAdapter,
   TailwindAdapter,
   MuiAdapter,
+  FallbackStarterAdapter,
 } from './adapters.js';
 
 export function createFullstackWorkspaceGenerationPlan(
@@ -54,6 +56,7 @@ export function createFullstackWorkspaceGenerationPlan(
     new EditorconfigAdapter(),
     new TailwindAdapter(),
     new MuiAdapter(),
+    new FallbackStarterAdapter(),
   ];
 
   // Wire features requested by template
@@ -69,6 +72,25 @@ export function createFullstackWorkspaceGenerationPlan(
       'orders',
       'checkout',
       'administration',
+      'api-client',
+      'middleware',
+      'validation',
+      'configuration',
+      'shared-types',
+      'repositories',
+      'documentation',
+    );
+  } else if (config.templateId === 'project-management-platform') {
+    features.push(
+      'projects',
+      'milestones',
+      'epics',
+      'sprints',
+      'tasks',
+      'subtasks',
+      'board',
+      'authentication',
+      'profile',
       'api-client',
       'middleware',
       'validation',
@@ -112,11 +134,39 @@ export function createFullstackWorkspaceGenerationPlan(
   // Combine files from adapter plan & template overlay
   const filesMap = new Map<string, string>();
   for (const file of plan.files ?? []) {
+    // PM composition intentionally shares infrastructure but never commerce domain samples.
+    if (
+      config.templateId === 'project-management-platform' &&
+      (file.path.includes('catalog.service') || file.path.includes('ecommerce.routes'))
+    ) {
+      continue;
+    }
     filesMap.set(file.path, file.content);
   }
   for (const file of templateFiles) {
     // Overlay template files over the base adapter files
+    if (
+      config.templateId === 'project-management-platform' &&
+      (file.path.includes('catalog.service') || file.path.includes('ecommerce.routes'))
+    ) {
+      continue;
+    }
     filesMap.set(file.path, file.content);
+  }
+
+  if (config.templateId === 'project-management-platform') {
+    for (const [filePath, content] of filesMap) {
+      const domainSafeContent = content
+        .replaceAll('types/ecommerce.js', 'types/domain.js')
+        .replace(/import type \{ Project \} from '[^']+';\n\n/, '')
+        .replaceAll('validateProductSchema', 'validateEntity')
+        .replaceAll(
+          'Product name is required and must be a string',
+          'A valid entity name is required',
+        )
+        .replaceAll('Product price must be a positive number', 'Entity values must be valid');
+      filesMap.set(filePath, domainSafeContent);
+    }
   }
 
   // 3. Resolve and group dependencies by target workspace using DependencyRegistry
@@ -147,8 +197,20 @@ export function createFullstackWorkspaceGenerationPlan(
     private: true,
     scripts:
       config.stack.frontend === 'next'
-        ? { dev: 'next dev', build: 'next build', start: 'next start' }
-        : { dev: 'vite', build: 'tsc && vite build', preview: 'vite preview' },
+        ? {
+            dev: 'next dev',
+            build: 'next build',
+            start: 'next start',
+            ...(config.tools.eslint ? { lint: 'eslint "app/**/*.{ts,tsx}"' } : {}),
+            typecheck: 'tsc --noEmit',
+          }
+        : {
+            dev: 'vite',
+            build: 'tsc && vite build',
+            preview: 'vite preview',
+            ...(config.tools.eslint ? { lint: 'eslint "src/**/*.{ts,tsx}"' } : {}),
+            typecheck: 'tsc --noEmit',
+          },
     dependencies: Object.fromEntries(webDeps.prod.map(splitPackageSpec)),
     devDependencies: Object.fromEntries(webDeps.dev.map(splitPackageSpec)),
   };
@@ -162,8 +224,19 @@ export function createFullstackWorkspaceGenerationPlan(
     private: true,
     scripts:
       config.stack.backend === 'nest'
-        ? { dev: 'nest start --watch', build: 'nest build', start: 'nest start' }
-        : { dev: 'ts-node-dev src/index.ts', build: 'tsc' },
+        ? {
+            dev: 'nest start --watch',
+            build: 'nest build',
+            start: 'nest start',
+            ...(config.tools.eslint ? { lint: 'eslint "src/**/*.ts"' } : {}),
+            typecheck: 'tsc --noEmit',
+          }
+        : {
+            dev: 'ts-node-dev src/index.ts',
+            build: 'tsc',
+            ...(config.tools.eslint ? { lint: 'eslint "src/**/*.ts"' } : {}),
+            typecheck: 'tsc --noEmit',
+          },
     dependencies: Object.fromEntries(apiDeps.prod.map(splitPackageSpec)),
     devDependencies: Object.fromEntries(apiDeps.dev.map(splitPackageSpec)),
   };
@@ -190,7 +263,8 @@ export function createFullstackWorkspaceGenerationPlan(
     finalFiles.push({ path: filePath, content });
   }
 
-  // Add structify.config.json & manifest
+  // Metadata is produced from this single normalized context. Keep these paths in the
+  // graph so ownership and validator expectations describe the files we actually emit.
   finalFiles.push({
     path: 'structify.config.json',
     content:
@@ -198,9 +272,11 @@ export function createFullstackWorkspaceGenerationPlan(
         {
           ...config,
           structify: {
-            version: '1.0.0',
+            version: STRUCTIFY_VERSION,
             generatedBy: 'structify',
             manifestPath: 'structify.manifest.json',
+            projectGraphPath: 'structify.project-graph.json',
+            packageManager: config.stack.packageManager,
           },
         },
         null,
@@ -237,18 +313,24 @@ export function createFullstackWorkspaceGenerationPlan(
     content: JSON.stringify(projectGraph, null, 2) + '\n',
   });
 
+  const manifest = createStructifyManifest({
+    config,
+    templatePaths: [...finalFiles.map((file) => file.path), 'structify.project-graph.json'],
+    generatorVersions: Object.fromEntries(
+      adapters.map((adapter) => [adapter.id, STRUCTIFY_VERSION]),
+    ),
+  });
   finalFiles.push({
     path: 'structify.manifest.json',
     content:
       JSON.stringify(
         {
-          preset: config.preset,
-          generatorVersions: { 'gen-fullstack-adapter': '1.3.0' },
+          ...manifest,
           projectGraphPath: 'structify.project-graph.json',
           projectGraphSummary: projectGraph.summary,
           dependencyDiagnostics: [],
           analytics: {
-            fileCount: finalFiles.length,
+            fileCount: finalFiles.length + 1,
             generatorCount: adapters.length,
             dependencyCount: plan.dependencies?.length ?? 0,
           },
@@ -264,7 +346,7 @@ export function createFullstackWorkspaceGenerationPlan(
     files: finalFiles,
     generators: adapters.map((a) => ({
       id: a.id,
-      version: '1.3.0',
+      version: STRUCTIFY_VERSION,
       capabilitiesProvided: [a.kind],
       capabilitiesRequired: [],
       files: [],

@@ -1307,6 +1307,11 @@ export async function promptTemplateSelection(
       label:
         'E-Commerce Platform - Configurable storefront and modular API foundation with catalog, cart, wishlist, orders, checkout, and admin modules',
     },
+    {
+      value: 'project-management-platform',
+      label:
+        'Project Management Platform - Configurable responsive workspace foundation with Kanban, sprint, backlog, calendar, timeline, roles & workspaces',
+    },
   ];
   const choices =
     category === 'backend'
@@ -1495,15 +1500,8 @@ export async function runInitWizardStateController(
               'Agency / Business Website',
               'Blog / Content Website',
             ][selectedTemplateIndex]
-          : catStr === 'backend'
-            ? [
-                'Express REST API',
-                'NestJS REST API',
-                'Fastify API',
-                'Hono API',
-                'Node.js Authentication API',
-              ][selectedTemplateIndex]
-            : 'E-Commerce Platform';
+          : ['E-Commerce Platform', 'Project Management Platform'][selectedTemplateIndex] ||
+            'E-Commerce Platform';
       lines = renderStylingPanel(
         selectedStylingIndex,
         typedProjectName || defaultName,
@@ -1541,7 +1539,8 @@ export async function runInitWizardStateController(
                 'Hono API',
                 'Node.js Authentication API',
               ][selectedTemplateIndex]
-            : 'E-Commerce Platform';
+            : ['E-Commerce Platform', 'Project Management Platform'][selectedTemplateIndex] ||
+              'E-Commerce Platform';
       const templateId =
         catStr === 'frontend'
           ? [
@@ -1555,7 +1554,8 @@ export async function runInitWizardStateController(
             ? ['express-rest-api', 'nestjs-rest-api', 'fastify-api', 'hono-api', 'node-auth-api'][
                 selectedTemplateIndex
               ]
-            : 'ecommerce-platform';
+            : ['ecommerce-platform', 'project-management-platform'][selectedTemplateIndex] ||
+              'ecommerce-platform';
       const stylingLabel =
         catStr === 'frontend'
           ? ['Tailwind CSS', 'Material UI (MUI)', 'None'][selectedStylingIndex]
@@ -1678,78 +1678,43 @@ export async function runInitWizardStateController(
             return;
           }
 
-          if (normalized.changed) {
-            input.off('keypress', onKeypress);
-            try {
-              input.setRawMode?.(wasRaw);
-            } catch (e) {
-              // Intentionally ignored during terminal cleanup.
-            }
-            if (output.isTTY) {
-              output.write('\x1b[?25h');
-            }
-
-            if (renderedLines > 0) {
-              readline.moveCursor(output, 0, -renderedLines);
-              readline.clearScreenDown(output);
-              renderedLines = 0;
-            }
-
-            const accepted = await promptBooleanConfirmation(
-              `Project name "${finalValue}" will be normalized to "${normalized.normalized}". Use this name?`,
-              true,
-            );
-
-            if (!accepted) {
-              try {
-                input.setRawMode?.(true);
-              } catch (e) {
-                // Intentionally ignored during terminal setup.
-              }
-              try {
-                input.resume();
-              } catch (e) {
-                // Intentionally ignored during terminal setup.
-              }
-              input.on('keypress', onKeypress);
-              render();
-              return;
-            }
-
-            if (selectedSetupIndex === 1) {
-              // custom
-              settled = true;
-              try {
-                input.pause();
-              } catch (e) {
-                // Intentionally ignored during terminal cleanup.
-              }
-              resolve({
-                setupType: 'custom',
-                projectName: normalized.normalized,
-              });
-              return;
-            } else {
-              typedProjectName = normalized.normalized;
-              currentStep = 'category';
-              try {
-                input.setRawMode?.(true);
-              } catch (e) {
-                // Intentionally ignored during terminal setup.
-              }
-              try {
-                input.resume();
-              } catch (e) {
-                // Intentionally ignored during terminal setup.
-              }
-              input.on('keypress', onKeypress);
-              render();
-              return;
-            }
-          }
-
           if (selectedSetupIndex === 1) {
             // custom
+            if (normalized.changed) {
+              input.off('keypress', onKeypress);
+              try {
+                input.setRawMode?.(wasRaw);
+              } catch (e) {
+                // Intentionally ignored.
+              }
+              if (output.isTTY) {
+                output.write('\x1b[?25h');
+              }
+              if (renderedLines > 0) {
+                readline.moveCursor(output, 0, -renderedLines);
+                readline.clearScreenDown(output);
+                renderedLines = 0;
+              }
+              const accepted = await promptBooleanConfirmation(
+                `Project name "${finalValue}" will be normalized to "${normalized.normalized}". Use this name?`,
+                true,
+              );
+              if (!accepted) {
+                try {
+                  input.setRawMode?.(true);
+                } catch (e) {
+                  // Intentionally ignored.
+                }
+                try {
+                  input.resume();
+                } catch (e) {
+                  // Intentionally ignored.
+                }
+                input.on('keypress', onKeypress);
+                render();
+                return;
+              }
+            }
             cleanup();
             if (renderedLines > 0) {
               readline.moveCursor(output, 0, -renderedLines);
@@ -1761,6 +1726,42 @@ export async function runInitWizardStateController(
             });
             return;
           } else {
+            // predefined
+            if (normalized.changed) {
+              input.off('keypress', onKeypress);
+              try {
+                input.setRawMode?.(wasRaw);
+              } catch (e) {
+                // Intentionally ignored.
+              }
+              if (output.isTTY) {
+                output.write('\x1b[?25h');
+              }
+              if (renderedLines > 0) {
+                readline.moveCursor(output, 0, -renderedLines);
+                readline.clearScreenDown(output);
+                renderedLines = 0;
+              }
+              const accepted = await promptBooleanConfirmation(
+                `Project name "${finalValue}" will be normalized to "${normalized.normalized}". Use this name?`,
+                true,
+              );
+              if (!accepted) {
+                try {
+                  input.setRawMode?.(true);
+                } catch (e) {
+                  // Intentionally ignored.
+                }
+                try {
+                  input.resume();
+                } catch (e) {
+                  // Intentionally ignored.
+                }
+                input.on('keypress', onKeypress);
+                render();
+                return;
+              }
+            }
             typedProjectName = normalized.normalized;
             currentStep = 'category';
             render();
@@ -1814,7 +1815,7 @@ export async function runInitWizardStateController(
           selectedTemplateIndex = moveSelection(
             selectedTemplateIndex,
             key.name,
-            selectedCategoryIndex === 2 ? 1 : 5,
+            selectedCategoryIndex === 2 ? 2 : 5,
           );
           render();
           return;
@@ -1831,7 +1832,9 @@ export async function runInitWizardStateController(
               setupType: 'predefined',
               projectName: typedProjectName,
               category: 'fullstack',
-              templateId: 'ecommerce-platform',
+              templateId:
+                ['ecommerce-platform', 'project-management-platform'][selectedTemplateIndex] ||
+                'ecommerce-platform',
               styling: 'none',
               confirmed: true,
             });
@@ -1948,7 +1951,8 @@ export async function runInitWizardStateController(
               ? frontendTemplates[selectedTemplateIndex]
               : finalCategory === 'backend'
                 ? backendTemplates[selectedTemplateIndex]
-                : 'ecommerce-platform';
+                : ['ecommerce-platform', 'project-management-platform'][selectedTemplateIndex] ||
+                  'ecommerce-platform';
           const stylingVal: 'tailwind' | 'mui' | 'none' =
             finalCategory === 'frontend'
               ? (['tailwind', 'mui', 'none'] as const)[selectedStylingIndex] || 'none'

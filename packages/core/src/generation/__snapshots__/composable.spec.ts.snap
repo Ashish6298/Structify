@@ -182,8 +182,10 @@ exports[`Phase 8.1 composable generation hardening > snapshots important generat
   {
     "files": [
       ".editorconfig",
+      ".env.example",
       ".eslintrc.json",
       ".prettierrc",
+      "README.md",
       "backend/package.json",
       "backend/src/app.ts",
       "backend/src/config/env.ts",
@@ -211,7 +213,7 @@ exports[`Phase 8.1 composable generation hardening > snapshots important generat
       "api-endpoint": 0,
       "app": 1,
       "component": 0,
-      "config-file": 19,
+      "config-file": 21,
       "database-client": 0,
       "layout": 0,
       "model": 0,
@@ -226,7 +228,9 @@ exports[`Phase 8.1 composable generation hardening > snapshots important generat
     "scripts": [
       "build",
       "dev",
+      "lint",
       "test",
+      "typecheck",
     ],
   },
   {

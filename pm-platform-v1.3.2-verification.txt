@@ -1,0 +1,152 @@
+﻿
+> structify-monorepo@1.0.0 test
+> turbo test
+
+
+   ΓÇó Packages in scope: @structify/core, @structify/logger, structify-mcp-server, structify-tool
+   ΓÇó Running test in 4 packages
+   ΓÇó Remote caching disabled
+
+@structify/logger:build: cache hit, replaying logs 9920111c4d9667a3
+@structify/logger:build: 
+@structify/logger:build: > @structify/logger@1.0.0 build
+@structify/logger:build: > tsup
+@structify/logger:build: 
+@structify/logger:build: [34mCLI[39m Building entry: src/index.ts
+@structify/logger:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@structify/logger:build: [34mCLI[39m tsup v8.5.1
+@structify/logger:build: [34mCLI[39m Using tsup config: D:\Structify\packages\logger\tsup.config.ts
+@structify/logger:build: [34mCLI[39m Target: es2022
+@structify/logger:build: [34mCLI[39m Cleaning output folder
+@structify/logger:build: [34mCJS[39m Build start
+@structify/logger:build: [34mESM[39m Build start
+@structify/logger:build: [32mCJS[39m [1mdist\index.js     [22m[32m1.48 KB[39m
+@structify/logger:build: [32mCJS[39m [1mdist\index.js.map [22m[32m1.20 KB[39m
+@structify/logger:build: [32mCJS[39m ΓÜí∩╕Å Build success in 24ms
+@structify/logger:build: [32mESM[39m [1mdist\index.mjs     [22m[32m503.00 B[39m
+@structify/logger:build: [32mESM[39m [1mdist\index.mjs.map [22m[32m1.16 KB[39m
+@structify/logger:build: [32mESM[39m ΓÜí∩╕Å Build success in 24ms
+@structify/logger:build: [34mDTS[39m Build start
+@structify/logger:build: [32mDTS[39m ΓÜí∩╕Å Build success in 833ms
+@structify/logger:build: [32mDTS[39m [1mdist\index.d.ts  [22m[32m466.00 B[39m
+@structify/logger:build: [32mDTS[39m [1mdist\index.d.mts [22m[32m466.00 B[39m
+@structify/core:build: cache miss, executing 9cc7793608ee5bfa
+@structify/core:test: cache miss, executing 36a22c2e7a28789d
+@structify/core:build: 
+@structify/core:build: > @structify/core@1.0.0 build
+@structify/core:build: > tsup
+@structify/core:build: 
+@structify/core:test: 
+@structify/core:test: > @structify/core@1.0.0 test
+@structify/core:test: > vitest run
+@structify/core:test: 
+@structify/core:build: [34mCLI[39m Building entry: src/index.ts
+@structify/core:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@structify/core:build: [34mCLI[39m tsup v8.5.1
+@structify/core:build: [34mCLI[39m Using tsup config: D:\Structify\packages\core\tsup.config.ts
+@structify/core:build: [34mCLI[39m Target: es2022
+@structify/core:build: [34mCLI[39m Cleaning output folder
+@structify/core:build: [34mCJS[39m Build start
+@structify/core:build: [34mESM[39m Build start
+@structify/core:test: [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+@structify/core:test: 
+@structify/core:test: [7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/Structify/packages/core[39m
+@structify/core:test: 
+@structify/core:build: [32mCJS[39m [1mdist\index.js     [22m[32m626.56 KB[39m
+@structify/core:build: [32mCJS[39m [1mdist\index.js.map [22m[32m1.02 MB[39m
+@structify/core:build: [32mCJS[39m ΓÜí∩╕Å Build success in 178ms
+@structify/core:build: [32mESM[39m [1mdist\index.mjs     [22m[32m609.95 KB[39m
+@structify/core:build: [32mESM[39m [1mdist\index.mjs.map [22m[32m1.02 MB[39m
+@structify/core:build: [32mESM[39m ΓÜí∩╕Å Build success in 180ms
+@structify/core:test:  [32mΓ£ô[39m src/validators/index.spec.ts [2m ([22m[2m16 tests[22m[2m)[22m[90m 12[2mms[22m[39m
+@structify/core:build: [34mDTS[39m Build start
+@structify/core:test:  [32mΓ£ô[39m src/generation/enterprise-platform.spec.ts [2m ([22m[2m9 tests[22m[2m)[22m[90m 67[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/generation/enterprise.spec.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 80[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/generation/fullstack-architecture.spec.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 39[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/templates/predefined/predefined-registry.spec.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 31[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/extensions/index.spec.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 25[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/platform/index.spec.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 59[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/generation/composable.spec.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 97[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/intelligence/index.spec.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 89[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/execution/engine.spec.ts [2m ([22m[2m14 tests[22m[2m)[22m[33m 670[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/architecture/tree.spec.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 161[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/architecture/index.spec.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 109[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/platform/phase9.spec.ts [2m ([22m[2m7 tests[22m[2m)[22m[33m 441[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/platform/health-engine.spec.ts [2m ([22m[2m30 tests[22m[2m)[22m[33m 1372[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/presets/preset-manager.spec.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/platform/project-graph.spec.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 85[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/execution/index.spec.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/intelligence/dependencies.spec.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 32[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/platform/marketplace.spec.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/execution/rollback-final.spec.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 92[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/platform/project-validator.spec.ts [2m ([22m[2m5 tests[22m[2m)[22m[33m 418[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/registry/index.spec.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 13[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/platform/history.spec.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/architecture/explorer.spec.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 35[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/filesystem/safe-ops.spec.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/adapters/index.spec.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+@structify/core:test:  [32mΓ£ô[39m src/templates/engine.spec.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+@structify/core:test: 
+@structify/core:test: [2m Test Files [22m [1m[32m27 passed[39m[22m[90m (27)[39m
+@structify/core:test: [2m      Tests [22m [1m[32m190 passed[39m[22m[90m (190)[39m
+@structify/core:test: [2m   Start at [22m 18:08:55
+@structify/core:test: [2m   Duration [22m 4.72s[2m (transform 3.01s, setup 4ms, collect 8.90s, tests 4.08s, environment 10ms, prepare 8.59s)[22m
+@structify/core:test: 
+@structify/core:build: [32mDTS[39m ΓÜí∩╕Å Build success in 5174ms
+@structify/core:build: [32mDTS[39m [1mdist\index.d.ts  [22m[32m160.98 KB[39m
+@structify/core:build: [32mDTS[39m [1mdist\index.d.mts [22m[32m160.98 KB[39m
+structify-tool:test: cache miss, executing 58408e685c7fea7c
+structify-mcp-server:test: cache miss, executing e1b49bf33c163204
+structify-tool:test: 
+structify-tool:test: > structify-tool@1.3.1 test
+structify-tool:test: > vitest run
+structify-tool:test: 
+structify-mcp-server:test: 
+structify-mcp-server:test: > structify-mcp-server@1.0.0 test
+structify-mcp-server:test: > vitest run
+structify-mcp-server:test: 
+structify-tool:test: [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+structify-mcp-server:test: [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+structify-tool:test: 
+structify-tool:test: [7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/Structify/apps/cli[39m
+structify-tool:test: 
+structify-mcp-server:test: 
+structify-mcp-server:test: [7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/Structify/apps/mcp-server[39m
+structify-mcp-server:test: 
+structify-tool:test:  [32mΓ£ô[39m src/ui.spec.ts [2m ([22m[2m12 tests[22m[2m)[22m[90m 73[2mms[22m[39m
+structify-mcp-server:test:  [32mΓ£ô[39m src/integration.spec.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 12[2mms[22m[39m
+structify-tool:test:  [32mΓ£ô[39m src/predefined.spec.ts [2m ([22m[2m11 tests[22m[2m)[22m[90m 83[2mms[22m[39m
+structify-mcp-server:test:  [32mΓ£ô[39m src/tools.spec.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 71[2mms[22m[39m
+structify-mcp-server:test: 
+structify-mcp-server:test: [2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+structify-mcp-server:test: [2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+structify-mcp-server:test: [2m   Start at [22m 18:09:02
+structify-mcp-server:test: [2m   Duration [22m 1.96s[2m (transform 624ms, setup 1ms, collect 1.42s, tests 83ms, environment 1ms, prepare 970ms)[22m
+structify-mcp-server:test: 
+structify-tool:test:  [32mΓ£ô[39m src/lifecycle.spec.ts [2m ([22m[2m4 tests[22m[2m)[22m[33m 1209[2mms[22m[39m
+structify-tool:test:  [32mΓ£ô[39m src/commands/graph.spec.ts [2m ([22m[2m2 tests[22m[2m)[22m[33m 2697[2mms[22m[39m
+structify-tool:test:  [32mΓ£ô[39m src/commands/deps.spec.ts [2m ([22m[2m2 tests[22m[2m)[22m[33m 2753[2mms[22m[39m
+structify-tool:test: [90mstderr[2m | src/commands/deps.spec.ts[2m > [22m[2mCLI deps command[2m > [22m[2mprints dependency intelligence pointwise summary and recommendations[22m[39m
+structify-tool:test: [31m[FAIL] [BREAKING] [OUTDATED] react[0m
+structify-tool:test: [33m[WARN] [MINOR REVIEW] [UNUSED] react[0m
+structify-tool:test: [31m[FAIL] [MIGRATION REQUIRED] [DEPRECATED] request[0m
+structify-tool:test: [33m[WARN] [MINOR REVIEW] [UNUSED] request[0m
+structify-tool:test: 
+structify-tool:test:  [32mΓ£ô[39m src/custom-ui.spec.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+structify-tool:test:  [32mΓ£ô[39m src/integration.spec.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 5[2mms[22m[39m
+structify-tool:test:  [32mΓ£ô[39m src/commands/history.spec.ts [2m ([22m[2m2 tests[22m[2m)[22m[33m 3135[2mms[22m[39m
+structify-tool:test:  [32mΓ£ô[39m src/phase-8-2-final.spec.ts [2m ([22m[2m3 tests[22m[2m)[22m[33m 5352[2mms[22m[39m
+structify-tool:test:  [32mΓ£ô[39m src/index.spec.ts [2m ([22m[2m38 tests[22m[2m)[22m[33m 6512[2mms[22m[39m
+structify-tool:test:  [32mΓ£ô[39m src/commands/preset.spec.ts [2m ([22m[2m5 tests[22m[2m)[22m[33m 6660[2mms[22m[39m
+structify-tool:test:  [32mΓ£ô[39m src/phase9.spec.ts [2m ([22m[2m3 tests[22m[2m)[22m[33m 8170[2mms[22m[39m
+structify-tool:test: 
+structify-tool:test: [2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+structify-tool:test: [2m      Tests [22m [1m[32m85 passed[39m[22m[90m (85)[39m
+structify-tool:test: [2m   Start at [22m 18:09:02
+structify-tool:test: [2m   Duration [22m 10.12s[2m (transform 2.59s, setup 2ms, collect 6.89s, tests 36.66s, environment 5ms, prepare 4.63s)[22m
+structify-tool:test: 
+
+ Tasks:    5 successful, 5 total
+Cached:    1 cached, 5 total
+  Time:    18.821s 
+

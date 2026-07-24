@@ -94,7 +94,7 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
   it('keeps feature output in the shared workspace without virtual path collisions', () => {
     const plan = createFullstackArchitecturePlan(baseConfig, [], ['products', 'orders']);
     expect(plan.files?.map((file) => file.path)).toEqual([
-      `${DEFAULT_FULLSTACK_WORKSPACE.shared}/src/types/ecommerce.ts`,
+      `${DEFAULT_FULLSTACK_WORKSPACE.shared}/src/types/domain.ts`,
       `${DEFAULT_FULLSTACK_WORKSPACE.backend}/src/infrastructure/database/repository.ts`,
       `${DEFAULT_FULLSTACK_WORKSPACE.backend}/src/application/catalog.service.ts`,
       `${DEFAULT_FULLSTACK_WORKSPACE.backend}/src/application/order.service.ts`,
@@ -168,7 +168,7 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
 
     // Verify workspace separation for template pages and configs
     expect(paths).toContain('frontend/app/page.tsx');
-    expect(paths).toContain('packages/shared/src/types/ecommerce.ts');
+    expect(paths).toContain('packages/shared/src/types/domain.ts');
     expect(paths).toContain('backend/src/application/catalog.service.ts');
     expect(paths).toContain('backend/src/routes/ecommerce.routes.ts');
 
@@ -199,9 +199,80 @@ describe('Fullstack Generator Adapter Architecture & Workspace Composition', () 
   it('detects and rejects duplicate files with differing contents during merge', () => {
     expect(() =>
       mergeFullstackContributions([
-        { files: [{ path: 'frontend/app/page.tsx', content: 'one', source: 'test' }] },
-        { files: [{ path: 'frontend/app/page.tsx', content: 'two', source: 'test' }] },
+        {
+          files: [
+            { path: 'frontend/app/page.tsx', content: 'one', source: 'test', owner: 'feature' },
+          ],
+        },
+        {
+          files: [
+            { path: 'frontend/app/page.tsx', content: 'two', source: 'test', owner: 'feature' },
+          ],
+        },
       ]),
     ).toThrow('Fullstack file conflict');
+  });
+
+  it('runs multiple independent generations correctly without state leak between runs', () => {
+    // Run 1: Predefined E-Commerce project
+    const ecommerceConfig: NormalizedProjectConfig = {
+      ...baseConfig,
+      templateId: 'ecommerce-platform',
+    };
+    const plan1 = createFullstackWorkspaceGenerationPlan(ecommerceConfig);
+    const paths1 = plan1.files.map((f) => f.path);
+    expect(paths1).toContain('frontend/app/page.tsx');
+    expect(paths1).toContain('backend/src/routes/ecommerce.routes.ts');
+
+    // Run 2: Custom Next.js + Express + Tailwind project
+    const customConfig: NormalizedProjectConfig = {
+      ...baseConfig,
+      templateId: undefined,
+    };
+    const plan2 = createFullstackWorkspaceGenerationPlan(customConfig);
+    const paths2 = plan2.files.map((f) => f.path);
+    expect(paths2).toContain('frontend/app/page.tsx');
+    expect(paths2).not.toContain('backend/src/routes/ecommerce.routes.ts');
+    expect(paths2).not.toContain('backend/src/routes/project.routes.ts');
+  });
+
+  it('resolves Next.js fallback page.tsx correctly when project-management-platform is generated', () => {
+    const pmConfig: NormalizedProjectConfig = {
+      ...baseConfig,
+      templateId: 'project-management-platform',
+    };
+    const plan = createFullstackWorkspaceGenerationPlan(pmConfig);
+    const pageFile = plan.files.find((f) => f.path === 'frontend/app/page.tsx');
+    expect(pageFile).toBeDefined();
+    expect(pageFile!.content).toContain('ProjectBoard');
+    expect(pageFile!.content).not.toContain('Welcome to');
+  });
+
+  it('retains fallback page.tsx under fallback-starter ownership when no template is selected', () => {
+    const customConfig: NormalizedProjectConfig = {
+      ...baseConfig,
+      templateId: undefined,
+    };
+    const plan = createFullstackWorkspaceGenerationPlan(customConfig);
+    const pageFile = plan.files.find((f) => f.path === 'frontend/app/page.tsx');
+    expect(pageFile).toBeDefined();
+    expect(pageFile!.content).toContain('Welcome to');
+    expect(pageFile!.content).not.toContain('ProjectBoard');
+    expect(pageFile!.content).not.toContain('Storefront');
+  });
+
+  it('resolves React/Vite equivalents correctly and retains only App.tsx under correct ownership', () => {
+    const customConfig: NormalizedProjectConfig = {
+      ...baseConfig,
+      templateId: undefined,
+      stack: {
+        ...baseConfig.stack,
+        frontend: 'vite-react',
+      },
+    };
+    const plan = createFullstackWorkspaceGenerationPlan(customConfig);
+    const appFile = plan.files.find((f) => f.path === 'frontend/src/App.tsx');
+    expect(appFile).toBeDefined();
+    expect(appFile!.content).toContain('Welcome to');
   });
 });

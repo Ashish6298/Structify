@@ -1,0 +1,21 @@
+{
+  "name": "@validation-ecommerce/backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node-dev src/index.ts",
+    "build": "prisma generate && tsc",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "@prisma/client": "^5.15.0"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0",
+    "@types/express": "^4.17.0",
+    "@types/node": "^20.0.0",
+    "prisma": "^5.15.0"
+  }
+}
